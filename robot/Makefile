@@ -10,7 +10,7 @@ MASTER_BOARD=arduino
 MASTER_UPLOAD_PROTOCOL= wiring # arduino, wiring, avr109
 MASTER_MCU=-mmcu=atmega2560 #atmega328p # atmega328p, 
 MASTER_CPU_SPEED=-DF_CPU=16000000UL
-MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w
+MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
 MASTER_MCU_TAG= m2560
 
@@ -18,7 +18,7 @@ SLAVE_BOARD=arduino
 SLAVE_UPLOAD_PROTOCOL= arduino # arduino, wiring, avr109
 SLAVE_MCU=-mmcu=atmega328p # atmega328p, #atmega2560 
 SLAVE_CPU_SPEED=-DF_CPU=16000000UL
-SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w
+SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_MCU_TAG= m328p
 
@@ -51,7 +51,7 @@ slave_main:
 	$(CC) $(SLAVE_CFLAGS) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
-master_arduino: ARDUINO_CFLAGS=$(MASTER_CFLAGS)
+master_arduino: ARDUINO_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w
 master_arduino: $(ARDUINO_OBJ) 
 	mkdir -p $(TARGET_BUILDDIR)
 	avr-ar rcs $(TARGET_BUILDDIR)/$(MASTER_LIBNAME) $^
@@ -61,8 +61,8 @@ master_arduino: $(ARDUINO_OBJ)
 	cp $(TARGET_BUILDDIR)/$(MASTER_LIBNAME) $(TARGET_LIBDIR)
 	rm $(ARDUINO_SRC)*.o
 
-slave_arduino: ARDUINO_CFLAGS=$(SLAVE_CFLAGS)
-slave_arduino: $(ARDUINO_OBJ)
+slave_arduino: ARDUINO_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -slave_arduino
+w: $(ARDUINO_OBJ)
 	mkdir -p $(TARGET_BUILDDIR)
 	avr-ar rcs $(TARGET_BUILDDIR)/$(SLAVE_LIBNAME) $^
 	mkdir -p $(TARGET_INCDIR)
