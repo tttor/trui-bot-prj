@@ -79,6 +79,7 @@ master_upload:
 slave_upload:
 	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
 
+.PHONY: clean
 clean:
 	# $(shell rm $(TARGET_INCDIR)/*.h 2> /dev/null)
 	rm -rf $(TARGET_INCDIR)
