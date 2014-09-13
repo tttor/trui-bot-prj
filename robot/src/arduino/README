@@ -1,0 +1,14 @@
+===
+copy from 
+https://github.com/arduino/Arduino/tree/master/hardware/arduino/cores/arduino
+on
+Fri Jan 24 19:57:47 WIB 2014
+
+===
+This is because the latest version of ?/hardware/arduino/cores/arduino has ?/hardware/arduino/variants
+
+1) pins_arduiono.h is replaced by pins_arduiono.h from http://www.ashleymills.com/programming/arduino_gcc_tutorial.tar.gz
+2) add pins_arduino.c from http://www.ashleymills.com/programming/arduino_gcc_tutorial.tar.gz
+
+
+
