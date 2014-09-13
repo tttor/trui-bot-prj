@@ -33,11 +33,13 @@ ARDUINO_OBJ=$(ARDUINO_SRC)pins_arduino.o $(ARDUINO_SRC)wiring.o $(ARDUINO_SRC)wi
 			$(ARDUINO_SRC)wiring_pulse.o $(ARDUINO_SRC)wiring_shift.o $(ARDUINO_SRC)HardwareSerial.o  $(ARDUINO_SRC)Print.o   \
 			$(ARDUINO_SRC)Tone.o $(ARDUINO_SRC)WMath.o $(ARDUINO_SRC)WString.o $(ARDUINO_SRC)WInterrupts.o $(ARDUINO_SRC)new.o 
 
+# NOTICE: the library linking order does matter 
+# see: http://stackoverflow.com/questions/11111966/eclipse-arduino-linker-trouble
 MASTER_OBJ= ./main/master.cc 
-MASTER_LIBS= -L $(TARGET_LIBDIR) -larduino-master -lm # _must_ be in this order, see: http://stackoverflow.com/questions/11111966/eclipse-arduino-linker-trouble
+MASTER_LIBS= -L $(TARGET_LIBDIR) -larduino-master -lm
 
 SLAVE_OBJ= ./main/slave.cc 
-SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm # _must_ be in this order, see: http://stackoverflow.com/questions/11111966/eclipse-arduino-linker-trouble
+SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
 
 default: master_main
 
