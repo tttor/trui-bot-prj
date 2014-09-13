@@ -1,10 +1,10 @@
+# @author: lintang, vektor
 # REF: http://www.ashleymills.com/node/327
 # For board-specific setting see: https://github.com/arduino/Arduino/blob/master/hardware/arduino/boards.txt
 CC=avr-gcc
 CXX=avr-g++
 UPLOAD_BAUDRATE= 115200 #57600 
 PORT= /dev/ttyACM0  #/dev/ttyUSB0 
-
 
 MASTER_BOARD=arduino
 MASTER_UPLOAD_PROTOCOL= wiring # arduino, wiring, avr109
@@ -26,12 +26,12 @@ TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib
 TARGET_BUILDDIR=./build
 
-#ARDUINO_CFLAGS= $(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w
+# the word ARDUINO refers to the core arduino library and/or anything related to building it
 ARDUINO_SRC= ./src/arduino/
 ARDUINO_INC=-I $(ARDUINO_SRC)
-ARDUINO_OBJ=  $(ARDUINO_SRC)pins_arduino.o $(ARDUINO_SRC)wiring.o $(ARDUINO_SRC)wiring_analog.o $(ARDUINO_SRC)wiring_digital.o \
-				 $(ARDUINO_SRC)wiring_pulse.o $(ARDUINO_SRC)wiring_shift.o $(ARDUINO_SRC)HardwareSerial.o  $(ARDUINO_SRC)Print.o   \
-		 		 $(ARDUINO_SRC)Tone.o $(ARDUINO_SRC)WMath.o $(ARDUINO_SRC)WString.o $(ARDUINO_SRC)WInterrupts.o $(ARDUINO_SRC)new.o 
+ARDUINO_OBJ=$(ARDUINO_SRC)pins_arduino.o $(ARDUINO_SRC)wiring.o $(ARDUINO_SRC)wiring_analog.o $(ARDUINO_SRC)wiring_digital.o \
+			$(ARDUINO_SRC)wiring_pulse.o $(ARDUINO_SRC)wiring_shift.o $(ARDUINO_SRC)HardwareSerial.o  $(ARDUINO_SRC)Print.o   \
+			$(ARDUINO_SRC)Tone.o $(ARDUINO_SRC)WMath.o $(ARDUINO_SRC)WString.o $(ARDUINO_SRC)WInterrupts.o $(ARDUINO_SRC)new.o 
 
 MASTER_OBJ= ./main/master.cc 
 MASTER_LIBS= -L $(TARGET_LIBDIR) -larduino-master -lm # _must_ be in this order, see: http://stackoverflow.com/questions/11111966/eclipse-arduino-linker-trouble
@@ -51,7 +51,8 @@ slave_main:
 	$(CC) $(SLAVE_CFLAGS) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
-master_arduino: $(ARDUINO_OBJ)
+master_arduino: ARDUINO_CFLAGS=$(MASTER_CFLAGS)
+master_arduino: $(ARDUINO_OBJ) 
 	mkdir -p $(TARGET_BUILDDIR)
 	avr-ar rcs $(TARGET_BUILDDIR)/$(MASTER_LIBNAME) $^
 	mkdir -p $(TARGET_INCDIR)/arduino
@@ -60,7 +61,8 @@ master_arduino: $(ARDUINO_OBJ)
 	cp $(TARGET_BUILDDIR)/$(MASTER_LIBNAME) $(TARGET_LIBDIR)
 	rm $(ARDUINO_SRC)*.o
 
-slave_arduino: 	$(ARDUINO_OBJ)
+slave_arduino: ARDUINO_CFLAGS=$(SLAVE_CFLAGS)
+slave_arduino: $(ARDUINO_OBJ)
 	mkdir -p $(TARGET_BUILDDIR)
 	avr-ar rcs $(TARGET_BUILDDIR)/$(SLAVE_LIBNAME) $^
 	mkdir -p $(TARGET_INCDIR)
@@ -81,10 +83,7 @@ clean:
 	rm -rf $(TARGET_BUILDDIR)
 
 %.o : %.c
-	  $(CC) $< $(MASTER_CFLAGS) $(ARDUINO_INC) -c -o $@
-	  $(CC) $< $(SLAVE_CFLAGS) $(ARDUINO_INC) -c -o $@
+	$(CC) $< $(ARDUINO_CFLAGS) $(ARDUINO_INC) -c -o $@
     
 %.o : %.cpp
-	$(CXX) $< $(MASTER_CFLAGS) $(ARDUINO_INC) -c -o $@
-	$(CXX) $< $(SLAVE_CFLAGS) $(ARDUINO_INC) -c -o $@
-    
+	$(CXX) $< $(ARDUINO_CFLAGS) $(ARDUINO_INC) -c -o $@
