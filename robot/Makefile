@@ -78,11 +78,10 @@ slave_upload:
 	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
 
 clean:
-	$(shell rm $(TARGET_INCDIR)/*.h 2> /dev/null)
+	# $(shell rm $(TARGET_INCDIR)/*.h 2> /dev/null)
+	rm -rf $(TARGET_INCDIR)
+	rm -rf $(TARGET_LIBDIR)
 	rm -rf $(TARGET_BUILDDIR)
-
-clean_lib:
-	rm -rf TARGET_LIBDIR
 
 %.o : %.c
 	$(CC) $< $(ARDUINO_CFLAGS) $(ARDUINO_INC) -c -o $@
