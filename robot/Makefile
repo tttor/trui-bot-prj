@@ -61,8 +61,8 @@ master_arduino: $(ARDUINO_OBJ)
 	cp $(TARGET_BUILDDIR)/$(MASTER_LIBNAME) $(TARGET_LIBDIR)
 	rm $(ARDUINO_SRC)*.o
 
-slave_arduino: ARDUINO_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -slave_arduino
-w: $(ARDUINO_OBJ)
+slave_arduino: ARDUINO_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w
+slave_arduino: $(ARDUINO_OBJ)
 	mkdir -p $(TARGET_BUILDDIR)
 	avr-ar rcs $(TARGET_BUILDDIR)/$(SLAVE_LIBNAME) $^
 	mkdir -p $(TARGET_INCDIR)
@@ -78,9 +78,11 @@ slave_upload:
 	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
 
 clean:
-	$(shell rm $(TARGET_LIBDIR)/$(MASTER_LIBNAME) 2> /dev/null)
 	$(shell rm $(TARGET_INCDIR)/*.h 2> /dev/null)
 	rm -rf $(TARGET_BUILDDIR)
+
+clean_lib:
+	rm -rf TARGET_LIBDIR
 
 %.o : %.c
 	$(CC) $< $(ARDUINO_CFLAGS) $(ARDUINO_INC) -c -o $@
