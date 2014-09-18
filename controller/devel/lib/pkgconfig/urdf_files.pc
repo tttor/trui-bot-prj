@@ -1,0 +1,8 @@
+prefix=/home/lintang-sutawika/KRAI/trui-bot-prj/controller/devel
+
+Name: urdf_files
+Description: Description of urdf_files
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/lintang-sutawika/KRAI/trui-bot-prj/controller/devel/lib 
+Requires: 
