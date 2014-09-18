@@ -48,7 +48,9 @@ default: master_main
 master_main: 
 	mkdir -p $(TARGET_BUILDDIR)
 	mkdir -p $(TARGET_INCDIR)/comm
+	mkdir -p $(TARGET_INCDIR)/sensor
 	cp ./src/comm/*.hpp $(TARGET_INCDIR)/comm
+	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
 	$(CC) $(MASTER_CFLAGS) -I $(TARGET_INCDIR) -I $(MASTER_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) $(MASTER_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
