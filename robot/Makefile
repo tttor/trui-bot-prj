@@ -35,17 +35,21 @@ ARDUINO_OBJ=$(ARDUINO_SRC)pins_arduino.o $(ARDUINO_SRC)wiring.o $(ARDUINO_SRC)wi
 
 # NOTICE: the library linking order does matter 
 # see: http://stackoverflow.com/questions/11111966/eclipse-arduino-linker-trouble
-MASTER_OBJ= ./main/master.cc 
+MASTER_OBJ= ./main/master.cc ./src/comm/arduino_mavlink_packet_handler.cpp 
 MASTER_LIBS= -L $(TARGET_LIBDIR) -larduino-master -lm
+MASTER_INCDIR= ../common/mavlink/include
 
 SLAVE_OBJ= ./main/slave.cc 
 SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
+
 
 default: master_main
 
 master_main: 
 	mkdir -p $(TARGET_BUILDDIR)
-	$(CC) $(MASTER_CFLAGS) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) $(MASTER_LIBS)
+	mkdir -p $(TARGET_INCDIR)/comm
+	cp ./src/comm/*.hpp $(TARGET_INCDIR)/comm
+	$(CC) $(MASTER_CFLAGS) -I $(TARGET_INCDIR) -I $(MASTER_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) $(MASTER_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
 slave_main:
