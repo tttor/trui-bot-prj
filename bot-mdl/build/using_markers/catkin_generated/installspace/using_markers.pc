@@ -1,0 +1,8 @@
+prefix=/home/lintang-sutawika/KRAI/trui-bot-prj/bot-mdl/install
+
+Name: using_markers
+Description: Description of using_markers
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/lintang-sutawika/KRAI/trui-bot-prj/bot-mdl/install/lib 
+Requires: 
