@@ -1,6 +1,6 @@
 #include "arduino_mavlink_packet_handler.hpp"
 
-using namespace crim;
+using namespace trui;
 
 ArduinoMavlinkPacketHandler::ArduinoMavlinkPacketHandler(mavlink_system_t mavlink_system, String port, uint32_t baud_rate)
     : mavlink_system_(mavlink_system), port_(port), baud_rate_(baud_rate), msg_(new mavlink_message_t()) {

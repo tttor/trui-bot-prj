@@ -2,10 +2,10 @@
 #ifndef ARDUINO_MAVLINK_PACKET_HANDLER
 #define ARDUINO_MAVLINK_PACKET_HANDLER
 
-#include <arduino-core/Arduino.h>
+#include <arduino/Arduino.h>
 #include <mavlink/v1.0/common/mavlink.h>
 
-namespace crim {
+namespace trui {
 
 class ArduinoMavlinkPacketHandler {
  public:
@@ -86,6 +86,6 @@ class ArduinoMavlinkPacketHandler {
   void wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_message_t* msg);
 };
 
-}// namespace crim
+}// namespace trui
 
 #endif
