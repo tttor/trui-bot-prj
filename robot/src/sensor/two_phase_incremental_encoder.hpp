@@ -1,9 +1,9 @@
 #ifndef TWO_PHASE_INCREMENTAL_ENCODER_H
 #define TWO_PHASE_INCREMENTAL_ENCODER_H
 
-#include <arduino-core/Arduino.h>
-#include <arduino-core/wiring_private.h>// for voidFuncPtr
-#include <macro/macro.h>
+#include <arduino/Arduino.h>
+#include <arduino/wiring_private.h>// for voidFuncPtr
+//#include <macro/macro.h>
 
 namespace crim {
 
