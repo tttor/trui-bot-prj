@@ -30,7 +30,7 @@ class Motor {
     Motor() {
       const int encoder_out_a_pin = 2;
       const int encoder_out_b_pin = 3;
-      const int encoder_resolution = 360;
+      const int encoder_resolution = 360; //Only needed for Initialization, not used unless .rot() is called
       encoder_ = new crim::TwoPhaseIncrementalEncoder(encoder_out_a_pin, encoder_out_b_pin, encoder_resolution);
     }
     ~Motor() {
@@ -50,18 +50,24 @@ class Motor {
       omega_input = rpm_motor; //setpoint
       //tickEnc = tick;
       tickEnc = encoder_->pos();
-      omega = (tickEnc - last_tickEnc)*24/5; // in RPM *10/3; // deltaCount/10e-3 = deltaCount*100
-      error = omega_input - omega;        
-      
+      omega = (tickEnc - last_tickEnc)*24/5; // Tetha = ((tickEnc - last_tickEnc)/250) * 2 * PI rad
+                                             // omega = Tetha / Delta_Time -- Delta_Time = 50ms
+                                             // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/250) * 2 * PI * 1000/50 rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 4/25 * PI rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 4/25 * PI * (1/(2PI)) rotation/rad rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 rotation/s
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 rotation/(1/60) minute
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 * 60 rotation/minute
+                                             // omega = (tickEnc - last_tickEnc) * 24/5 RPM
       //Serial.println(omega);
-
-      iTerm = iTerm + (float)error*Ki; 
+      error = omega_input - omega;
+      iTerm = iTerm + (float)error*Ki;       //Integral Term of PID Control 
       
       if(iTerm > OUTMAX) iTerm = OUTMAX;
       else if(iTerm < OUTMIN) iTerm = OUTMIN;
       //i = i + error;    
                     
-      derivComp = (tickEnc - 2*last_tickEnc + last2_tickEnc)*24/5;
+      derivComp = (tickEnc - 2*last_tickEnc + last2_tickEnc)*24/5; //Wonder why the derivative differentiates encoders instead of error
                     
       MV =  (float)error*Kp + iTerm - derivComp*Kd;
       
