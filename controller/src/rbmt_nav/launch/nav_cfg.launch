@@ -1,0 +1,12 @@
+<launch>
+  <!-- Bring up any sensors that the robot uses for navigation -->
+  <!-- TODO @tttor: for example, data from the robot tracking system-->
+
+  <!-- Bring up the odometry for the base -->
+  <node pkg="rbmt_odom" type="rbmt_odom_node" name="odom_node" output="screen">
+    <!-- param name="odom_param" value="param_value" / -->
+  </node>
+
+  <!-- Bring up the tranform configuration of the robot -->
+  <!-- TODO @tttor: may utilize robot-state-publisher pkg -->  
+</launch>
