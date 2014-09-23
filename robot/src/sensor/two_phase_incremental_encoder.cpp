@@ -29,7 +29,7 @@ int64_t TwoPhaseIncrementalEncoder::pos() {
 }
 
 double TwoPhaseIncrementalEncoder::rot() {
-  return (double)phase_a_counter_/resolution_*2*crim::kPhi;
+  return (double)phase_a_counter_/resolution_*2*3.14;
 }
 
 void TwoPhaseIncrementalEncoder::ext_int0_handler() {

@@ -39,7 +39,7 @@ MASTER_OBJ= ./main/master.cc ./src/comm/arduino_mavlink_packet_handler.cpp
 MASTER_LIBS= -L $(TARGET_LIBDIR) -larduino-master -lm
 MASTER_INCDIR= ../common/mavlink/include
 
-SLAVE_OBJ= ./main/slave.cc 
+SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp
 SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
 
 
@@ -56,6 +56,8 @@ master_main:
 
 slave_main:
 	mkdir -p $(TARGET_BUILDDIR)
+	mkdir -p $(TARGET_INCDIR)/sensor
+	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
 	$(CC) $(SLAVE_CFLAGS) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
@@ -73,9 +75,9 @@ slave_arduino: ARDUINO_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w
 slave_arduino: $(ARDUINO_OBJ)
 	mkdir -p $(TARGET_BUILDDIR)
 	avr-ar rcs $(TARGET_BUILDDIR)/$(SLAVE_LIBNAME) $^
-	mkdir -p $(TARGET_INCDIR)
+	mkdir -p $(TARGET_INCDIR)/arduino
 	mkdir -p $(TARGET_LIBDIR)
-	cp $(ARDUINO_SRC)*.h $(TARGET_INCDIR)
+	cp $(ARDUINO_SRC)*.h $(TARGET_INCDIR)/arduino
 	cp $(TARGET_BUILDDIR)/$(SLAVE_LIBNAME) $(TARGET_LIBDIR)
 	rm $(ARDUINO_SRC)*.o
 	
