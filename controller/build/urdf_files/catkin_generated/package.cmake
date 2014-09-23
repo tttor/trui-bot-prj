@@ -1,7 +1,0 @@
-set(_CATKIN_CURRENT_PACKAGE "urdf_files")
-set(urdf_files_MAINTAINER "lintang-sutawika <lintang-sutawika@todo.todo>")
-set(urdf_files_DEPRECATED "")
-set(urdf_files_VERSION "0.0.0")
-set(urdf_files_BUILD_DEPENDS "urdf")
-set(urdf_files_RUN_DEPENDS "urdf")
-set(urdf_files_BUILDTOOL_DEPENDS "catkin")
