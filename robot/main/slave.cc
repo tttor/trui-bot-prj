@@ -48,13 +48,10 @@ class Motor {
 
     void set_rpm(int rpm_motor) {
       omega_input = rpm_motor; //setpoint
-      //tickEnc = tick;
       tickEnc = encoder_->pos();
-      omega = (tickEnc - last_tickEnc)*24/5; // in RPM *10/3; // deltaCount/10e-3 = deltaCount*100
+      omega = (tickEnc - last_tickEnc)*24/5; //250 tick/rot
       error = omega_input - omega;        
       
-      //Serial.println(omega);
-
       iTerm = iTerm + (float)error*Ki; 
       
       if(iTerm > OUTMAX) iTerm = OUTMAX;
@@ -74,13 +71,10 @@ class Motor {
       last2_tickEnc = last_tickEnc; 
       last_tickEnc = tickEnc;
 
-      //printf("RPM yang dikirim: %d\n", rpm_motor);
-      //printf("Nilai MV: %d\n", MV);
-      
+      //Serial.println(omega);
       //Serial.println(tickEnc);
       //Serial.println(rpm_motor);
       Serial.println(MV);
-
     }
 
     void motorPWM_percentage(signed int pwm)
