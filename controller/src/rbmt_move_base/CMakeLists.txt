@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rbmt_nav)
+project(rbmt_move_base)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -7,14 +7,14 @@ project(rbmt_nav)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  actionlib 
-  move_base_msgs 
-  tf
+  actionlib
+  cmake_modules
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(Eigen REQUIRED)
+add_definitions(${EIGEN_DEFINITIONS})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -83,8 +83,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES rbmt_nav
-#  CATKIN_DEPENDS roscpp rospy
+#  LIBRARIES rbmt_move_base
+  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
 )
 
@@ -96,29 +96,34 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-# add_library(rbmt_nav
-#   src/${PROJECT_NAME}/rbmt_nav.cpp
-# )
+add_library(rbmt_move_base
+  src/move_base.cpp
+)
+target_link_libraries(rbmt_move_base
+    ${Boost_LIBRARIES}
+    ${catkin_LIBRARIES}
+)
+#add_dependencies(move_base move_base_gencfg)
+add_dependencies(rbmt_move_base geometry_msgs_gencpp)
 
 ## Declare a cpp executable
-add_executable(rbmt_nav_node src/rbmt_nav_node.cpp)
+add_executable(rbmt_move_base_node 
+	src/move_base_node.cpp
+  src/move_base.cpp
+)
+target_link_libraries(rbmt_move_base_node 
+  rbmt_move_base
+)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(rbmt_nav_node rbmt_nav_generate_messages_cpp)
-# This ensures that all msg headers are built before your executable
-if(catkin_EXPORTED_TARGETS)
-  add_dependencies(rbmt_nav_node ${catkin_EXPORTED_TARGETS})
-endif()
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(rbmt_nav_node
-  ${catkin_LIBRARIES}
-)
+# add_dependencies(rbmt_move_base_node rbmt_move_base_generate_messages_cpp)
 
 #############
 ## Install ##
@@ -135,11 +140,13 @@ target_link_libraries(rbmt_nav_node
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS rbmt_nav rbmt_nav_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+#install(TARGETS 
+#  rbmt_move_base 
+#  rbmt_move_base_node
+#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
@@ -160,7 +167,7 @@ target_link_libraries(rbmt_nav_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rbmt_nav.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rbmt_move_base.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

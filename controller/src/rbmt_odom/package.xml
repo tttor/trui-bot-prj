@@ -2,7 +2,11 @@
 <package>
   <name>rbmt_odom</name>
   <version>0.0.0</version>
-  <description>The rbmt_odom package</description>
+  <description>
+    The rbmt_odom package.
+    This package publishes odometry information, i.e. the nav_msgs/Odometry and a transform from /odom to /base_link, _for_ the navigation stack.
+    
+  </description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
