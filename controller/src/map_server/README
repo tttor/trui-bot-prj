@@ -1,0 +1,2 @@
+Shamelessly copied from https://github.com/ros-planning/navigation (branch: hydro-devel), although we have install this package manually using $sudo apt-get install ros-indigo-map-server. 
+We encounter this problem in indigo: http://answers.ros.org/question/60344/map_server/

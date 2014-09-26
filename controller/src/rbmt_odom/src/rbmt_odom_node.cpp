@@ -16,7 +16,7 @@ int main(int argc, char** argv){
   double y = 0.0;
   double th = 0.0;
 
-  // For a real odometry this should be based on robot's encoder data
+  // For a real odometry this should be based on robot's encoder data, i.e. the _actual_ velocity
   double vx = 0.1;
   double vy = -0.1;
   double vth = 0.1;
@@ -25,7 +25,7 @@ int main(int argc, char** argv){
   current_time = ros::Time::now();
   last_time = ros::Time::now();
 
-  ros::Rate r(1.0);
+  ros::Rate r(10.0);
   while(n.ok()){
     current_time = ros::Time::now();
 
@@ -66,10 +66,12 @@ int main(int argc, char** argv){
     odom.pose.pose.position.y = y;
     odom.pose.pose.position.z = 0.0;
     odom.pose.pose.orientation = odom_quat;
+    // may encode the covariance of the estimated pose
 
     odom.twist.twist.linear.x = vx;
     odom.twist.twist.linear.y = vy;
     odom.twist.twist.angular.z = vth;
+    // may encode the covariance of the estimated velocity
 
     odom_pub.publish(odom);
 

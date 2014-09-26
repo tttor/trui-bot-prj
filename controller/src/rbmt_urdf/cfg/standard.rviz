@@ -6,11 +6,11 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Grid1
         - /TF1
-        - /TF1/Frames1
-        - /TF1/Frames1/base_link1
-        - /TF1/Tree1/base_link1
-      Splitter Ratio: 0.833992
+        - /TF1/Tree1
+        - /Map1
+      Splitter Ratio: 0.447368
     Tree Height: 463
   - Class: rviz/Selection
     Name: Selection
@@ -37,7 +37,7 @@ Visualization Manager:
     - Alpha: 0.5
       Cell Size: 1
       Class: rviz/Grid
-      Color: 160; 160; 164
+      Color: 154; 154; 154
       Enabled: true
       Line Style:
         Line Width: 0.03
@@ -45,11 +45,11 @@ Visualization Manager:
       Name: Grid
       Normal Cell Count: 0
       Offset:
-        X: 0
-        Y: 0
+        X: 4
+        Y: 8
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 20
       Reference Frame: <Fixed Frame>
       Value: true
     - Alpha: 1
@@ -102,8 +102,10 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         base_link:
+          Value: true
+        map:
           Value: true
         odom:
           Value: true
@@ -117,31 +119,42 @@ Visualization Manager:
           Value: true
         racket:
           Value: true
+        world:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          omni-wheel0:
-            {}
-          omni-wheel1:
-            {}
-          omni-wheel2:
-            {}
-          omni-wheel3:
-            {}
-          racket:
-            {}
-        odom:
-          {}
+        world:
+          map:
+            odom:
+              base_link:
+                omni-wheel0:
+                  {}
+                omni-wheel1:
+                  {}
+                omni-wheel2:
+                  {}
+                omni-wheel3:
+                  {}
+                racket:
+                  {}
       Update Interval: 0
+      Value: true
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /map
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: odom
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -162,22 +175,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.12416
+      Distance: 17.7905
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.745136
-        Y: 0.0989252
-        Z: 0.0278337
+        X: 2.95056
+        Y: 6.25325
+        Z: 0.0168937
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.164797
+      Pitch: 0.474795
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.168554
+      Yaw: 4.6768
     Saved: ~
 Window Geometry:
   Displays:
