@@ -7,5 +7,6 @@ Tips:
 1) modify your .bashrc to include this line:
 source /home/tor/robotics/prj/013/ws/trui-bot-prj/controller/devel/setup.bash
 2) ask the Mechanical Team for the mesh files to put under <...>/controller/src/rbmt_urdf/mesh/
-3) install ros-navigation stack:
+3) install some stacks:
 $ sudo apt-get install ros-indigo-navigation
+$ sudo apt-get install ros-indigo-mavlink
