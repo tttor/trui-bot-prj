@@ -9,6 +9,9 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   actionlib
   cmake_modules
+  geometry_msgs
+  std_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -104,6 +107,8 @@ include_directories(
 ## Declare a cpp library
 add_library(rbmt_move_base
   src/move_base.cpp
+  src/global_planner.cpp
+  src/local_planner.cpp
 )
 target_link_libraries(rbmt_move_base
     ${Boost_LIBRARIES}
@@ -115,7 +120,6 @@ add_dependencies(rbmt_move_base geometry_msgs_gencpp)
 ## Declare a cpp executable
 add_executable(rbmt_move_base_node 
 	src/move_base_node.cpp
-  src/move_base.cpp
 )
 target_link_libraries(rbmt_move_base_node 
   rbmt_move_base
