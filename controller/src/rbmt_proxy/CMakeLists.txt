@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rbmt_base_ctrl)
+project(rbmt_proxy)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -7,6 +7,8 @@ project(rbmt_base_ctrl)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -50,11 +52,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  SendWheelSpeed.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -64,10 +65,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -80,8 +81,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES rbmt_base_ctrl
-#  CATKIN_DEPENDS roscpp rospy
+#  LIBRARIES rbmt_proxy
+#  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -93,33 +94,25 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-add_library(rbmt_base_ctrl
-  src/rbmt_base_ctrl.cpp
-  src/rbmt_base_kinematics.cpp
-)
+# add_library(rbmt_proxy
+#   src/${PROJECT_NAME}/rbmt_proxy.cpp
+# )
 
 ## Declare a cpp executable
-add_executable(rbmt_base_ctrl_node 
-  src/rbmt_base_ctrl_node.cpp
-)
+# add_executable(rbmt_proxy_node src/rbmt_proxy_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(rbmt_base_ctrl_node rbmt_base_ctrl_generate_messages_cpp)
-if(catkin_EXPORTED_TARGETS)
-  add_dependencies(rbmt_base_ctrl ${catkin_EXPORTED_TARGETS})
-endif()
+# add_dependencies(rbmt_proxy_node rbmt_proxy_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(rbmt_base_ctrl_node
-  rbmt_base_ctrl
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(rbmt_proxy_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -136,7 +129,7 @@ target_link_libraries(rbmt_base_ctrl_node
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS rbmt_base_ctrl rbmt_base_ctrl_node
+# install(TARGETS rbmt_proxy rbmt_proxy_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -161,7 +154,7 @@ target_link_libraries(rbmt_base_ctrl_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rbmt_base_ctrl.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rbmt_proxy.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
