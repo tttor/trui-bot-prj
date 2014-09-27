@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rbmt_move_base)
+project(rbmt_proxy)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -7,17 +7,13 @@ project(rbmt_move_base)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  actionlib
-  cmake_modules
-  geometry_msgs
   std_msgs
-  tf
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(Eigen REQUIRED)
-add_definitions(${EIGEN_DEFINITIONS})
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -56,11 +52,10 @@ add_definitions(${EIGEN_DEFINITIONS})
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  SendWheelSpeed.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -70,10 +65,10 @@ add_definitions(${EIGEN_DEFINITIONS})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -86,8 +81,8 @@ add_definitions(${EIGEN_DEFINITIONS})
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES rbmt_move_base
-  CATKIN_DEPENDS roscpp rospy
+#  LIBRARIES rbmt_proxy
+#  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -99,35 +94,25 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  include
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-add_library(rbmt_move_base
-  src/move_base.cpp
-  src/global_planner.cpp
-  src/local_planner.cpp
-)
-target_link_libraries(rbmt_move_base
-    ${Boost_LIBRARIES}
-    ${catkin_LIBRARIES}
-)
-#add_dependencies(move_base move_base_gencfg)
-add_dependencies(rbmt_move_base geometry_msgs_gencpp)
+# add_library(rbmt_proxy
+#   src/${PROJECT_NAME}/rbmt_proxy.cpp
+# )
 
 ## Declare a cpp executable
-add_executable(rbmt_move_base_node 
-	src/move_base_node.cpp
-)
-target_link_libraries(rbmt_move_base_node 
-  rbmt_move_base
-)
+# add_executable(rbmt_proxy_node src/rbmt_proxy_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(rbmt_move_base_node rbmt_move_base_generate_messages_cpp)
+# add_dependencies(rbmt_proxy_node rbmt_proxy_generate_messages_cpp)
+
+## Specify libraries to link a library or executable target against
+# target_link_libraries(rbmt_proxy_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -144,13 +129,11 @@ target_link_libraries(rbmt_move_base_node
 # )
 
 ## Mark executables and/or libraries for installation
-#install(TARGETS 
-#  rbmt_move_base 
-#  rbmt_move_base_node
-#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+# install(TARGETS rbmt_proxy rbmt_proxy_node
+#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
@@ -171,7 +154,7 @@ target_link_libraries(rbmt_move_base_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rbmt_move_base.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rbmt_proxy.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

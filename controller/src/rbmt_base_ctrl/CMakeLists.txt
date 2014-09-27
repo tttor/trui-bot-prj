@@ -93,25 +93,33 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-# add_library(rbmt_base_ctrl
-#   src/${PROJECT_NAME}/rbmt_base_ctrl.cpp
-# )
+add_library(rbmt_base_ctrl
+  src/rbmt_base_ctrl.cpp
+  src/rbmt_base_kinematics.cpp
+)
 
 ## Declare a cpp executable
-# add_executable(rbmt_base_ctrl_node src/rbmt_base_ctrl_node.cpp)
+add_executable(rbmt_base_ctrl_node 
+  src/rbmt_base_ctrl_node.cpp
+)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(rbmt_base_ctrl_node rbmt_base_ctrl_generate_messages_cpp)
+if(catkin_EXPORTED_TARGETS)
+  add_dependencies(rbmt_base_ctrl ${catkin_EXPORTED_TARGETS})
+endif()
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(rbmt_base_ctrl_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(rbmt_base_ctrl_node
+  rbmt_base_ctrl
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
