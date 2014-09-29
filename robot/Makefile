@@ -3,9 +3,10 @@
 # For board-specific setting see: https://github.com/arduino/Arduino/blob/master/hardware/arduino/boards.txt
 CC=avr-gcc
 CXX=avr-g++
-UPLOAD_BAUDRATE= 115200 #57600 
 PORT= /dev/ttyACM0  #/dev/ttyUSB0 
 
+
+MASTER_UPLOAD_BAUDRATE= 115200 #57600 
 MASTER_BOARD=arduino
 MASTER_UPLOAD_PROTOCOL= wiring # arduino, wiring, avr109
 MASTER_MCU=-mmcu=atmega2560 #atmega328p # atmega328p, 
@@ -14,6 +15,8 @@ MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunct
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
 MASTER_MCU_TAG= m2560
 
+
+SLAVE_UPLOAD_BAUDRATE= 57600 #115200 #
 SLAVE_BOARD=arduino
 SLAVE_UPLOAD_PROTOCOL= arduino # arduino, wiring, avr109
 SLAVE_MCU=-mmcu=atmega328p # atmega328p, #atmega2560 
@@ -39,7 +42,7 @@ MASTER_OBJ= ./main/master.cc ./src/comm/arduino_mavlink_packet_handler.cpp
 MASTER_LIBS= -L $(TARGET_LIBDIR) -larduino-master -lm
 MASTER_INCDIR= ../common/mavlink/include
 
-SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp
+SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp ./src/comm/arduino_mavlink_packet_handler.cpp 
 SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
 
 
@@ -51,14 +54,16 @@ master_main:
 	mkdir -p $(TARGET_INCDIR)/sensor
 	cp ./src/comm/*.hpp $(TARGET_INCDIR)/comm
 	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
-	$(CC) $(MASTER_CFLAGS) -I $(TARGET_INCDIR) -I $(MASTER_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) $(MASTER_LIBS)
+	$(CC) -Dcpp_variable=MASTER $(MASTER_CFLAGS) -I $(TARGET_INCDIR) -I $(MASTER_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) $(MASTER_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
 slave_main:
 	mkdir -p $(TARGET_BUILDDIR)
+	mkdir -p $(TARGET_INCDIR)/comm
 	mkdir -p $(TARGET_INCDIR)/sensor
+	cp ./src/comm/*.hpp $(TARGET_INCDIR)/comm
 	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
-	$(CC) $(SLAVE_CFLAGS) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
+	$(CC) -Dcpp_variable=SLAVE $(SLAVE_CFLAGS) -I $(TARGET_INCDIR) -I $(MASTER_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
 master_arduino: ARDUINO_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w
@@ -83,11 +88,11 @@ slave_arduino: $(ARDUINO_OBJ)
 	
 .PHONY: master_upload
 master_upload:
-	avrdude -V -F -D -p $(MASTER_MCU_TAG) -c $(MASTER_UPLOAD_PROTOCOL) -b $(UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
+	avrdude -V -F -D -p $(MASTER_MCU_TAG) -c $(MASTER_UPLOAD_PROTOCOL) -b $(MASTER_UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
 
 .PHONY: slave_upload
 slave_upload:
-	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
+	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(SLAVE_UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
 
 .PHONY: clean
 clean:

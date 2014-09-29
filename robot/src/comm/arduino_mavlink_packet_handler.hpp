@@ -5,7 +5,7 @@
 #include <arduino/Arduino.h>
 #include <mavlink/v1.0/common/mavlink.h>
 
-namespace trui {
+namespace crim {
 
 class ArduinoMavlinkPacketHandler {
  public:
@@ -86,6 +86,6 @@ class ArduinoMavlinkPacketHandler {
   void wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_message_t* msg);
 };
 
-}// namespace trui
+}// namespace crim
 
 #endif

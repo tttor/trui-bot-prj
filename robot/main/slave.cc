@@ -1,5 +1,6 @@
 #include <arduino/Arduino.h>
 #include <sensor/two_phase_incremental_encoder.hpp>
+#include <comm/arduino_mavlink_packet_handler.hpp>
 
 #define motorPin  11
 #define motorCS   12
@@ -19,7 +20,7 @@ float Kp = 0.316, Ki = 0.0528, Kd = 0;
 void setup() {
   pinMode(motorCS, OUTPUT);
   pinMode(motorPin, OUTPUT);
-  Serial.begin(115200);
+  //Serial.begin(115200);
 }
 
 class Motor {
@@ -85,7 +86,7 @@ class Motor {
       
       //Serial.println(tickEnc);
       //Serial.println(rpm_motor);
-      Serial.println(MV);
+      //Serial.println(MV);
 
     }
 
@@ -117,6 +118,12 @@ int main() {
   setup();
   Motor motor;
 
+  mavlink_system_t mavlink_system;
+  mavlink_system.sysid = MAV_TYPE_TEST_BENCH;
+  mavlink_system.compid = MAV_COMP_ID_SLAVE1;
+  
+  crim::ArduinoMavlinkPacketHandler packet_handler(mavlink_system, "Serial", 9600);
+
   float x;// a speed order from master
   long timeNow = 0, timeOld = 0;
 
@@ -126,7 +133,15 @@ int main() {
     timeNow = millis();
     if(timeNow - timeOld > 50){
       timeOld = timeNow;
-      motor.set_rpm(100);
+      uint8_t sysid = MAV_TYPE_TEST_BENCH;   ///< ID of message sender system/aircraft
+      uint8_t compid = MAV_COMP_ID_MASTER;  ///< ID of the message sender component
+      uint8_t msgid = MAVLINK_MSG_ID_ATTITUDE;   ///< ID of message in payload
+      mavlink_attitude_t att_msg;
+    
+      packet_handler.wait(sysid, compid, msgid, &att_msg);
+
+      x = att_msg.roll;
+      motor.set_rpm(x);
     }  
   }
   

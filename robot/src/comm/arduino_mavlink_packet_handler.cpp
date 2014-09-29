@@ -1,27 +1,40 @@
 #include "arduino_mavlink_packet_handler.hpp"
 
-using namespace trui;
+using namespace crim;
 
 ArduinoMavlinkPacketHandler::ArduinoMavlinkPacketHandler(mavlink_system_t mavlink_system, String port, uint32_t baud_rate)
     : mavlink_system_(mavlink_system), port_(port), baud_rate_(baud_rate), msg_(new mavlink_message_t()) {
-  if( port == "Serial1") {
-    Serial1.begin(baud_rate_);
-  } else if( port == "Serial2") {
-    Serial2.begin(baud_rate_);
-  } else if( port == "Serial3") {
-    Serial3.begin(baud_rate_);
-  }
+
+  #ifdef MASTER
+    if( port == "Serial1") {
+      Serial1.begin(baud_rate_);
+    } else if( port == "Serial2") {
+      Serial2.begin(baud_rate_);
+    } else if( port == "Serial3") {
+      Serial3.begin(baud_rate_);
+    }
+  #endif
+
+  #ifdef SLAVE
+    Serial.begin(baud_rate_);
+  #endif
 }
 
 ArduinoMavlinkPacketHandler::~ArduinoMavlinkPacketHandler() {
-  if (port_ == "Serial")
+  #ifdef MASTER
+    if (port_ == "Serial")
+      Serial.end();
+    else if (port_ == "Serial1") 
+      Serial1.end();
+    else if (port_ == "Serial2")
+      Serial2.end();
+    else if (port_ == "Serial3")
+      Serial3.end();
+  #endif
+
+  #ifdef SLAVE
     Serial.end();
-  else if (port_ == "Serial1") 
-    Serial1.end();
-  else if (port_ == "Serial2")
-    Serial2.end();
-  else if (port_ == "Serial3")
-    Serial3.end();
+  #endif
 
   delete msg_;
 }
@@ -34,14 +47,20 @@ void ArduinoMavlinkPacketHandler::send() {
   // Send the message with the standard UART send function
   // uart0_send might be named differently depending on
   // the individual microcontroller / library in use.
-  if (port_ == "Serial")
+  #ifdef MASTER
+    if (port_ == "Serial")
+      Serial.write(buf, len);
+    else if (port_ == "Serial1") 
+      Serial1.write(buf, len);
+    else if (port_ == "Serial2")
+      Serial2.write(buf, len);
+    else if (port_ == "Serial3")
+      Serial3.write(buf, len);
+  #endif
+
+  #ifdef SLAVE
     Serial.write(buf, len);
-  else if (port_ == "Serial1") 
-    Serial1.write(buf, len);
-  else if (port_ == "Serial2")
-    Serial2.write(buf, len);
-  else if (port_ == "Serial3")
-    Serial3.write(buf, len);
+  #endif  
 }
 
 void ArduinoMavlinkPacketHandler::wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_message_t* msg) {
@@ -52,35 +71,48 @@ void ArduinoMavlinkPacketHandler::wait(uint8_t sysid, uint8_t compid, uint8_t ms
     mavlink_status_t rx_status;
     
     int available;
-    if (port_ == "Serial")
+    #ifdef MASTER
+      if (port_ == "Serial")
+        available = Serial.available();
+      else if (port_ == "Serial1") 
+        available = Serial1.available();
+      else if (port_ == "Serial2")
+        available = Serial2.available();
+      else if (port_ == "Serial3")
+        available = Serial3.available();
+    #endif
+
+    #ifdef SLAVE
       available = Serial.available();
-    else if (port_ == "Serial1") 
-      available = Serial1.available();
-    else if (port_ == "Serial2")
-      available = Serial2.available();
-    else if (port_ == "Serial3")
-      available = Serial3.available();
+    #endif  
 
     if (available > 0) {
       uint8_t channel;
       uint8_t c;
       
-      if (port_ == "Serial") {
+      #ifdef MASTER
+        if (port_ == "Serial") {
+          c = Serial.read();
+          channel = MAVLINK_COMM_0;
+        }
+        else if (port_ == "Serial1") {
+          c = Serial1.read();
+          channel = MAVLINK_COMM_1;
+        }
+        else if (port_ == "Serial2") {
+          c = Serial2.read();
+          channel = MAVLINK_COMM_2;
+        }
+        else if (port_ == "Serial3") {
+          c = Serial3.read();
+          channel = MAVLINK_COMM_3;
+        }
+      #endif
+
+      #ifdef SLAVE
         c = Serial.read();
         channel = MAVLINK_COMM_0;
-      }
-      else if (port_ == "Serial1") {
-        c = Serial1.read();
-        channel = MAVLINK_COMM_1;
-      }
-      else if (port_ == "Serial2") {
-        c = Serial2.read();
-        channel = MAVLINK_COMM_2;
-      }
-      else if (port_ == "Serial3") {
-        c = Serial3.read();
-        channel = MAVLINK_COMM_3;
-      }
+      #endif  
       
       if(mavlink_parse_char(channel, c, &rx_msg, &rx_status)) {
         if ( (rx_msg.sysid==sysid) and (rx_msg.compid=compid) and (rx_msg.msgid==msgid) ) {
