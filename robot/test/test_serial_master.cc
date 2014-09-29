@@ -2,19 +2,20 @@
 
 int main() {
   init();// this needs to be called before setup() or some functions won't work there
-  Serial2.begin(9600);  
- 
+  Serial1.begin(9600);  
+  
   while (true) {
 
   //  Serial.print("Hello");
-    //Serial2.print(1, DEC);   
+    Serial1.print("c");   
     
-    //delay(500);
+    delay(500);
 
-    Serial2.print(2, DEC);   
+    Serial1.print("a");   
     
+    delay(500);
   }
   
-  Serial2.end();
+  Serial1.end();
   return 0;
 }

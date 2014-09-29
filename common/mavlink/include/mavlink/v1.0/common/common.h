@@ -76,7 +76,8 @@ enum MAV_TYPE
 	MAV_TYPE_FLAPPING_WING=16, /* Flapping wing | */
 	MAV_TYPE_KITE=17, /* Flapping wing | */
   MAV_TYPE_TEST_BENCH=18,// Room-sized test bench, added by tor
-	MAV_TYPE_ENUM_END=19, /*  | */
+  MAV_TYPE_RBMT=19,
+	MAV_TYPE_ENUM_END=20, /*  | */
 };
 #endif
 
@@ -172,10 +173,10 @@ enum MAV_COMPONENT
 {
 	MAV_COMP_ID_ALL=0, /*  | */
 	MAV_COMP_ID_CAMERA=100, /*  | */
-	MAV_COMP_ID_MASTER=110, // added by Emily
-	MAV_COMP_ID_SLAVE1=111, // added by Emily
-	MAV_COMP_ID_SLAVE2=112, // added by Emily
-	MAV_COMP_ID_SLAVE3=113, // added by Emily
+	MAV_COMP_ID_ARDUINO_MASTER=110, // added by Emily
+	MAV_COMP_ID_ARDUINO_SLAVE1=111, // added by Emily
+	MAV_COMP_ID_ARDUINO_SLAVE2=112, // added by Emily
+	MAV_COMP_ID_ARDUINO_SLAVE3=113, // added by Emily
 	MAV_COMP_ID_SERVO1=140, /*  | */
 	MAV_COMP_ID_SERVO2=141, /*  | */
 	MAV_COMP_ID_SERVO3=142, /*  | */

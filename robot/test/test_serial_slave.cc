@@ -5,17 +5,14 @@ int main() {
   Serial.begin(9600);
   pinMode(13,OUTPUT);  
   
-  digitalWrite(13,HIGH);
-
   while (true) {
     
-    if(Serial.available()>0){
-      
-      int x = Serial.read();    
+    digitalWrite(13,HIGH);
+    if(Serial.available()){
       digitalWrite(13,LOW);
-
-      if(x==1) digitalWrite(13,LOW);
-      else if(x==2) digitalWrite(13,HIGH);
+      int x = Serial.read();    
+    
+      if(x==1) ;
     }
     
     delay(500);
