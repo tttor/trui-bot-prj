@@ -4,24 +4,11 @@ using namespace trui;
 
 ArduinoMavlinkPacketHandler::ArduinoMavlinkPacketHandler(mavlink_system_t mavlink_system, String port, uint32_t baud_rate)
     : mavlink_system_(mavlink_system), port_(port), baud_rate_(baud_rate), msg_(new mavlink_message_t()) {
-  if( port == "Serial1") {
-    Serial1.begin(baud_rate_);
-  } else if( port == "Serial2") {
-    Serial2.begin(baud_rate_);
-  } else if( port == "Serial3") {
-    Serial3.begin(baud_rate_);
-  }
+    Serial.begin(baud_rate_);
 }
 
 ArduinoMavlinkPacketHandler::~ArduinoMavlinkPacketHandler() {
-  if (port_ == "Serial")
-    Serial.end();
-  else if (port_ == "Serial1") 
-    Serial1.end();
-  else if (port_ == "Serial2")
-    Serial2.end();
-  else if (port_ == "Serial3")
-    Serial3.end();
+  Serial.end();
 
   delete msg_;
 }
@@ -36,60 +23,52 @@ void ArduinoMavlinkPacketHandler::send() {
   // the individual microcontroller / library in use.
   if (port_ == "Serial")
     Serial.write(buf, len);
-  else if (port_ == "Serial1") 
-    Serial1.write(buf, len);
-  else if (port_ == "Serial2")
-    Serial2.write(buf, len);
-  else if (port_ == "Serial3")
-    Serial3.write(buf, len);
 }
 
 void ArduinoMavlinkPacketHandler::wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_message_t* msg) {
-    bool desired_msg_found = false;
+  mavlink_message_t rx_msg;
+  mavlink_status_t rx_status;
   
-  while (!desired_msg_found) {
-    mavlink_message_t rx_msg;
-    mavlink_status_t rx_status;
-    
-    int available;
-    if (port_ == "Serial")
-      available = Serial.available();
-    else if (port_ == "Serial1") 
-      available = Serial1.available();
-    else if (port_ == "Serial2")
-      available = Serial2.available();
-    else if (port_ == "Serial3")
-      available = Serial3.available();
-
-    if (available > 0) {
-      uint8_t channel;
-      uint8_t c;
-      
-      if (port_ == "Serial") {
-        c = Serial.read();
-        channel = MAVLINK_COMM_0;
-      }
-      else if (port_ == "Serial1") {
-        c = Serial1.read();
-        channel = MAVLINK_COMM_1;
-      }
-      else if (port_ == "Serial2") {
-        c = Serial2.read();
-        channel = MAVLINK_COMM_2;
-      }
-      else if (port_ == "Serial3") {
-        c = Serial3.read();
-        channel = MAVLINK_COMM_3;
-      }
-      
-      if(mavlink_parse_char(channel, c, &rx_msg, &rx_status)) {
-        if ( (rx_msg.sysid==sysid) and (rx_msg.compid=compid) and (rx_msg.msgid==msgid) ) {
-          desired_msg_found = true;
-          *msg = rx_msg;
+  const uint8_t channel = MAVLINK_COMM_0;
+  Serial.println("hhoaoaaooa");
+  while (true) {
+    if (Serial.available() > 0) {
+      if (mavlink_parse_char(channel, Serial.read(), &rx_msg, &rx_status)) {
+        if ( (rx_msg.msgid==msgid) ) {
+          break;
         }
       }
-    }// if (available > 0)
-  }// while (!desired_msg_found)
+    }
+  }
+
+  // bool desired_msg_found = false;
+  
+  // // This loop below should be run at its possible highest rate
+  // while (!desired_msg_found) {
+  //   mavlink_message_t rx_msg;
+  //   mavlink_status_t rx_status;
+    
+  //   int available;
+  //   if (port_ == "Serial")
+  //     available = Serial.available();
+
+  //   if (available > 0) {
+  //     uint8_t channel;
+  //     uint8_t c;
+      
+  //     if (port_ == "Serial") {
+  //       c = Serial.read();
+  //       channel = MAVLINK_COMM_0;
+  //     }
+      
+  //     if(mavlink_parse_char(channel, c, &rx_msg, &rx_status)) {
+  //        if ( (rx_msg.msgid==msgid) /* and(rx_msg.sysid==sysid) and (rx_msg.compid=compid) */ ) {
+  //         desired_msg_found = true;
+  //         *msg = rx_msg;
+  //        }
+  //     }
+  //   }// if (available > 0)
+  // }// while (!desired_msg_found)
 }
 
 void ArduinoMavlinkPacketHandler::wrap(mavlink_attitude_t raw_msg) {
@@ -150,4 +129,9 @@ void ArduinoMavlinkPacketHandler::wait(uint8_t sysid, uint8_t compid, uint8_t ms
 void ArduinoMavlinkPacketHandler::wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_rc_channels_raw_t* the_msg) {
   wait(sysid, compid, msgid, msg_); // block till receive the desired msg
   mavlink_msg_rc_channels_raw_decode(msg_, the_msg);
+}
+
+void ArduinoMavlinkPacketHandler::wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_set_position_target_local_ned_t* the_msg) {
+  wait(sysid, compid, msgid, msg_); // block till receive the desired msg
+  mavlink_msg_set_position_target_local_ned_decode(msg_, the_msg);
 }

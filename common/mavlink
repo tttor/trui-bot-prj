@@ -1,0 +1,3 @@
+The common mavlink lib is put (and accessed) from that of ROS Indigo, probably in /opt/ros/indigo/include/mavlink.
+Install such package using: sudo apt-get install ros-indigo-mavlink
+

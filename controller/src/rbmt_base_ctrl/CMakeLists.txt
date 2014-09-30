@@ -121,6 +121,14 @@ target_link_libraries(rbmt_base_ctrl_node
   ${catkin_LIBRARIES}
 )
 
+add_executable(mavros_tester
+  test/test_mavros.cpp
+)
+
+target_link_libraries(mavros_tester
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############

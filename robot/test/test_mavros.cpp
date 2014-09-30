@@ -1,26 +1,10 @@
 #include <arduino/Arduino.h>
-#include <comm/arduino_mavlink_packet_handler.hpp>
+#include <mavlink/v1.0/common/mavlink.h>
 
 int main() {
-  init();// this needs to be called before setup() or some functions won't work there
+  init();// this needs to be called before setup() otherwise some functions won't work
 
-  // // TODO @tttor: fix problem if using packet_handler: probably due to using the main "Serial", 
-  // // Build up a mavlink system _of_ this board
-  // mavlink_system_t mavlink_system;
-  // mavlink_system.sysid = 1;
-  // mavlink_system.compid = 1;
-  // trui::ArduinoMavlinkPacketHandler packet_handler(mavlink_system, "Serial", 57600);
-
-  // //
-  // uint8_t desired_sender_sysid = 1;
-  // uint8_t desired_sender_compid = 240;
-  // uint8_t desired_msgid = MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED;
-  // mavlink_set_position_target_local_ned_t msg;
-  
-  // Serial.begin(57600);
-  // packet_handler.wait(desired_sender_sysid, desired_sender_compid, desired_msgid, &msg);// will block 
-  
-  //  
+  //
   Serial.begin(57600);
   const uint8_t channel = MAVLINK_COMM_0;
   
@@ -46,6 +30,7 @@ int main() {
   const uint16_t rate = 1;
   while (true) {
     Serial.println("found");
+    Serial.println(rx_msg.msgid);
 
     Serial.print("msg.x= "); Serial.println(msg.x);
     Serial.print("msg.y= "); Serial.println(msg.y);
@@ -59,6 +44,5 @@ int main() {
 
     delay(1000/rate);
   }
-
   return 0;
 }

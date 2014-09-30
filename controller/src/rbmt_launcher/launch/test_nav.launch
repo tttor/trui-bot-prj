@@ -1,4 +1,29 @@
 <launch>
+  <!-- vim: ft=xml -->
+  
+  <arg name="real_rbmt_on" default="False" />
+  <param name="real_rbmt_on" value="$(arg real_rbmt_on)"/>
+   
+  <group if="$(arg real_rbmt_on)">
+	  <arg name="rbmt_url" default="/dev/ttyACM0:57600" />
+	  <arg name="target_system_id" default="1" />
+	  <arg name="target_component_id" default="50" />
+
+	  <node pkg="mavros" type="mavros_node" name="rbmt_serial" required="true" clear_params="true" output="screen">
+		  <param name="rbmt_url" value="$(arg rbmt_url)" />
+		  <param name="target_system_id" value="$(arg target_system)" />
+		  <param name="target_component_id" value="$(arg target_component)" />
+		  
+  		<!-- remap mavlink bridge topics -->
+		  <remap from="/mavlink/to" to="/rbmt/mavlink_to" />
+		  <remap from="/mavlink/from" to="/rbmt/mavlink_from" />
+	  </node>
+  </group>
+
+  <group unless="$(arg real_rbmt_on)">    
+    <node pkg="rbmt_sim" type="rbmt_sim_node" name="rbmt_sim" output="screen"/>
+  </group>
+  
   <include file="$(find rbmt_map)/launch/frame_setup.launch"/>
   <include file="$(find rbmt_nav)/launch/nav_cfg.launch"/>
   <include file="$(find rbmt_nav)/launch/move_base.launch"/>
