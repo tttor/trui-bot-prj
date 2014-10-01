@@ -7,20 +7,20 @@ UPLOAD_BAUDRATE= 115200 #57600
 PORT= /dev/ttyACM0  #/dev/ttyUSB0 
 
 MASTER_BOARD=arduino
-MASTER_UPLOAD_PROTOCOL= wiring # arduino, wiring, avr109
-MASTER_MCU=-mmcu=atmega2560 #atmega328p # atmega328p, 
+MASTER_MCU=-mmcu=atmega328p #: atmega2560
 MASTER_CPU_SPEED=-DF_CPU=16000000UL
 MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
-MASTER_MCU_TAG= m2560
+MASTER_MCU_TAG= m328p #: m2560
+MASTER_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
 
 SLAVE_BOARD=arduino
-SLAVE_UPLOAD_PROTOCOL= arduino # arduino, wiring, avr109
 SLAVE_MCU=-mmcu=atmega328p # atmega328p, #atmega2560 
 SLAVE_CPU_SPEED=-DF_CPU=16000000UL
 SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_MCU_TAG= m328p
+SLAVE_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
 
 TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib
@@ -36,12 +36,13 @@ ARDUINO_OBJ=$(ARDUINO_SRC)pins_arduino.o $(ARDUINO_SRC)wiring.o $(ARDUINO_SRC)wi
 # NOTICE: the library linking order does matter 
 # see: http://stackoverflow.com/questions/11111966/eclipse-arduino-linker-trouble
 MASTER_OBJ= ./main/master.cc ./src/comm/arduino_mavlink_packet_handler.cpp 
-MASTER_LIBS= -L $(TARGET_LIBDIR) -larduino-master -lm
-MASTER_INCDIR= ../common/mavlink/include
+MASTER_LIBS= $(TARGET_LIBDIR) -larduino-master -lm
+MASTER_INCDIR= /opt/ros/indigo/include
+MASTER_INCFLAGS = -I $(MASTER_INCDIR) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino
 
 SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp
 SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
-
+SLAVE_INCFLAGS= -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino 
 
 default: master_main
 
@@ -51,14 +52,14 @@ master_main:
 	mkdir -p $(TARGET_INCDIR)/sensor
 	cp ./src/comm/*.hpp $(TARGET_INCDIR)/comm
 	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
-	$(CC) $(MASTER_CFLAGS) -I $(TARGET_INCDIR) -I $(MASTER_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) $(MASTER_LIBS)
+	$(CC) $(MASTER_CFLAGS) $(MASTER_INCFLAGS) $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) -L $(MASTER_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
 slave_main:
 	mkdir -p $(TARGET_BUILDDIR)
 	mkdir -p $(TARGET_INCDIR)/sensor
 	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
-	$(CC) $(SLAVE_CFLAGS) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
+	$(CC) $(SLAVE_CFLAGS) $(SLAVE_INCFLAGS) $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
 master_arduino: ARDUINO_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w

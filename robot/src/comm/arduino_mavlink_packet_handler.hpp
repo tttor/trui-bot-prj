@@ -74,6 +74,11 @@ class ArduinoMavlinkPacketHandler {
    */
   void wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_rc_channels_raw_t* the_msg);
  
+  /**
+   * @brief 
+   */
+  void wait(uint8_t sysid, uint8_t compid, uint8_t msgid, mavlink_set_position_target_local_ned_t* the_msg);
+
  private:
   mavlink_system_t mavlink_system_;
   String port_;

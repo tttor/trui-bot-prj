@@ -1,0 +1,7 @@
+1) For displaying stuff from serial links, install
+$ sudo apt-get install minicom
+$ sudo apt-get install screen
+
+2) For easy access to serial device, add your username to dialout group
+$ sudo usermod -a -G groupName userName
+The user will need to logout and log back in to see their new group added.
