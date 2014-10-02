@@ -71,7 +71,7 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
 
     cmd_vel.linear.x = 0.0;
     cmd_vel.linear.y = 0.0;
-    cmd_vel.angular.z = 0.0;
+    cmd_vel.angular.z = 0.0;// as yaw rate
     
     vel_pub_.publish(cmd_vel);  
   }

@@ -2,8 +2,8 @@
 #define RBMT_BASE_CTRL_H_
 
 #include <ros/ros.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <rbmt_base_ctrl/rbmt_base_kinematics.h>
-#include <rbmt_proxy/SendWheelSpeed.h>
 
 namespace rbmt_base_ctrl {
 
@@ -15,12 +15,20 @@ class BaseCtrl {
  private:
   ros::NodeHandle nh_;  
   ros::Subscriber cmd_vel_sub_;
+  ros::Subscriber act_wheel_speed_sub_;
+  ros::Publisher cmd_wheel_speed_pub_;
+  ros::Publisher act_vel_pub_;
   
   /*!
    * \brief Input speed command vector represents the desired speed requested by the node. 
    * Note that this may differ from the current commanded speed due to acceleration limits imposed by the controller.
    */
   geometry_msgs::Twist cmd_vel_;
+
+  /*!
+   * \brief ...
+   */
+  geometry_msgs::Twist act_vel_;
 
   /*!
    * \brief speed command vector used internally to represent the current commanded speed
@@ -53,6 +61,11 @@ class BaseCtrl {
    */
   void cmd_vel_sub_cb(const geometry_msgs::TwistConstPtr& msg);
 
+  /*!
+   * \brief a routine of a subscriber to the topic of act_wheel_speed
+   */
+  void act_wheel_speed_sub_cb(const geometry_msgs::TwistStampedConstPtr& msg);
+
   /*! 
   * \brief fix the raw cmd_vel to adhere some constraint, e.g. linear max vel, angular max vel
   * @param cmd_vel Velocity command of the base in m/s and rad/s
@@ -66,10 +79,20 @@ class BaseCtrl {
 
   /*!
   * \brief sends the desired wheel speeds to the wheel controllers, i.e the onboard arduinos.
-  * In this project, this is to request a service to a rbmt_proxy node
-  * \return whether the service can be called
+  * In this project, this publish geometry_msgs::TwistStamped msg to /rbmt_serial/setpoint/cmd_vel
+  * \return whether ...
   */
   bool send_wheel_speed();
+
+  /*!
+  * \brief ...
+  */
+  void set_act_wheel_speed(const geometry_msgs::TwistStampedConstPtr& msg);
+
+  /*!
+  * \brief ...
+  */
+  void compute_act_vel();
 };
 
 }// namespace rbmt_base_ctrl 

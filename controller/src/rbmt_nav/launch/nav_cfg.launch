@@ -3,8 +3,7 @@
   <!-- TODO @tttor: for example, data from the robot tracking system-->
 
   <!-- Bring up the odometry for the base -->
-  <node pkg="rbmt_odom" type="rbmt_odom_node" name="odom_node" output="screen"/>
-  <!-- node pkg="fake_localization" type="static_odom_broadcaster.py" name="odom_node" output="screen"/ -->
+  <node pkg="rbmt_odom" type="rbmt_odom_node" name="odom" output="screen"/>
 
   <!-- Bring up the tranform configuration of the robot -->
   <!-- TODO @tttor: may utilize robot-state-publisher pkg -->  
