@@ -7,8 +7,10 @@ BaseCtrl::BaseCtrl(ros::NodeHandle nh): nh_(nh) {
   cmd_vel_.linear.x = 0; cmd_vel_.linear.y = 0; cmd_vel_.angular.z = 0;
 
   cmd_vel_sub_ = nh_.subscribe<geometry_msgs::Twist>("cmd_vel", 1, &BaseCtrl::cmd_vel_sub_cb, this);
-
-  rbmt_proxy_srv_client_ = nh_.serviceClient<rbmt_proxy::SendWheelSpeed>("send_wheel_speed");
+  act_wheel_speed_sub_ = nh_.subscribe<geometry_msgs::TwistStamped>("act_wheel_speed", 1, &BaseCtrl::act_wheel_speed_sub_cb, this);
+  
+  act_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("act_vel", 100);  
+  cmd_wheel_speed_pub_ = nh_.advertise<geometry_msgs::TwistStamped>("cmd_wheel_speed", 100);
 
   //Get params from param server
   nh_.param<double> ("max_translational_velocity", max_translational_velocity_,0.5);
@@ -22,6 +24,23 @@ BaseCtrl::BaseCtrl(ros::NodeHandle nh): nh_(nh) {
 
 BaseCtrl::~BaseCtrl() {
   cmd_vel_sub_.shutdown();
+}
+
+void BaseCtrl::act_wheel_speed_sub_cb(const geometry_msgs::TwistStampedConstPtr& msg) {
+  set_act_wheel_speed(msg);
+  compute_act_vel();
+  act_vel_pub_.publish(act_vel_);
+}
+
+void BaseCtrl::set_act_wheel_speed(const geometry_msgs::TwistStampedConstPtr& msg) {
+  base_kinematics_.wheels.at(0).wheel_speed_actual = msg->twist.linear.x;
+  base_kinematics_.wheels.at(1).wheel_speed_actual = msg->twist.linear.y;
+  base_kinematics_.wheels.at(2).wheel_speed_actual = msg->twist.linear.z;
+}
+
+void BaseCtrl::compute_act_vel() {
+  //TODO: do the math, the inverse of compute_wheel_speed given cmd_vel
+  // do something with wheel.wheel_speed_actual and act_vel_
 }
 
 void BaseCtrl::cmd_vel_sub_cb(const geometry_msgs::TwistConstPtr& msg) {
@@ -67,22 +86,13 @@ void BaseCtrl::compute_wheel_speed() {
 }
 
 bool BaseCtrl::send_wheel_speed() {
-  rbmt_proxy::SendWheelSpeed srv;
-  srv.request.wheel_speeds.resize(base_kinematics_.wheels.size());
-  
-  for (size_t i = 0; i<base_kinematics_.wheels.size(); ++i) {
-    srv.request.wheel_speeds.at(i) = base_kinematics_.wheels.at(i).wheel_speed_cmd; 
-  }
-  
-  if (rbmt_proxy_srv_client_.call(srv)) {
-    ROS_INFO_STREAM("response.msg= " << srv.response.msg);
-  }
-  else {
-    ROS_ERROR("Failed to call service SendWheelSpeed of rbmt_proxy");
-    return false;
-  }
+  geometry_msgs::TwistStamped msg;
 
-  return true;
+  msg.twist.linear.x = base_kinematics_.wheels.at(1).wheel_speed_cmd;
+  msg.twist.linear.y = base_kinematics_.wheels.at(2).wheel_speed_cmd;
+  msg.twist.linear.z = base_kinematics_.wheels.at(3).wheel_speed_cmd;
+
+  cmd_wheel_speed_pub_.publish(msg);
 }
 
 }// namespace rbmt_base_ctrl

@@ -2,11 +2,11 @@
   <master auto="start"/>
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find rbmt_map)/map/badminton.yaml"/>
+  <node pkg="map_server" type="map_server" name="map_server" args="$(find rbmt_map)/map/badminton.yaml"/>
 
   <!--- Run the localization algoritm -->
   <!-- include file="$(find amcl)/examples/amcl_omni.launch" / -->
-  <!-- node pkg="fake_localization" type="static_odom_broadcaster.py" name="fake_localizer" output="screen"/ -->
+  <node pkg="rbmt_odom" type="rbmt_odom_localization_node" name="odom_loc" output="screen"/>
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find rbmt_nav)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
@@ -15,4 +15,7 @@
     <rosparam file="$(find rbmt_nav)/cfg/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find rbmt_nav)/cfg/base_local_planner_params.yaml" command="load" />
   </node>
+
+  <node pkg="rbmt_base_ctrl" type="rbmt_base_ctrl_node" name="base_ctrl" output="screen"/>
+  
 </launch>
