@@ -95,16 +95,18 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-# add_library(rbmt_odom
-#   src/${PROJECT_NAME}/rbmt_odom.cpp
-# )
+add_library(rbmt_odom
+  src/rbmt_odom.cpp
+)
 
 ## Declare a cpp executable
 add_executable(rbmt_odom_node src/rbmt_odom_node.cpp)
+add_executable(rbmt_odom_localization_node src/rbmt_odom_localization_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -118,9 +120,13 @@ endif()
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rbmt_odom_node
+  rbmt_odom
   ${catkin_LIBRARIES}
 )
 
+target_link_libraries(rbmt_odom_localization_node
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
