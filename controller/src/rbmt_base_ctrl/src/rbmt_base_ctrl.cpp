@@ -39,9 +39,46 @@ void BaseCtrl::set_act_wheel_speed(const geometry_msgs::TwistStampedConstPtr& ms
 }
 
 void BaseCtrl::compute_act_vel() {
-  //TODO: do the math, the inverse of compute_wheel_speed given cmd_vel
-  // do something with wheel.wheel_speed_actual and act_vel_
+  // R --> robot orientation matrix
+  // R = [cos(theta)   sin(theta)  0]
+  //     [-sin(theta)  cos(theta)  0]
+  //     [     0           0       1]
+  eigen::MatrixXd R;
+  R = get_R(theta);
+
+  // J_1_f using the matrix elements of the rolling constraints for the Swedish wheel
+  // J_1_f = [sqrt(3)/2   -1/2  -1]
+  //         [    0         1   -1]
+  //         [-sqrt(3)/2  -1/2  -1]
+  eigen::MatrixXd J_1_f;
+
+  // J_2 --> diagonal matrix of wheel radius
+  // J_2 = [r 0 0]
+  //       [0 r 0]
+  //       [0 0 r]
+  eigen::MatrixXd J_2;
+  J_2 = diag(base_kinematics_.wheels.at(0).wheel_radius, base_kinematics_.wheels.at(1).wheel_radius, base_kinematics_.wheels.at(2).wheel_radius,);
+
+  // Phi_dot --> commanded wheel speed matrix
+  // Phi_dot = [wheel_0]
+  //           [wheel_1]
+  //           [wheel_2]
+  eigen::MatrixXd Phi_dot;
+  Phi_dot = [base_kinematics_.wheels.at(0).wheel_speed_actual, base_kinematics_.wheels.at(1).wheel_speed_actual, base_kinematics_.wheels.at(2).wheel_speed_actual]
+
+  
+  Epsilon_dot = R.inverse() * J_1_f.inverse() * J_2 *  Phi_dot;
+
+  geometry_msgs::Twist act_vel_;
+
+  act_vel_.linear.x = Epsilon_dot[0];
+  act_vel_.linear.y = Epsilon_dot[1];
+  act_vel_.linear.z = 0.0;
+  act_vel_.angular.x = 0.0;
+  act_vel_.angular.y = 0.0;
+  act_vel_.angular.z = Epsilon_dot[2];
 }
+
 
 void BaseCtrl::cmd_vel_sub_cb(const geometry_msgs::TwistConstPtr& msg) {
   fix_cmd_vel(*msg);
@@ -75,13 +112,41 @@ void BaseCtrl::fix_cmd_vel(const geometry_msgs::Twist& raw_cmd_vel) {
 }
 
 void BaseCtrl::compute_wheel_speed() {
-  // Do the math here
-  // ...
-  double dummy_speed = 0.0;
+  // R --> robot orientation matrix
+  // R = [cos(theta)   sin(theta)  0]
+  //     [-sin(theta)  cos(theta)  0]
+  //     [     0           0       1]
+  eigen::MatrixXd R;
+  R = get_R(theta);
+
+  // J_1_f using the matrix elements of the rolling constraints for the Swedish wheel
+  // J_1_f = [sqrt(3)/2   -1/2  -1]
+  //         [    0         1   -1]
+  //         [-sqrt(3)/2  -1/2  -1]
+  eigen::MatrixXd J_1_f;
+
+  // J_2 --> diagonal matrix of wheel radius
+  // J_2 = [r 0 0]
+  //       [0 r 0]
+  //       [0 0 r]
+  eigen::MatrixXd J_2;
+  J_2 = diag(base_kinematics_.wheels.at(0).wheel_radius, base_kinematics_.wheels.at(1).wheel_radius, base_kinematics_.wheels.at(2).wheel_radius,);
+
+  // Epsilon_dot --> actual velocity matrix
+  // Epsilon_dot = [x_axis]
+  //               [y_axis]
+  //               [theta ]
+  eigen::MatrixXd Epsilon_dot;
+  Epsilon_dot = [act_vel_.linear.x, act_vel_.linear.y, act_vel_.angular.z]
+
+  Phi_dot = J_2.inverse() * J_1_f * R * Epsilon_dot;
+
+  //double dummy_speed = 0.0;
 
   // Set
   for (size_t i=0; i<base_kinematics_.wheels.size(); ++i) {
-    base_kinematics_.wheels.at(i).wheel_speed_cmd = dummy_speed;
+    //base_kinematics_.wheels.at(i).wheel_speed_cmd = dummy_speed;
+    base_kinematics_.wheels.at(i).wheel_speed_cmd = Phi_dot[i];
   }
 }
 
