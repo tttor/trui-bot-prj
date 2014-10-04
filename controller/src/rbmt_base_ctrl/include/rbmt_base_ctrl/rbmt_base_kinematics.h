@@ -7,6 +7,8 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point.h>
 
+#include <Eigen/Dense>
+
 namespace rbmt_base_ctrl {
 class Wheel;
 class BaseKinematics;
@@ -82,9 +84,25 @@ class BaseKinematics {
   std::vector<Wheel> wheels;
 
   /*!
+  * \brief the number of wheels, equivalent to wheels.size()
+  */
+  size_t n_wheel;
+
+  /*!
   * \brief Name(string id) of the robot base frame
   */
-    std::string frame_id;
+  std::string frame_id;
+
+  /*!
+   * \brief  the matrix elements of the rolling constraints for the Swedish wheel
+   */
+  Eigen::MatrixXd J_1f;
+
+  /*!
+  * \brief J_2 --> diagonal matrix of wheel radius; J_2 = diag(r1, r2, ..., rn)
+  */
+  Eigen::MatrixXd J_2;
+
  private:
 };
 

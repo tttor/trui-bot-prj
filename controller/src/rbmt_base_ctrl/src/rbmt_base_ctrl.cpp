@@ -39,8 +39,40 @@ void BaseCtrl::set_act_wheel_speed(const geometry_msgs::TwistStampedConstPtr& ms
 }
 
 void BaseCtrl::compute_act_vel() {
-  //TODO: do the math, the inverse of compute_wheel_speed given cmd_vel
-  // do something with wheel.wheel_speed_actual and act_vel_
+  // The derivation of formulas is from the book of Intro to Autonomous Mobile Robots by R. Siegwart
+
+   // theta is robot orientation from x-axis
+  double theta;
+  theta = 0.0;// TODO fix!!! get from tf
+
+  // R --> robot orientation matrix w.r.t to a global frame
+  Eigen::MatrixXd R(3,3);
+  R << cos(theta) , sin(theta), 0,
+       -sin(theta), cos(theta), 0,
+            0     ,     0     , 1;
+
+  // Phi_dot --> commanded wheel speed matrix
+  // Phi_dot = [wheel_0]
+  //           [wheel_1]
+  //           [wheel_2]
+  Eigen::MatrixXd Phi_dot(3,1);
+  Phi_dot << base_kinematics_.wheels.at(0).wheel_speed_actual,
+             base_kinematics_.wheels.at(1).wheel_speed_actual,
+             base_kinematics_.wheels.at(2).wheel_speed_actual;  
+
+  //
+  Eigen::MatrixXd Epsilon_dot(3,1);
+  Epsilon_dot = R.inverse() * base_kinematics_.J_1f.inverse() * base_kinematics_.J_2 *  Phi_dot;
+
+  //
+  geometry_msgs::Twist act_vel_;
+
+  act_vel_.linear.x = Epsilon_dot(0,0);
+  act_vel_.linear.y = Epsilon_dot(1,0);
+  act_vel_.linear.z = 0.0;
+  act_vel_.angular.x = 0.0;
+  act_vel_.angular.y = 0.0;
+  act_vel_.angular.z = Epsilon_dot(2,0);
 }
 
 void BaseCtrl::cmd_vel_sub_cb(const geometry_msgs::TwistConstPtr& msg) {
@@ -75,13 +107,29 @@ void BaseCtrl::fix_cmd_vel(const geometry_msgs::Twist& raw_cmd_vel) {
 }
 
 void BaseCtrl::compute_wheel_speed() {
-  // Do the math here
-  // ...
-  double dummy_speed = 0.0;
+  // theta is robot orientation from x-axis
+  double theta;
+  theta = 0.0;// TODO fix!!! get from tf
 
-  // Set
-  for (size_t i=0; i<base_kinematics_.wheels.size(); ++i) {
-    base_kinematics_.wheels.at(i).wheel_speed_cmd = dummy_speed;
+  // R --> robot orientation matrix w.r.t to a global frame
+  Eigen::MatrixXd R(3,3);
+  R << cos(theta) , sin(theta), 0,
+       -sin(theta), cos(theta), 0,
+            0     ,     0     , 1;
+
+  // Epsilon_dot --> the commanded velocity matrix w.r.t the global frame
+  // Epsilon_dot = [x_dot, y_dot, theta_dot]
+  Eigen::MatrixXd Epsilon_dot(3,1);
+  Epsilon_dot << cmd_vel_.linear.x,
+                 cmd_vel_.linear.y,
+                 cmd_vel_.angular.z;
+
+  //
+  Eigen::MatrixXd Phi_dot(3,1);
+  Phi_dot = base_kinematics_.J_2.inverse() * base_kinematics_.J_1f * R * Epsilon_dot;
+
+  for (size_t i=0; i<base_kinematics_.n_wheel; ++i) {
+    base_kinematics_.wheels.at(i).wheel_speed_cmd = Phi_dot(i,0);
   }
 }
 
