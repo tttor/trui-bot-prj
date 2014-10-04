@@ -23,12 +23,10 @@ bool BaseKinematics::init() {
           -sqrt(3.0)/2.0, -1.0/2.0, -1.0;
   J_1f = tmp_J_1f;
 
-  // J_2 --> diagonal matrix of wheel radius
-  // J_2 = diag(r1, r2, ..., rn)
-  Eigen::MatrixXd tmp_J_2(n_wheel, n_wheel);
-  tmp_J_2 = tmp_J_2.setZero();
+  // J_2 --> diagonal matrix of wheel radius; J_2 = diag(r1, r2, ..., rn)
+  Eigen::DiagonalMatrix<double, Eigen::Dynamic> tmp_J_2(n_wheel);
   for (size_t i=0; i<n_wheel; ++i) {
-  	tmp_J_2(i,i) = wheels.at(i).wheel_radius;
+  	tmp_J_2.diagonal()[i] = wheels.at(i).wheel_radius;
   }
   J_2 = tmp_J_2;
 }
