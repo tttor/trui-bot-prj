@@ -6,29 +6,15 @@
 
 #include <string>
 #include <iostream>
+#include <log4cxx/logger.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-int main(int argc, char** argv){
-  using namespace std;
-
-  ros::init(argc, argv, "nav_ctrl");
-  ros::NodeHandle nh;
-
-  const string action_server_name = "move_base";
-  MoveBaseClient ac(action_server_name);
-  ac.waitForServer();
-
-  move_base_msgs::MoveBaseGoal goal;
-
-  //we'll send a goal to the robot to move 2 meters forward
-  goal.target_pose.header.frame_id = "base_link";// where do we specify the reference frame?
-  goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.pose.position.x = 2.0;
-  goal.target_pose.pose.position.y = 0.0;
-  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(M_PI);
-
-  ROS_INFO("Sending goal");
+size_t send_goal(const move_base_msgs::MoveBaseGoal& goal, MoveBaseClient& ac) {
+  ROS_INFO("send_goal(): BEGIN");
+  size_t status = 0;
+  
+  //
   ac.sendGoal(goal);
 
   bool finished_before_timeout;
@@ -38,13 +24,67 @@ int main(int argc, char** argv){
     actionlib::SimpleClientGoalState state = ac.getState();
 
     if(state == actionlib::SimpleClientGoalState::SUCCEEDED) {
-      ROS_INFO("Action's terminal state= %s", state.toString().c_str());
-      ROS_INFO("Hooray, the base moved 2 meters forward");
+      ROS_DEBUG("Action's terminal state= %s", state.toString().c_str());
+      status = 1;
     }
     else {
-      ROS_INFO("The base failed to move forward 2 meters for some reason");
+      ROS_DEBUG("The base failed to move forward 2 meters for some reason");
+      status = 2;
     }
   }
+  else {
+    ROS_WARN("TIMEOUT: time is up :(");
+    status = 3;
+  }
 
+  ROS_INFO("send_goal(): BEGIN");
+  return status;
+}
+
+int main(int argc, char** argv){
+  using namespace std;
+
+  ros::init(argc, argv, "nav_ctrl");
+  ros::NodeHandle nh;
+
+  log4cxx::LoggerPtr my_logger = log4cxx::Logger::getLogger(ROSCONSOLE_DEFAULT_NAME);
+  my_logger->setLevel(ros::console::g_level_lookup[ros::console::levels::Debug]);
+
+  //
+  const string action_server_name = "move_base";
+  MoveBaseClient ac(action_server_name);
+  ac.waitForServer();
+
+  //
+  vector<move_base_msgs::MoveBaseGoal> goals;
+  move_base_msgs::MoveBaseGoal goal;
+
+  goal.target_pose.header.frame_id = "map";// the reference frame of the goal pose
+  goal.target_pose.header.stamp = ros::Time::now();
+  goal.target_pose.pose.position.x = 1.0;
+  goal.target_pose.pose.position.y = 0.0;
+  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+  goals.push_back(goal);
+
+  goal.target_pose.header.frame_id = "map";// the reference frame of the goal pose
+  goal.target_pose.header.stamp = ros::Time::now();
+  goal.target_pose.pose.position.x = 2.0;
+  goal.target_pose.pose.position.y = 0.0;
+  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+  goals.push_back(goal);
+
+  goal.target_pose.header.frame_id = "map";// the reference frame of the goal pose
+  goal.target_pose.header.stamp = ros::Time::now();
+  goal.target_pose.pose.position.x = 3.5;
+  goal.target_pose.pose.position.y = 0.0;
+  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+  goals.push_back(goal);
+
+  //
+  for (size_t i=0; i<goals.size(); ++i) {
+    send_goal(goals.at(i), ac);  
+    ros::Duration(1.0).sleep();
+  }
+  
   return 0;
 }

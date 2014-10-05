@@ -12,22 +12,24 @@ int main(int argc, char** argv) {
   tf::TransformBroadcaster pose_broadcaster;// this _must_ be outside the loop
 
   //TODO may consider subcribing to odometry msg if it is available
-  ROS_INFO("waitForTransform /odom to /map");
-  tf_listener.waitForTransform("odom", "map", ros::Time::now(), ros::Duration(5.0));
+  ROS_INFO("waitForTransform /odom w.r.t /map");
+  tf_listener.waitForTransform("map", "odom", ros::Time::now(), ros::Duration(5.0));
 
-  ros::Rate rate(10);
-  while (ros::ok()) {
+  ros::Rate rate(100);
+  while ( ros::ok() ) {
     // Look up the transformation of /odom in reference to /world
     tf::StampedTransform odom_tf;
 
     try {
-      tf_listener.lookupTransform("odom", "map", ros::Time(0), odom_tf);
+      tf_listener.lookupTransform("map", "odom", ros::Time(0), odom_tf);
     }
     catch (tf::TransformException &ex) {
       ROS_ERROR("%s", ex.what());
       ros::Duration(1.0).sleep();
     }
 
+    // ROS_INFO_STREAM("odom_tf.getOrigin().x()= " << odom_tf.getOrigin().x());
+    
     // Broadcast the transformation
     geometry_msgs::TransformStamped pose_tf;
 
@@ -42,6 +44,7 @@ int main(int argc, char** argv) {
     pose_tf.transform.rotation.z = odom_tf.getRotation().z();
     pose_tf.transform.rotation.w = odom_tf.getRotation().w();
 
+    // ROS_INFO_STREAM("pose_tf.transform.translation.x= " << pose_tf.transform.translation.x);
     pose_broadcaster.sendTransform(pose_tf);
 
     rate.sleep();

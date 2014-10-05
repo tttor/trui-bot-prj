@@ -28,8 +28,12 @@ MoveBase::~MoveBase() {
 geometry_msgs::PoseStamped MoveBase::get_pose() {
   tf::StampedTransform transform;
 
+  ROS_INFO("waitForTransform /base_link to /map");
+  tf_listener_.waitForTransform("base_link", "map", ros::Time::now(), ros::Duration(5.0));
+  ROS_INFO("gotTransform /base_link to /map");
+
   try {
-    tf_listener_.lookupTransform("/link_base", "/world", ros::Time(0), transform);
+    tf_listener_.lookupTransform("map", "base_link", ros::Time(0), transform);
   }
   catch (tf::TransformException &ex) {
     ROS_ERROR("%s", ex.what());
@@ -38,7 +42,7 @@ geometry_msgs::PoseStamped MoveBase::get_pose() {
 
   geometry_msgs::PoseStamped pose;
 
-  pose.header.frame_id = "/world";
+  pose.header.frame_id = "map";
   pose.pose.position.x = transform.getOrigin().x();
   pose.pose.position.y = transform.getOrigin().y();
   pose.pose.position.z = transform.getOrigin().z();
@@ -52,7 +56,7 @@ geometry_msgs::PoseStamped MoveBase::get_pose() {
 
 void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal) {
   using namespace std;
-  ROS_INFO("move_base: executeCb: BEGIN");
+  ROS_DEBUG("move_base: executeCb: BEGIN");
 
   // TODO @tttor: do planning, then publish velocity to the cmd_vel topic
   geometry_msgs::PoseStamped start_pose, goal_pose;
@@ -67,17 +71,10 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
 
   // Publish the local plan 
   for (size_t i=0; i<local_plan.size(); ++i) {
-    geometry_msgs::Twist cmd_vel;
-
-    cmd_vel.linear.x = 0.0;
-    cmd_vel.linear.y = 0.0;
-    cmd_vel.angular.z = 0.0;// as yaw rate
-    
-    vel_pub_.publish(cmd_vel);  
+    vel_pub_.publish( local_plan.at(i) );  
   }
 
-  // // From goal_functions.cpp
-  // //check to see if we've reached the goal position
+  // // TODO @tttor: check to see if we've reached the goal position, see file:goal_functions.cpp
   // if(getGoalPositionDistance(global_pose, goal_x, goal_y) <= xy_goal_tolerance) {
   //   //check to see if the goal orientation has been reached
   //   if(fabs(getGoalOrientationAngleDifference(global_pose, goal_th)) <= yaw_goal_tolerance) {
@@ -88,7 +85,7 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
   // }
 
   as_->setSucceeded(move_base_msgs::MoveBaseResult(), "Goal reached.");  
-  ROS_INFO("move_base: executeCb: END");
+  ROS_DEBUG("move_base: executeCb: END");
 }
 
 }// namespace rbmt_move_base

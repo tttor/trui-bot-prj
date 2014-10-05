@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <rbmt_base_ctrl/rbmt_base_kinematics.h>
+#include <Eigen/Dense>
 
 namespace rbmt_base_ctrl {
 
