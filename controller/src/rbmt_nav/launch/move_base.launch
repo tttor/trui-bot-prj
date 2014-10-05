@@ -8,7 +8,8 @@
   <!-- include file="$(find amcl)/examples/amcl_omni.launch" / -->
   <node pkg="rbmt_odom" type="rbmt_odom_localization_node" name="odom_loc" output="screen"/>
 
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  <!-- Run our _own_ move_base -->
+  <node pkg="rbmt_move_base" type="rbmt_move_base_node" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find rbmt_nav)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find rbmt_nav)/cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find rbmt_nav)/cfg/local_costmap_params.yaml" command="load" />
