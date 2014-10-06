@@ -17,16 +17,15 @@
 
 <link name="omni-wheel1">
     <visual>
-      <origin rpy="0 -1.57075 0" xyz="0 -0.107 -0.107"/>
+      <origin rpy="0 -1.57075 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://rbmt_urdf/mesh/bot-wheel.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://rbmt_urdf/mesh/Roda.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
-        <color rgba="1 1 1 1"/>
+        <color rgba="1 1 0 1"/>
       </material>
       </geometry>
     </visual>
   </link>
-
 
   <joint name="wheel1-joint" type="continuous">
     <parent link="base_link"/>
