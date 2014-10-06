@@ -2,7 +2,7 @@
 <robot name="bot-m1">
   <link name="base_link">
     <visual>
-      <origin rpy="1.57075 0 0" xyz="0 0 0"/>
+      <origin rpy="1.57075 0 -1.57075" xyz="0 0 0"/>
       <geometry>
         <mesh filename="package://rbmt_urdf/mesh/Badmintonbot_versi2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -17,7 +17,7 @@
 
 <link name="omni-wheel1">
     <visual>
-      <origin rpy="0 -1.57075 0" xyz="0 0 0"/>
+      <origin rpy="0 1.57075 0" xyz="0 0 0"/>
       <geometry>
         <mesh filename="package://rbmt_urdf/mesh/Roda.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
@@ -30,16 +30,16 @@
   <joint name="wheel1-joint" type="continuous">
     <parent link="base_link"/>
     <child link="omni-wheel1"/>
-    <origin rpy="0 0 1.57075" xyz="0 -0.34 0.035"/>
+    <origin rpy="0 0 1.04719" xyz="0.1675 0.29 0.035"/>
   </joint>
 
   <link name="omni-wheel2">
     <visual>
-      <origin rpy="0 -1.57075 0" xyz="0 -0.107 -0.107"/>
+      <origin rpy="0 1.57075 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://rbmt_urdf/mesh/bot-wheel.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://rbmt_urdf/mesh/Roda.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
-        <color rgba="1 1 1 1"/>
+        <color rgba="1 1 0 1"/>
       </material>
       </geometry>
     </visual>
@@ -49,16 +49,16 @@
   <joint name="wheel2-joint" type="continuous">
     <parent link="base_link"/>
     <child link="omni-wheel2"/>
-    <origin rpy="0 0 3.665" xyz="0.294 0.17 0.035"/>
+    <origin rpy="0 0 -3.14159" xyz="-0.335 0 0.035"/>
   </joint>
 
  <link name="omni-wheel3">
     <visual>
-      <origin rpy="0 -1.57075 0" xyz="0 -0.107 -0.107"/>
+      <origin rpy="0 1.57075  0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://rbmt_urdf/mesh/bot-wheel.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://rbmt_urdf/mesh/Roda.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
-        <color rgba="1 1 1 1"/>
+        <color rgba="1 1 0 1"/>
       </material>
       </geometry>
     </visual>
@@ -68,7 +68,7 @@
   <joint name="wheel3-joint" type="continuous">
     <parent link="base_link"/>
     <child link="omni-wheel3"/>
-    <origin rpy="0 0 -0.5235" xyz="-0.294 0.17 0.035"/>
+    <origin rpy="0 0 -1.04719" xyz="0.1675 -0.29 0.035"/>
   </joint>
 
 <link name="racket">
