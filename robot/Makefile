@@ -3,9 +3,10 @@
 # For board-specific setting see: https://github.com/arduino/Arduino/blob/master/hardware/arduino/boards.txt
 CC=avr-gcc
 CXX=avr-g++
-UPLOAD_BAUDRATE= 115200 #57600 
+#UPLOAD_BAUDRATE= 115200 #57600 
 PORT= /dev/ttyACM0  #/dev/ttyUSB0 
 
+MASTER_BAUDRATE=115200
 MASTER_BOARD=arduino
 MASTER_MCU=-mmcu=atmega328p #: atmega2560
 MASTER_CPU_SPEED=-DF_CPU=16000000UL
@@ -14,6 +15,7 @@ MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
 MASTER_MCU_TAG= m328p #: m2560
 MASTER_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
 
+SLAVE_BAUDRATE=57600
 SLAVE_BOARD=arduino
 SLAVE_MCU=-mmcu=atmega328p # atmega328p, #atmega2560 
 SLAVE_CPU_SPEED=-DF_CPU=16000000UL
@@ -84,11 +86,11 @@ slave_arduino: $(ARDUINO_OBJ)
 	
 .PHONY: master_upload
 master_upload:
-	avrdude -V -F -D -p $(MASTER_MCU_TAG) -c $(MASTER_UPLOAD_PROTOCOL) -b $(UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
+	avrdude -V -F -D -p $(MASTER_MCU_TAG) -c $(MASTER_UPLOAD_PROTOCOL) -b $(MASTER_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
 
 .PHONY: slave_upload
 slave_upload:
-	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
+	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(SLAVE_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(PORT)
 
 .PHONY: clean
 clean:
