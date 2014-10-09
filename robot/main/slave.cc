@@ -28,14 +28,14 @@ int main() {
   // mavlink_msg_attitude_decode(&rx_msg, &msg);
 
   //
-  const uint16_t rate = 1;
+  const uint16_t rate = 10;
   while (true) {
     mavlink_message_t msg2;
     uint8_t system_id= MAV_TYPE_RBMT;
     uint8_t component_id= MAV_COMP_ID_ARDUINO_MASTER;
     uint32_t time_boot_ms= millis();
 
-    mavlink_msg_attitude_pack(system_id, component_id, &msg2, time_boot_ms, 0., 0., 0., 23.0, 0., 0.);
+    mavlink_msg_attitude_pack(system_id, component_id, &msg2, time_boot_ms, 0., 0., 0., 13.0, 0., 0.);
 
     // Copy the message to the send buffer
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
