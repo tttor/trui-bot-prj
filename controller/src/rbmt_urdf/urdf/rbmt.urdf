@@ -2,7 +2,7 @@
 <robot name="bot-m1">
   <link name="base_link">
     <visual>
-      <origin rpy="1.57075 0 0" xyz="0 0 0"/>
+      <origin rpy="1.57075 0 -1.57075" xyz="0 0 0.064"/>
       <geometry>
         <mesh filename="package://rbmt_urdf/mesh/Badmintonbot_versi2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -17,30 +17,29 @@
 
 <link name="omni-wheel1">
     <visual>
-      <origin rpy="0 -1.57075 0" xyz="0 -0.107 -0.107"/>
+      <origin rpy="0 1.57075 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://rbmt_urdf/mesh/bot-wheel.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://rbmt_urdf/mesh/omniWheel-BIG.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
-        <color rgba="1 1 1 1"/>
+        <color rgba="1 1 0 1"/>
       </material>
       </geometry>
     </visual>
   </link>
 
-
   <joint name="wheel1-joint" type="continuous">
     <parent link="base_link"/>
     <child link="omni-wheel1"/>
-    <origin rpy="0 0 1.57075" xyz="0 -0.34 0.035"/>
+    <origin rpy="0 0 1.04719" xyz="0.185 0.3204 0.099"/>
   </joint>
 
   <link name="omni-wheel2">
     <visual>
-      <origin rpy="0 -1.57075 0" xyz="0 -0.107 -0.107"/>
+      <origin rpy="0 1.57075 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://rbmt_urdf/mesh/bot-wheel.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://rbmt_urdf/mesh/omniWheel-BIG.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
-        <color rgba="1 1 1 1"/>
+        <color rgba="1 1 0 1"/>
       </material>
       </geometry>
     </visual>
@@ -50,16 +49,16 @@
   <joint name="wheel2-joint" type="continuous">
     <parent link="base_link"/>
     <child link="omni-wheel2"/>
-    <origin rpy="0 0 3.665" xyz="0.294 0.17 0.035"/>
+    <origin rpy="0 0 -3.14159" xyz="-0.37 0 0.099"/>
   </joint>
 
  <link name="omni-wheel3">
     <visual>
-      <origin rpy="0 -1.57075 0" xyz="0 -0.107 -0.107"/>
+      <origin rpy="0 1.57075  0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://rbmt_urdf/mesh/bot-wheel.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://rbmt_urdf/mesh/omniWheel-BIG.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
-        <color rgba="1 1 1 1"/>
+        <color rgba="1 1 0 1"/>
       </material>
       </geometry>
     </visual>
@@ -69,14 +68,14 @@
   <joint name="wheel3-joint" type="continuous">
     <parent link="base_link"/>
     <child link="omni-wheel3"/>
-    <origin rpy="0 0 -0.5235" xyz="-0.294 0.17 0.035"/>
+    <origin rpy="0 0 -1.04719" xyz="0.185 -0.3204 0.099"/>
   </joint>
 
-<link name="racket">
+<link name="hitter">
     <visual>
-      <origin rpy="1.57075 0 1.57075" xyz="0.565 -0.18 -0.215"/>
+      <origin rpy="0 -1.57075 0" xyz="-0.075 -0.074 -0.012"/>
       <geometry>
-        <mesh filename="package://rbmt_urdf/mesh/bot-racket.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://rbmt_urdf/mesh/Hitter.stl" scale="0.001 0.001 0.001"/>
         <material name="black">
         <color rgba="1 1 1 1"/>
       </material>
@@ -84,10 +83,10 @@
     </visual>
   </link>
  
-<joint name="racket_joint" type="continuous">
+<joint name="roll_joint" type="continuous">
     <parent link="base_link"/>
-    <child link="racket"/>
-    <origin rpy="1.57075 0 0" xyz="0 -0.045 0.923"/>
+    <child link="hitter"/>
+    <origin rpy="0 2.3562 0" xyz="0.05 -0.021 1.05"/>
   </joint>
 
 </robot>

@@ -4,7 +4,6 @@
 CC=avr-gcc
 CXX=avr-g++
 
-MASTER_BAUDRATE= 115200
 MASTER_BOARD=arduino
 MASTER_MCU=-mmcu=atmega2560 #: atmega2560
 MASTER_CPU_SPEED=-DF_CPU=16000000UL
@@ -13,8 +12,8 @@ MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
 MASTER_MCU_TAG= m2560 #: m2560
 MASTER_UPLOAD_PROTOCOL= wiring #: arduino (for atmega328p), wiring (for atmega2560), avr109
 MASTER_PORT= /dev/ttyACM2
+MASTER_UPLOAD_BAUDRATE=115200
 
-SLAVE_BAUDRATE= 57600
 SLAVE_BOARD=arduino
 SLAVE_MCU=-mmcu=atmega328p # atmega328p, #atmega2560 
 SLAVE_CPU_SPEED=-DF_CPU=16000000UL
@@ -23,6 +22,7 @@ SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_MCU_TAG= m328p
 SLAVE_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
 SLAVE_PORT= /dev/ttyUSB0
+SLAVE_UPLOAD_BAUDRATE=57600
 
 TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib
@@ -90,11 +90,11 @@ slave_arduino: $(ARDUINO_OBJ)
 	
 .PHONY: master_upload
 master_upload:
-	avrdude -V -F -D -p $(MASTER_MCU_TAG) -c $(MASTER_UPLOAD_PROTOCOL) -b $(MASTER_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(MASTER_PORT)
+	avrdude -V -F -D -p $(MASTER_MCU_TAG) -c $(MASTER_UPLOAD_PROTOCOL) -b $(MASTER_UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(MASTER_PORT)
 
 .PHONY: slave_upload
 slave_upload:
-	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(SLAVE_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(SLAVE_PORT)
+	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(SLAVE_UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(SLAVE_PORT)
 
 .PHONY: clean
 clean:
