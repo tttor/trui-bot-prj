@@ -31,26 +31,27 @@ namespace trui {
     omega_input_= cmd_speed;
     tick_enc_ = encoder_->pos();
 
-        omega_ = (float)(tick_enc_ - last_tick_enc_)*24/5; 
+    omega_ = (float)(tick_enc_ - last_tick_enc_)*24/5; 
 
-        error_ = omega_input_ - omega_;
-        iTerm_ = iTerm_ + (float)error_*ki_;       
+    error_ = omega_input_ - omega_;
+    iTerm_ = iTerm_ + (float)error_*ki_;       
         
-        if(iTerm_ > outmax_) iTerm_ = outmax_;
-        else if(iTerm_ < outmin_) iTerm_ = outmin_;
+    if(iTerm_ > outmax_) iTerm_ = outmax_;
+    else if(iTerm_ < outmin_) iTerm_ = outmin_;
                       
-        deriv_comp_ = (tick_enc_ - 2*last_tick_enc_ + last2_tick_enc_)*24/5;
+    deriv_comp_ = (tick_enc_ - 2*last_tick_enc_ + last2_tick_enc_)*24/5;
                       
-        mv_ =  (float)error_*kp_ + iTerm_ - deriv_comp_*kd_;
+    mv_ =  (float)error_*kp_ + iTerm_ - deriv_comp_*kd_;
         
-        if(mv_ > outmax_) mv_ = outmax_;
-        else if(mv_ < outmin_) mv_ = outmin_;
+    if(mv_ > outmax_) mv_ = outmax_;
+    else if(mv_ < outmin_) mv_ = outmin_;
                       
-        motorPWM_percentage(mv_); 
+    motorPWM_percentage(mv_); 
              
-        last_error_ = error_;
-        last2_tick_enc_ = last_tick_enc_; 
-        last_tick_enc_ = tick_enc_;
+    last_error_ = error_;
+    last2_tick_enc_ = last_tick_enc_; 
+    last_tick_enc_ = tick_enc_;
+    return omega_;
   }
 
   void Motor::motorPWM_percentage(float pwm) {
