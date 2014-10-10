@@ -2,7 +2,7 @@
 
 namespace trui {
 
-  Motor::Motor(): pwm_pin_(pwm_pin), dir_pin_(dir_pin), encoder_out_a_pin(encoder_out_a_pin), encoder_out_b_pin(encoder_out_b_pin), encoder_resolution(encoder_resolution, outmax_(outmax), outmin_(outmin)) {
+  Motor::Motor (size_t pwm_pin, size_t dir_pin, size_t encoder_out_a_pin, size_t encoder_out_b_pin, uint16_t encoder_resolution, float outmax_, float outmin_) : pwm_pin_(pwm_pin), dir_pin_(dir_pin), encoder_out_a_pin(encoder_out_a_pin), encoder_out_b_pin(encoder_out_b_pin), encoder_resolution(encoder_resolution), outmax_(outmax_), outmin_(outmin_) {
     tick_= 0, tick_enc_= 0, last_tick_enc_= 0, last2_tick_enc_= 0; 
     omega_=0, omega_input_=0, last_omega_=0;
     mv_=0, iTerm_= 0;    
@@ -10,11 +10,7 @@ namespace trui {
     data_=0;
     kp_= 0.316, ki_= 0.0528, kd_= 0;
 
-    pinMode(dir_pin_, OUTPUT);
-    pinMode(pwm_pin_, OUTPUT);
-
     encoder_ = new crim::TwoPhaseIncrementalEncoder(encoder_out_a_pin, encoder_out_b_pin, encoder_resolution);
-
 
   }
 
@@ -23,8 +19,8 @@ namespace trui {
   }
 
   void Motor::setup() {
-    pinMode(motorCS, OUTPUT);
-    pinMode(motorPin, OUTPUT);
+    pinMode(dir_pin_, OUTPUT);
+    pinMode(pwm_pin_, OUTPUT);    
   }
 
   float Motor::set_speed(float cmd_speed) {
