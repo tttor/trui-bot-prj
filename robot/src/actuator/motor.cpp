@@ -23,31 +23,47 @@ namespace trui {
     pinMode(pwm_pin_, OUTPUT);    
   }
 
-  float Motor::set_speed(float cmd_speed) {
-    omega_input_= cmd_speed;
+  void Motor::testing_encoder(){
+    while (true) {
+      Serial.println("===");
+      Serial.println(static_cast<long int>(encoder_->pos()));
+      Serial.println(encoder_->rot());
+      delay(100);
+    }
+  }
+
+  void Motor::set_speed(float cmd_speed) {
+    omega_input_ = cmd_speed; //setpoint
     tick_enc_ = encoder_->pos();
 
-    omega_ = (float)(tick_enc_ - last_tick_enc_)*24/5; 
-
+    omega_ = (float)(tick_enc_ - last_tick_enc_)*24/5; // Tetha = ((tickEnc - last_tickEnc)/250) * 2 * PI rad
+                                             // omega = Tetha / Delta_Time -- Delta_Time = 50ms
+                                             // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/250) * 2 * PI * 1000/50 rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 4/25 * PI rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 4/25 * PI * (1/(2PI)) rotation/rad rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 rotation/s
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 rotation/(1/60) minute
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 * 60 rotation/minute
+                                             // omega = (tickEnc - last_tickEnc) * 24/5 RPM
     error_ = omega_input_ - omega_;
-    iTerm_ = iTerm_ + (float)error_*ki_;       
-        
+    iTerm_ = iTerm_ + (float)error_*ki_;       //Integral Term of PID Control 
+    
     if(iTerm_ > outmax_) iTerm_ = outmax_;
     else if(iTerm_ < outmin_) iTerm_ = outmin_;
-                      
+                    
     deriv_comp_ = (tick_enc_ - 2*last_tick_enc_ + last2_tick_enc_)*24/5;
-                      
+                    
     mv_ =  (float)error_*kp_ + iTerm_ - deriv_comp_*kd_;
-        
+      
     if(mv_ > outmax_) mv_ = outmax_;
     else if(mv_ < outmin_) mv_ = outmin_;
-                      
+                    
     motorPWM_percentage(mv_); 
-             
+           
     last_error_ = error_;
     last2_tick_enc_ = last_tick_enc_; 
     last_tick_enc_ = tick_enc_;
-    return omega_;
+    
   }
 
   void Motor::motorPWM_percentage(float pwm) {
