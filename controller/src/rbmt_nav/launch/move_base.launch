@@ -18,5 +18,6 @@
   </node>
 
   <node pkg="rbmt_base_ctrl" type="rbmt_base_ctrl_node" name="base_ctrl" output="screen"/>
+  <node pkg="joy" type="joy_node" name="joy" output="screen"/>
   
 </launch>
