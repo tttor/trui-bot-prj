@@ -16,13 +16,15 @@ int main() {
   motor.setup();
 
   long timeNow = 0, timeOld = 0;
-
+  float x;
+  //motor.testing_encoder();
 
   while (true) {
     timeNow = millis();
     if(timeNow - timeOld > 50){
       timeOld = timeNow;
-      motor.set_speed(50);
+      x = motor.set_speed(speed);
+      Serial.println(x);
     }  
   }
 }
