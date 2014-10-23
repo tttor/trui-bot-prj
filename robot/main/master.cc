@@ -142,7 +142,7 @@ int main() {
     // float slave2_cmd_speed= msg.vy;
     // float slave3_cmd_speed= msg.vz;
 
-    float slave2_cmd_speed= 50;
+    float slave2_cmd_speed= 100;
 
     //3. dispatch and send the 3 speed values
     // mavlink_message_t msg_to_slave1;
@@ -172,7 +172,29 @@ int main() {
 
     //5. back to 1
     //6. if timer overflow interrupt happens, do 6A
-    
+
+    const uint8_t channel2= MAVLINK_COMM_2;
+    const uint8_t desired_msgid= MAVLINK_MSG_ID_MANUAL_SETPOINT;
+
+    mavlink_message_t rx_msg2;
+    mavlink_status_t rx_status2;
+
+    while (true) {
+    if (Serial2.available() > 0) {
+      if (mavlink_parse_char(channel2, Serial2.read(), &rx_msg2, &rx_status2)) {
+        if ( (rx_msg2.msgid==desired_msgid) ) {
+          break;
+        }
+      }
+    }
+  }
+
+    mavlink_manual_setpoint_t msg2;
+    mavlink_msg_manual_setpoint_decode(&rx_msg2, &msg2);
+      
+    float speed2= msg2.roll;
+
+    Serial.println(speed2);
   }
 
   return 0;
