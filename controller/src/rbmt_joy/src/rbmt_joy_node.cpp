@@ -11,7 +11,7 @@ int main(int argc, char** argv){
   my_logger->setLevel(ros::console::g_level_lookup[ros::console::levels::Debug]);
 
   rbmt_joy::JoyTranslator joy_trans(nh);
-  ros::spin();
-
+  joy_trans.run();
+  
   return(0);
 }
