@@ -145,9 +145,9 @@ bool BaseCtrl::send_wheel_speed() {
   msg.twist.linear.y = base_kinematics_.wheels.at(1).wheel_speed_cmd;
   msg.twist.linear.z = base_kinematics_.wheels.at(2).wheel_speed_cmd;
 
-  ROS_INFO_STREAM("msg.twist.linear.x= " << msg.twist.linear.x);
-  ROS_INFO_STREAM("msg.twist.linear.y= " << msg.twist.linear.y);
-  ROS_INFO_STREAM("msg.twist.linear.z= " << msg.twist.linear.z);
+  ROS_DEBUG_STREAM("msg.twist.linear.x= " << msg.twist.linear.x);
+  ROS_DEBUG_STREAM("msg.twist.linear.y= " << msg.twist.linear.y);
+  ROS_DEBUG_STREAM("msg.twist.linear.z= " << msg.twist.linear.z);
 
   cmd_wheel_speed_pub_.publish(msg);
 }
