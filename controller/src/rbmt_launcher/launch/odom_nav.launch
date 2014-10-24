@@ -5,6 +5,8 @@
   <param name="real_rbmt_on" value="$(arg real_rbmt_on)"/>
 
   <arg name="rviz_on" default="False" />
+
+  <arg name="teleop" default="True" />
    
   <group if="$(arg real_rbmt_on)">
     <include file="$(find rbmt_base_ctrl)/launch/rbmt_serial.launch"/>
@@ -18,6 +20,11 @@
   <include file="$(find rbmt_map)/launch/frame_setup.launch"/>
   <include file="$(find rbmt_nav)/launch/nav_cfg.launch"/>
   <include file="$(find rbmt_nav)/launch/move_base.launch"/>
+
+  <group if="$(arg teleop)">
+    <node pkg="joy" type="joy_node" name="joy" output="screen"/>
+    <node pkg="rbmt_joy" type="rbmt_joy_node" name="joy_adap" output="screen"/>
+  </group>
 
   <!-- RVIZ start-up -->
   <group if="$(arg rviz_on)">

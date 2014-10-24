@@ -2,8 +2,12 @@
 #define RBMT_JOY_TRANSLATOR_H_
 
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
+#include <vector>
+#include <map>
+#include <cmath>
 
 namespace rbmt_joy {
 
@@ -11,11 +15,24 @@ class JoyTranslator {
  public:
   JoyTranslator(ros::NodeHandle nh_);
   ~JoyTranslator();
+  void run();
 
  private:
   ros::NodeHandle nh_;
   ros::Subscriber joy_sub_;
   ros::Publisher cmd_vel_pub_;
+
+  size_t n_axes_;
+  size_t n_button_;
+
+  std::vector<float> axes_;
+  std::vector<int32_t> buttons_;
+
+  std::vector<float> axis_mins_;
+  std::vector<float> axis_maxs_;
+  std::vector<float> axis_normals_;
+
+  std::map<std::string, float> vel_param_;
 
 /*!
  * axes.at(0) horizontal left analog
@@ -41,8 +58,15 @@ class JoyTranslator {
  */
   void joy_sub_cb(const sensor_msgs::JoyConstPtr& msg);
 
+  float axis_range(const size_t& ith);
+
+  float axis_range_ratio(const size_t& ith);
+
+  float vel_range(const std::string type);
+
+  float reverse(const float& val);
 };
+
 }// namespace rbmt_joy
 
 #endif
-
