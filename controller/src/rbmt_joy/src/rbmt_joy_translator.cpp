@@ -77,9 +77,9 @@ void JoyTranslator::run() {
     cmd_vel.angular.y = 0;
     cmd_vel.angular.z = theta_vel;
 
-    // ROS_DEBUG_STREAM("cmd_vel.linear.x= "<< cmd_vel.linear.x);
-    // ROS_DEBUG_STREAM("cmd_vel.linear.y= "<< cmd_vel.linear.y);
-    // ROS_DEBUG_STREAM("cmd_vel.angular.z= "<< cmd_vel.angular.z);
+    ROS_DEBUG_STREAM("cmd_vel.linear.x= "<< cmd_vel.linear.x);
+    ROS_DEBUG_STREAM("cmd_vel.linear.y= "<< cmd_vel.linear.y);
+    ROS_DEBUG_STREAM("cmd_vel.angular.z= "<< cmd_vel.angular.z);
 
     cmd_vel_pub_.publish(cmd_vel);  
 
