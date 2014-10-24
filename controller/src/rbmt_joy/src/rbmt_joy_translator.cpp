@@ -51,8 +51,8 @@ void JoyTranslator::run() {
   // axes(5): RT _must_ be initialized because _before_ first update _only_, axes_.at(5) has a normal value of 0, plus, if another axes is pushed before RT is initialized, then RT changes to not-normal value; weird!
   bool RT_initialized = false;
 
+  ROS_INFO("Waiting for RT (axis(5)) to be initialized.");
   while (ros::ok() and !RT_initialized) {
-    ROS_INFO("Waiting for RT (axis(5)) to be initialized.");
     if (axes_.at(5)==axis_normals_.at(5)) break;
     ros::spinOnce();
   }
