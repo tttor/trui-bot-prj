@@ -2,6 +2,7 @@
 #define RBMT_ODOM_H_
 
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <tf/transform_broadcaster.h>
 
 namespace rbmt_odom {
