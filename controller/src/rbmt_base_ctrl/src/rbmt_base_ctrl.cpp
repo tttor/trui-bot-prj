@@ -38,8 +38,9 @@ void BaseCtrl::set_act_wheel_speed(const geometry_msgs::TwistStampedConstPtr& ms
   base_kinematics_.wheels.at(2).wheel_speed_actual = msg->twist.linear.z;
 }
 
+//! // The derivation of formulas here is from the book of Intro to Autonomous Mobile Robots by R. Siegwart
 void BaseCtrl::compute_act_vel() {
-  // The derivation of formulas is from the book of Intro to Autonomous Mobile Robots by R. Siegwart
+  const bool debug = false;
 
   // theta is robot orientation from x-axis
   double theta;
@@ -63,7 +64,7 @@ void BaseCtrl::compute_act_vel() {
   //
   Eigen::MatrixXd Epsilon_dot(3,1);
   Epsilon_dot = R.inverse() * base_kinematics_.J_1f.inverse() * base_kinematics_.J_2 *  Phi_dot;
-  ROS_DEBUG_STREAM("ACT Epsilon_dot= \n" << Epsilon_dot);
+  ROS_DEBUG_STREAM_COND(debug, "ACT Epsilon_dot= \n" << Epsilon_dot);
 
   //
   act_vel_.linear.x = Epsilon_dot(0,0);
@@ -81,6 +82,7 @@ void BaseCtrl::cmd_vel_sub_cb(const geometry_msgs::TwistConstPtr& msg) {
 }
 
 void BaseCtrl::fix_cmd_vel(const geometry_msgs::Twist& raw_cmd_vel) {
+  const bool debug = false;
   raw_cmd_vel_ = raw_cmd_vel;
   cmd_vel_ = raw_cmd_vel_;
 
@@ -99,14 +101,15 @@ void BaseCtrl::fix_cmd_vel(const geometry_msgs::Twist& raw_cmd_vel) {
   // }
   // raw_cmd_vel.angular.z = filters::clamp(cmd_vel.angular.z, -max_rotational_velocity_, max_rotational_velocity_);
 
-  ROS_DEBUG("BaseController:: command received: %f %f %f",raw_cmd_vel.linear.x,raw_cmd_vel.linear.y,raw_cmd_vel.angular.z);
-  ROS_DEBUG("BaseController:: command current: %f %f %f", cmd_vel_.linear.x,cmd_vel_.linear.y,cmd_vel_.angular.z);
+  ROS_DEBUG_COND(debug, "BaseController:: command received: %f %f %f",raw_cmd_vel.linear.x,raw_cmd_vel.linear.y,raw_cmd_vel.angular.z);
+  ROS_DEBUG_COND(debug, "BaseController:: command fixed: %f %f %f", cmd_vel_.linear.x,cmd_vel_.linear.y,cmd_vel_.angular.z);
   // ROS_DEBUG("BaseController:: clamped vel: %f", clamped_vel_mag);
   // ROS_DEBUG("BaseController:: vel: %f", vel_mag);
 }
 
 void BaseCtrl::compute_wheel_speed() {
-  ROS_DEBUG("BaseCtrl::compute_wheel_speed(): BEGIN");
+  const bool debug = false;
+  ROS_DEBUG_COND(debug, "BaseCtrl::compute_wheel_speed(): BEGIN");
 
   // theta is robot orientation from x-axis
   double theta;
@@ -124,30 +127,31 @@ void BaseCtrl::compute_wheel_speed() {
   Epsilon_dot << cmd_vel_.linear.x,
                  cmd_vel_.linear.y,
                  cmd_vel_.angular.z;
-  ROS_DEBUG_STREAM("CMD Epsilon_dot= \n" << Epsilon_dot);
+  ROS_DEBUG_STREAM_COND(debug, "CMD Epsilon_dot= \n" << Epsilon_dot);
 
   //
   Eigen::MatrixXd Phi_dot(3,1);
   Phi_dot = base_kinematics_.J_2.inverse() * base_kinematics_.J_1f * R * Epsilon_dot;
-  ROS_DEBUG_STREAM("Phi_dot= \n" << Phi_dot);
+  ROS_DEBUG_STREAM_COND(debug, "Phi_dot= \n" << Phi_dot);
 
   for (size_t i=0; i<base_kinematics_.n_wheel; ++i) {
     base_kinematics_.wheels.at(i).wheel_speed_cmd = Phi_dot(i,0);
   }
 
-  ROS_DEBUG("BaseCtrl::compute_wheel_speed(): END");
+  ROS_DEBUG_COND(debug, "BaseCtrl::compute_wheel_speed(): END");
 }
 
 bool BaseCtrl::send_wheel_speed() {
+  const bool debug = false;
   geometry_msgs::TwistStamped msg;
 
   msg.twist.linear.x = base_kinematics_.wheels.at(0).wheel_speed_cmd;
   msg.twist.linear.y = base_kinematics_.wheels.at(1).wheel_speed_cmd;
   msg.twist.linear.z = base_kinematics_.wheels.at(2).wheel_speed_cmd;
 
-  ROS_DEBUG_STREAM("msg.twist.linear.x= " << msg.twist.linear.x);
-  ROS_DEBUG_STREAM("msg.twist.linear.y= " << msg.twist.linear.y);
-  ROS_DEBUG_STREAM("msg.twist.linear.z= " << msg.twist.linear.z);
+  ROS_DEBUG_STREAM_COND(debug, "wheel_speed_x: msg.twist.linear.x= " << msg.twist.linear.x);
+  ROS_DEBUG_STREAM_COND(debug, "wheel_speed_y: msg.twist.linear.y= " << msg.twist.linear.y);
+  ROS_DEBUG_STREAM_COND(debug, "wheel_speed_th: msg.twist.linear.z= " << msg.twist.linear.z);
 
   cmd_wheel_speed_pub_.publish(msg);
 }

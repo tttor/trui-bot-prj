@@ -2,6 +2,7 @@
 #define RBMT_JOY_TRANSLATOR_H_
 
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
 #include <vector>
