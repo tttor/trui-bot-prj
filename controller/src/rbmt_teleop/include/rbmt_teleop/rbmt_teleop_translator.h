@@ -1,5 +1,5 @@
-#ifndef RBMT_JOY_TRANSLATOR_H_
-#define RBMT_JOY_TRANSLATOR_H_
+#ifndef RBMT_TELEOP_TRANSLATOR_H_
+#define RBMT_TELEOP_TRANSLATOR_H_
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -9,12 +9,12 @@
 #include <map>
 #include <cmath>
 
-namespace rbmt_joy {
+namespace rbmt_teleop {
 
-class JoyTranslator {
+class TeleopTranslator {
  public:
-  JoyTranslator(ros::NodeHandle nh_);
-  ~JoyTranslator();
+  TeleopTranslator(ros::NodeHandle nh);
+  ~TeleopTranslator();
   void run();
 
  private:
@@ -67,6 +67,6 @@ class JoyTranslator {
   float reverse(const float& val);
 };
 
-}// namespace rbmt_joy
+}// namespace rbmt_teleop
 
 #endif

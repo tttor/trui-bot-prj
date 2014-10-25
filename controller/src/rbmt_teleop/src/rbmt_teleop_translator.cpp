@@ -1,8 +1,8 @@
-#include <rbmt_joy/rbmt_joy_translator.h>
+#include <rbmt_teleop/rbmt_teleop_translator.h>
 
-namespace rbmt_joy {
+namespace rbmt_teleop {
 
-JoyTranslator::JoyTranslator(ros::NodeHandle nh): nh_(nh) {
+TeleopTranslator::TeleopTranslator(ros::NodeHandle nh): nh_(nh) {
   //
   n_axes_ = 8;
   n_button_ = 11;
@@ -38,20 +38,20 @@ JoyTranslator::JoyTranslator(ros::NodeHandle nh): nh_(nh) {
   vel_param_["theta_vel_max"] = 0.25 * M_PI;
 
   //
-  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &JoyTranslator::joy_sub_cb, this);
+  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &TeleopTranslator::joy_sub_cb, this);
   cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 100);
 }
 
-JoyTranslator::~JoyTranslator() {
+TeleopTranslator::~TeleopTranslator() {
 
 }
 
-void JoyTranslator::joy_sub_cb(const sensor_msgs::JoyConstPtr& msg) {
+void TeleopTranslator::joy_sub_cb(const sensor_msgs::JoyConstPtr& msg) {
   axes_ = msg->axes;
   buttons_ = msg->buttons;
 }
 
-void JoyTranslator::run() {
+void TeleopTranslator::run() {
   const bool debug = false;
 
   // axes(5): RT _must_ be initialized because _before_ first update _only_, axes_.at(5) has a normal value of 0, plus, if another axes is pushed before RT is initialized, then RT changes to not-normal value; weird!
@@ -97,20 +97,20 @@ void JoyTranslator::run() {
   }
 }
 
-float JoyTranslator::axis_range(const size_t& ith) {
+float TeleopTranslator::axis_range(const size_t& ith) {
   return axis_maxs_.at(ith) - axis_mins_.at(ith);
 }
 
-float JoyTranslator::vel_range(const std::string type) {
+float TeleopTranslator::vel_range(const std::string type) {
   return vel_param_[std::string(type+"_max")] - vel_param_[std::string(type+"_min")]; 
 }
 
-float JoyTranslator::reverse(const float& val) {
+float TeleopTranslator::reverse(const float& val) {
   return -1.0 * val;
 }
 
-float JoyTranslator::axis_range_ratio(const size_t& ith) {
+float TeleopTranslator::axis_range_ratio(const size_t& ith) {
   return std::abs(axis_normals_.at(ith)-axis_mins_.at(ith)) / axis_range(ith);
 }
 
-}// namespace rbmt_joy
+}// namespace rbmt_teleop
