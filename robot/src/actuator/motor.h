@@ -29,11 +29,11 @@ class Motor {
     
     size_t pwm_pin_;
     size_t dir_pin_;
-    uint32_t tick_;
-    uint32_t tick_enc_;
-    uint32_t last_tick_enc_;
-    uint32_t last2_tick_enc_;
-    uint32_t deriv_comp_;
+    int64_t tick_;
+    int64_t tick_enc_;
+    int64_t last_tick_enc_;
+    int64_t last2_tick_enc_;
+    int64_t deriv_comp_;
     float omega_;
     float omega_input_;
     float last_omega_;

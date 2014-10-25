@@ -2,9 +2,11 @@
 #include <mavlink/v1.0/common/mavlink.h>
 #include <comm/custom.h>
 
+#define USE_MAVLINK
+
 int main() {
   init();// needs to be called before everthing, otherwise some functions won't work
-  Serial.begin(9600);
+  Serial.begin(57600);
 
   const uint8_t channel= MAVLINK_COMM_0;
   const uint8_t msgid= MAVLINK_MSG_ID_ATTITUDE;   
@@ -12,6 +14,7 @@ int main() {
   uint8_t component_id= MAV_COMP_ID_ARDUINO_MASTER;
 
   while (true) {
+    #ifdef USE_MAVLINK
     mavlink_message_t msg;
 
     float roll, pitch, yaw;
@@ -20,7 +23,7 @@ int main() {
     yaw = 3.333;
 
     float vroll, vpitch, vyaw;
-    vroll = 4.444;
+    vroll = 75.678;
     vpitch = 5.555;
     vyaw = 6.666;
 
@@ -32,8 +35,11 @@ int main() {
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);    
     
     Serial.write(buf, len); 
+    #else
+    Serial.write(200);
+    #endif
 
-    delay(100);
+    delay(10);
   }
 
   return 0;

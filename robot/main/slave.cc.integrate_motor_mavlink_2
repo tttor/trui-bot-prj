@@ -24,48 +24,31 @@ static float g_cmd_speed = 0;
 
 int main() {
   init();
-  Serial.begin(9600);
-  pinMode(13,OUTPUT);
-  Serial1.begin(9600);
+  Serial.begin(57600);// do _not_ use 9600
   setup_timer1();
   
-  bool led = false;
   while (1) {
-    const uint8_t channel = MAVLINK_COMM_1;
-    const uint8_t msgid = MAVLINK_MSG_ID_ATTITUDE;
-
+    bool msg_found = false;
     mavlink_message_t rx_msg;
     mavlink_status_t rx_status;
 
-    bool msg_found = false;
+    Serial.println("Waiting ...");
     while (!msg_found) {
-      if (Serial1.available() > 0) {
-        if (mavlink_parse_char(channel, Serial1.read(), &rx_msg, &rx_status)) {
-          if ( (rx_msg.msgid==msgid) ) {
-            break;
+      if (Serial.available() > 0) {
+        if (mavlink_parse_char(MAVLINK_COMM_0, Serial.read(), &rx_msg, &rx_status)) {
+          if ( (rx_msg.msgid==MAVLINK_MSG_ID_ATTITUDE) ) {
+            msg_found = true;
           }
         }
       }
     }// while (!msg_found)
 
-    //
     mavlink_attitude_t msg;
     mavlink_msg_attitude_decode(&rx_msg, &msg);
 
-    //
     g_cmd_speed = msg.rollspeed;
+    Serial.print("g_cmd_speed= "); Serial.println(g_cmd_speed);
 
-    //
-    Serial.println("----------------------------------");
-    Serial.print("msg.roll= "); Serial.println(msg.roll);
-    Serial.print("msg.pitch= "); Serial.println(msg.pitch);
-    Serial.print("msg.yaw= "); Serial.println(msg.yaw);
-    Serial.print("msg.rollspeed= "); Serial.println(msg.rollspeed);
-    Serial.print("msg.pitchspeed= "); Serial.println(msg.pitchspeed);
-    Serial.print("msg.yawspeed= "); Serial.println(msg.yawspeed);
-
-    led = !led;
-    digitalWrite(13,led);
     delay(100);
   }
 
@@ -94,6 +77,6 @@ void setup_timer1() {
 }
 
 ISR(TIMER1_COMPA_vect) {
-  //interrupts();// for the external interrupt (for encoders) to interrupt
+  // interrupts();// for the external interrupt (for encoders) to interrupt
   g_motor.set_speed(g_cmd_speed);
 }

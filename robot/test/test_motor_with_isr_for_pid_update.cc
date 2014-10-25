@@ -56,17 +56,17 @@ int main() {
     g_cmd_speed = msg.rollspeed;
 
     //
-    Serial.println("----------------------------------");
-    Serial.print("msg.roll= "); Serial.println(msg.roll);
-    Serial.print("msg.pitch= "); Serial.println(msg.pitch);
-    Serial.print("msg.yaw= "); Serial.println(msg.yaw);
-    Serial.print("msg.rollspeed= "); Serial.println(msg.rollspeed);
-    Serial.print("msg.pitchspeed= "); Serial.println(msg.pitchspeed);
-    Serial.print("msg.yawspeed= "); Serial.println(msg.yawspeed);
+    // Serial.println("----------------------------------");
+    // Serial.print("msg.roll= "); Serial.println(msg.roll);
+    // Serial.print("msg.pitch= "); Serial.println(msg.pitch);
+    // Serial.print("msg.yaw= "); Serial.println(msg.yaw);
+    // Serial.print("msg.rollspeed= "); Serial.println(msg.rollspeed);
+    // Serial.print("msg.pitchspeed= "); Serial.println(msg.pitchspeed);
+    // Serial.print("msg.yawspeed= "); Serial.println(msg.yawspeed);
 
     led = !led;
     digitalWrite(13,led);
-    delay(100);
+    // delay(1);
   }
 
   return 0;
