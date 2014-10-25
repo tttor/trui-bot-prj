@@ -1,8 +1,8 @@
-#include <rbmt_joy/rbmt_joy_translator.h>
+#include <rbmt_teleop/rbmt_teleop_translator.h>
 
-namespace rbmt_joy {
+namespace rbmt_teleop {
 
-JoyTranslator::JoyTranslator(ros::NodeHandle nh): nh_(nh) {
+TeleopTranslator::TeleopTranslator(ros::NodeHandle nh): nh_(nh) {
   //
   n_axes_ = 8;
   n_button_ = 11;
@@ -22,6 +22,10 @@ JoyTranslator::JoyTranslator(ros::NodeHandle nh): nh_(nh) {
   axis_maxs_.at(1) =  1.0;
   axis_normals_.at(1) = 0.0;
 
+  axis_mins_.at(2) = -1.0;
+  axis_maxs_.at(2) =  1.0;
+  axis_normals_.at(2) = 1.0;
+
   axis_mins_.at(5) = -1.0;
   axis_maxs_.at(5) =  1.0;
   axis_normals_.at(5) = 1.0;
@@ -34,31 +38,32 @@ JoyTranslator::JoyTranslator(ros::NodeHandle nh): nh_(nh) {
   vel_param_["theta_vel_max"] = 0.25 * M_PI;
 
   //
-  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &JoyTranslator::joy_sub_cb, this);
+  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &TeleopTranslator::joy_sub_cb, this);
   cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 100);
 }
 
-JoyTranslator::~JoyTranslator() {
+TeleopTranslator::~TeleopTranslator() {
 
 }
 
-void JoyTranslator::joy_sub_cb(const sensor_msgs::JoyConstPtr& msg) {
+void TeleopTranslator::joy_sub_cb(const sensor_msgs::JoyConstPtr& msg) {
   axes_ = msg->axes;
   buttons_ = msg->buttons;
 }
 
-void JoyTranslator::run() {
+void TeleopTranslator::run() {
   const bool debug = false;
 
   // axes(5): RT _must_ be initialized because _before_ first update _only_, axes_.at(5) has a normal value of 0, plus, if another axes is pushed before RT is initialized, then RT changes to not-normal value; weird!
   bool RT_initialized = false;
+  bool LT_initialized = false;
 
-  ROS_INFO("Waiting for RT (axis(5)) to be initialized.");
-  while (ros::ok() and !RT_initialized) {
-    if (axes_.at(5)==axis_normals_.at(5)) break;
+  ROS_INFO("Waiting for LT (axis(2)) and RT (axis(5)) to be initialized.");
+  while (ros::ok() and !RT_initialized and !LT_initialized) {
+    if (axes_.at(5)==axis_normals_.at(5) && axes_.at(2)==axis_normals_.at(2)) break;
     ros::spinOnce();
   }
-  ROS_INFO("RT (axis(5)) is initialized.");
+  ROS_INFO("LT (axis(2)) and RT (axis(5)) is initialized.");
 
   ros::Rate rate(10);
   while (ros::ok()) {
@@ -67,8 +72,9 @@ void JoyTranslator::run() {
     
     x_vel = (reverse(axes_.at(0)) / (axis_range_ratio(0)*axis_range(0))) * (axis_range_ratio(0)*vel_range("x_vel"));// reversed due to reversed reading
     y_vel = (axes_.at(1) / (axis_range_ratio(1)*axis_range(1))) * (axis_range_ratio(1)*vel_range("y_vel"));
-    theta_vel = reverse( (std::abs(axes_.at(5)-1.0) / (axis_range_ratio(5)*axis_range(5))) * (axis_range_ratio(5)*vel_range("theta_vel")) );// reversed due to positive RT should make CCW rotation
-
+    theta_vel = reverse( (std::abs(axes_.at(5)-1.0) / (axis_range_ratio(5)*axis_range(5))) * (axis_range_ratio(5)*vel_range("theta_vel")) )
+     + (std::abs(axes_.at(2)-1.0) / (axis_range_ratio(2)*axis_range(2))) * (axis_range_ratio(2)*vel_range("theta_vel"));// reversed due to positive RT should make CCW rotation
+    
     // Publish
     geometry_msgs::Twist cmd_vel;
 
@@ -91,20 +97,20 @@ void JoyTranslator::run() {
   }
 }
 
-float JoyTranslator::axis_range(const size_t& ith) {
+float TeleopTranslator::axis_range(const size_t& ith) {
   return axis_maxs_.at(ith) - axis_mins_.at(ith);
 }
 
-float JoyTranslator::vel_range(const std::string type) {
+float TeleopTranslator::vel_range(const std::string type) {
   return vel_param_[std::string(type+"_max")] - vel_param_[std::string(type+"_min")]; 
 }
 
-float JoyTranslator::reverse(const float& val) {
+float TeleopTranslator::reverse(const float& val) {
   return -1.0 * val;
 }
 
-float JoyTranslator::axis_range_ratio(const size_t& ith) {
+float TeleopTranslator::axis_range_ratio(const size_t& ith) {
   return std::abs(axis_normals_.at(ith)-axis_mins_.at(ith)) / axis_range(ith);
 }
 
-}// namespace rbmt_joy
+}// namespace rbmt_teleop
