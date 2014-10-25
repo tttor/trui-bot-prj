@@ -1,8 +1,8 @@
 #include <arduino/Arduino.h>
-#include <comm/arduino_mavlink_packet_handler.hpp>
 
 int main() {
-  init();// this needs to be called before setup() or some functions won't work there
+  init();// needs to be called before everthing, otherwise some functions won't work
+  
 
   // // TODO @tttor: fix problem if using packet_handler: probably due to using the main "Serial", 
   // // Build up a mavlink system _of_ this board
