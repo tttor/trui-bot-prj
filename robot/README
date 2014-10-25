@@ -17,8 +17,10 @@ Port12 -> Direction
 ===
 Tips:
 
-1) For displaying stuff from serial links, install
+1) For displaying stuff from serial links
 $ sudo apt-get install minicom
+$ sudo minicom -b 9600 -D /dev/ttyACM0
+or
 $ sudo apt-get install screen
 
 2) For easy access to serial device, add your username to dialout group
