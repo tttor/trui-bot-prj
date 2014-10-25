@@ -11,18 +11,18 @@ MASTER_BOARD=arduino
 MASTER_CPU_SPEED=-DF_CPU=16000000UL
 MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
-MASTER_UPLOAD_BAUDRATE=115200
+MASTER_UPLOAD_BAUDRATE=115200 #(for promini m328p), 115200 (for mega m2560, uno m328p)
 MASTER_PORT=/dev/ttyACM1
 
-SLAVE_MCU=-mmcu=atmega2560 #: atmega328p, #atmega2560
-SLAVE_MCU_TAG=m2560 #: m2560, m328p
-SLAVE_UPLOAD_PROTOCOL=wiring #: arduino (for atmega328p), wiring (for atmega2560), avr109
+SLAVE_MCU=-mmcu=atmega328p #: atmega328p, #atmega2560
+SLAVE_MCU_TAG=m328p #: m2560, m328p
+SLAVE_UPLOAD_PROTOCOL=arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
 SLAVE_BOARD=arduino
 SLAVE_CPU_SPEED=-DF_CPU=16000000UL
 SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
-SLAVE_UPLOAD_BAUDRATE=115200 #: 57600 (for m328p), 115200 (for m2560, m328p)
-SLAVE_PORT=/dev/ttyACM0
+SLAVE_UPLOAD_BAUDRATE=115200 #: 57600 (for promini m328p), 115200 (for mega m2560, uno m328p)
+SLAVE_PORT=/dev/ttyACM2
 
 TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib

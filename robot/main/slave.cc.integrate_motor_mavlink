@@ -1,0 +1,113 @@
+#include <arduino/Arduino.h>
+#include <mavlink/v1.0/common/mavlink.h>
+#include <comm/custom.h>
+#include <actuator/motor.h>
+
+#define USE_MAVLINK
+#define USE_TIMER_ISR
+#define USE_MOTOR
+
+//
+#ifdef USE_TIMER_ISR
+void setup_timer1();
+ISR(TIMER1_COMPA_vect);
+#endif
+
+//
+#ifdef USE_MOTOR
+const size_t pwm_pin = 11;
+const size_t dir_pin = 12; 
+const float outmax = 100.0; 
+const float outmin = -100.0; 
+
+const int encoder_out_a_pin = 2;
+const int encoder_out_b_pin = 3;
+const int encoder_resolution = 360; //Only needed for Initialization, not used unless .rot() is called
+  
+trui::Motor g_motor(pwm_pin, dir_pin, encoder_out_a_pin, encoder_out_b_pin, encoder_resolution, outmax, outmin);
+#endif
+
+//
+static float g_cmd_speed = 0;
+
+int main() {
+  init();
+  Serial.begin(57600);// do _not_ use 9600
+  #ifdef USE_TIMER_ISR
+  setup_timer1();
+  #endif
+  
+  while (1) {
+    #ifdef USE_MAVLINK
+
+    bool msg_found = false;
+    mavlink_message_t rx_msg;
+    mavlink_status_t rx_status;
+
+    Serial.println("Waiting ...");
+    while (!msg_found) {
+      if (Serial.available() > 0) {
+        if (mavlink_parse_char(MAVLINK_COMM_0, Serial.read(), &rx_msg, &rx_status)) {
+          if ( (rx_msg.msgid==MAVLINK_MSG_ID_ATTITUDE) ) {
+            msg_found = true;
+          }
+        }
+        // break;
+      }
+    }// while (!msg_found)
+
+    mavlink_attitude_t msg;
+    mavlink_msg_attitude_decode(&rx_msg, &msg);
+
+    g_cmd_speed = msg.rollspeed;
+    // g_cmd_speed = 12.34;
+
+    // Serial.println("----------------------------------");
+    // Serial.print("received msg.roll= "); Serial.println(msg.roll);
+    // Serial.print("received msg.pitch= "); Serial.println(msg.pitch);
+    // Serial.print("received msg.yaw= "); Serial.println(msg.yaw);
+    // Serial.print("received msg.rollspeed= "); Serial.println(msg.rollspeed);
+    // Serial.print("received msg.pitchspeed= "); Serial.println(msg.pitchspeed);
+    // Serial.print("received msg.yawspeed= "); Serial.println(msg.yawspeed);
+    #else
+    if (Serial.available() > 0) {
+      g_cmd_speed = Serial.read();
+    }
+    #endif
+
+    //
+    Serial.print("g_cmd_speed= "); Serial.println(g_cmd_speed);
+
+    delay(100);
+  }
+
+  return 0;
+}
+
+#ifdef USE_TIMER_ISR
+void setup_timer1() {
+  // initialize timer1 
+  noInterrupts();// disable all interrupts
+
+  TCCR1A = 0;      // set entire TCCR1A register to 0
+  TCCR1B = 0;     // same for TCCR1B
+ 
+  // set compare match register to desired timer count:
+  OCR1A = 780;// TODO @tttor: why this value?
+
+  // turn on CTC mode:
+  TCCR1B |= (1 << WGM12);
+  // Set CS10 and CS12 bits for 1024 prescaler:
+  TCCR1B |= (1 << CS10);
+  TCCR1B |= (1 << CS12);
+  // enable timer compare interrupt:
+  TIMSK1 |= (1 << OCIE1A);
+  
+  interrupts();// enable all interrupts
+}
+
+ISR(TIMER1_COMPA_vect) {
+  // interrupts();// for the external interrupt (for encoders) to interrupt
+  g_motor.set_speed(g_cmd_speed);
+}
+#endif
