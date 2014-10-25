@@ -22,6 +22,10 @@ JoyTranslator::JoyTranslator(ros::NodeHandle nh): nh_(nh) {
   axis_maxs_.at(1) =  1.0;
   axis_normals_.at(1) = 0.0;
 
+  axis_mins_.at(2) = -1.0;
+  axis_maxs_.at(2) =  1.0;
+  axis_normals_.at(2) = 1.0;
+
   axis_mins_.at(5) = -1.0;
   axis_maxs_.at(5) =  1.0;
   axis_normals_.at(5) = 1.0;
@@ -52,13 +56,14 @@ void JoyTranslator::run() {
 
   // axes(5): RT _must_ be initialized because _before_ first update _only_, axes_.at(5) has a normal value of 0, plus, if another axes is pushed before RT is initialized, then RT changes to not-normal value; weird!
   bool RT_initialized = false;
+  bool LT_initialized = false;
 
-  ROS_INFO("Waiting for RT (axis(5)) to be initialized.");
-  while (ros::ok() and !RT_initialized) {
-    if (axes_.at(5)==axis_normals_.at(5)) break;
+  ROS_INFO("Waiting for LT (axis(2)) and RT (axis(5)) to be initialized.");
+  while (ros::ok() and !RT_initialized and !LT_initialized) {
+    if (axes_.at(5)==axis_normals_.at(5) && axes_.at(2)==axis_normals_.at(2)) break;
     ros::spinOnce();
   }
-  ROS_INFO("RT (axis(5)) is initialized.");
+  ROS_INFO("LT (axis(2)) and RT (axis(5)) is initialized.");
 
   ros::Rate rate(10);
   while (ros::ok()) {
@@ -67,8 +72,9 @@ void JoyTranslator::run() {
     
     x_vel = (reverse(axes_.at(0)) / (axis_range_ratio(0)*axis_range(0))) * (axis_range_ratio(0)*vel_range("x_vel"));// reversed due to reversed reading
     y_vel = (axes_.at(1) / (axis_range_ratio(1)*axis_range(1))) * (axis_range_ratio(1)*vel_range("y_vel"));
-    theta_vel = reverse( (std::abs(axes_.at(5)-1.0) / (axis_range_ratio(5)*axis_range(5))) * (axis_range_ratio(5)*vel_range("theta_vel")) );// reversed due to positive RT should make CCW rotation
-
+    theta_vel = reverse( (std::abs(axes_.at(5)-1.0) / (axis_range_ratio(5)*axis_range(5))) * (axis_range_ratio(5)*vel_range("theta_vel")) )
+     + (std::abs(axes_.at(2)-1.0) / (axis_range_ratio(2)*axis_range(2))) * (axis_range_ratio(2)*vel_range("theta_vel"));// reversed due to positive RT should make CCW rotation
+    
     // Publish
     geometry_msgs::Twist cmd_vel;
 
