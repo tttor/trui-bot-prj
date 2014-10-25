@@ -51,19 +51,49 @@ int main() {
   Serial.begin(57600);
 
   long timeNow = 0, timeOld = 0;
-  int incoming_byte = 0;
 
   while (true) {
     
     //1. Wait msg from master
-    if (Serial.available() > 0) {
-      incoming_byte= Serial.read();
-    }
-      
-    incoming_byte= atoi(incoming_byte);
-    speed= incoming_byte / 100.0;//msg.roll;
-
+    const uint8_t channel = MAVLINK_COMM_0;
+    const uint8_t set_speed_msgid = MAVLINK_MSG_ID_MANUAL_SETPOINT;
+    const uint8_t actual_speed_query_msgid = MAVLINK_MSG_ID_COMMAND_INT;
     
+    mavlink_message_t rx_msg;
+    mavlink_status_t rx_status;
+    
+    while (true) {
+      if (Serial.available() > 0) {
+        if (mavlink_parse_char(channel, Serial.read(), &rx_msg, &rx_status)) {
+          if ( (rx_msg.msgid==set_speed_msgid) ) {
+            break;
+          } 
+          else if ( (rx_msg.msgid==actual_speed_query_msgid) ) {
+            break;
+          }
+        }
+      }
+    }
+
+    mavlink_manual_setpoint_t msg;
+    mavlink_msg_manual_setpoint_decode(&rx_msg, &msg);
+      
+    speed= -50;//msg.roll;
+    delay(100);
+
+    // float actual_speed= msg.roll;
+
+    // mavlink_message_t msg_to_master;
+    // uint8_t system_id= MAV_TYPE_RBMT;
+    // uint8_t component_id= MAV_COMP_ID_ARDUINO_SLAVE1;
+
+    // uint32_t time_boot_ms= millis(); 
+    // mavlink_msg_manual_setpoint_pack(system_id, component_id, &msg_to_master, time_boot_ms, actual_speed, 0., 0., 0., 0, 0);
+
+    // uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+    // uint16_t len = mavlink_msg_to_send_buffer(buf, &msg_to_master);
+
+    // Serial.write(buf, len);
 
     // //2. Identify msg
     // //2A. If msgid = manual_setpoint, set speed control to cmd_speed

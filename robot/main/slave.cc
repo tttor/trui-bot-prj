@@ -13,8 +13,8 @@ const int encoder_out_a_pin = 2;
 const int encoder_out_b_pin = 3;
 const int encoder_resolution = 360; //Only needed for Initialization, not used unless .rot() is called
 
-float speed= 50;
-  
+float speed;
+
 trui::Motor motor(pwm_pin, dir_pin, encoder_out_a_pin, encoder_out_b_pin, encoder_resolution, outmax, outmin);
 
 void setup()
@@ -51,49 +51,25 @@ int main() {
   Serial.begin(57600);
 
   long timeNow = 0, timeOld = 0;
+  int incoming_byte = 0;
+  uint8_t buffer[9];
 
   while (true) {
     
     //1. Wait msg from master
-    const uint8_t channel = MAVLINK_COMM_0;
-    const uint8_t set_speed_msgid = MAVLINK_MSG_ID_MANUAL_SETPOINT;
-    const uint8_t actual_speed_query_msgid = MAVLINK_MSG_ID_COMMAND_INT;
-    
-    mavlink_message_t rx_msg;
-    mavlink_status_t rx_status;
-    
-    while (true) {
-      if (Serial.available() > 0) {
-        if (mavlink_parse_char(channel, Serial.read(), &rx_msg, &rx_status)) {
-          if ( (rx_msg.msgid==set_speed_msgid) ) {
-            break;
-          } 
-          else if ( (rx_msg.msgid==actual_speed_query_msgid) ) {
-            break;
-          }
-        }
+    if (Serial.available() >= 9) {
+      for (int i=0; i<9; i++) {
+        buffer[i] = Serial.read();
       }
     }
 
-    mavlink_manual_setpoint_t msg;
-    mavlink_msg_manual_setpoint_decode(&rx_msg, &msg);
-      
-    speed= -50;//msg.roll;
-    delay(100);
+    speed = ((float) buffer[4] << 24);
+    speed |= ((float) buffer[3] << 16);
+    speed |= ((float) buffer[2] << 8);
+    speed |= ((float) buffer[1]);
 
-    // float actual_speed= msg.roll;
-
-    // mavlink_message_t msg_to_master;
-    // uint8_t system_id= MAV_TYPE_RBMT;
-    // uint8_t component_id= MAV_COMP_ID_ARDUINO_SLAVE1;
-
-    // uint32_t time_boot_ms= millis(); 
-    // mavlink_msg_manual_setpoint_pack(system_id, component_id, &msg_to_master, time_boot_ms, actual_speed, 0., 0., 0., 0, 0);
-
-    // uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-    // uint16_t len = mavlink_msg_to_send_buffer(buf, &msg_to_master);
-
-    // Serial.write(buf, len);
+    if(buffer[5] == 0x0C) speed= -speed;
+    else if(buffer[5] == 0xCC) speed= speed;
 
     // //2. Identify msg
     // //2A. If msgid = manual_setpoint, set speed control to cmd_speed
