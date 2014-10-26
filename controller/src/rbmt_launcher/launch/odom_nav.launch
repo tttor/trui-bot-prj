@@ -1,18 +1,20 @@
 <launch>
   <!-- vim: ft=xml -->
   
-  <arg name="real_rbmt_on" default="False" />
-  <param name="real_rbmt_on" value="$(arg real_rbmt_on)"/>
-
+  <!-- Launch params -->
+  <arg name="real_rbmt" default="False" />
   <arg name="rviz_on" default="False" />
-
   <arg name="teleop" default="True" />
-   
-  <group if="$(arg real_rbmt_on)">
+
+  <!-- Set up parameter server -->
+  <param name="real_rbmt" value="$(arg real_rbmt)"/>
+
+  <!-- Simulator start-up -->
+  <group if="$(arg real_rbmt)">
     <include file="$(find rbmt_base_ctrl)/launch/rbmt_serial.launch"/>
   </group>
 
-  <group unless="$(arg real_rbmt_on)">    
+  <group unless="$(arg real_rbmt)">    
     <node pkg="rbmt_sim" type="rbmt_sim_node" name="rbmt_sim" output="screen"/>
   </group>
   
