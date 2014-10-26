@@ -23,7 +23,7 @@
 
   <group if="$(arg teleop)">
     <node pkg="joy" type="joy_node" name="joy" output="screen"/>
-    <node pkg="rbmt_teleop" type="rbmt_teleop_node" name="teleop_adap" output="screen"/>
+    <node pkg="rbmt_teleop" type="rbmt_teleop_node" name="teleop" output="screen"/>
   </group>
 
   <!-- RVIZ start-up -->
