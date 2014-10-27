@@ -53,15 +53,28 @@ int main() {
   long timeNow = 0, timeOld = 0;
   int incoming_byte = 0;
   uint8_t buffer[9];
+  int state = READ_HEADER;
+  int n;
 
   while (true) {
-    
+
     //1. Wait msg from master
-    if (Serial.available() >= 9) {
-      for (int i=0; i<9; i++) {
-        buffer[i] = Serial.read();
+    while (true) {
+      if (Serial.available() >= 9) {
+        buffer[0] = Serial.read();
+        if (buffer[0] == 0xCE) {
+          for (int i=1; i<9; i++) {
+            buffer[i] = Serial.read();
+          }
+          break;
+        }
       }
     }
+    // if (Serial.available() >= 9) {
+    //   for (int i=0; i<9; i++) {
+    //     buffer[i] = Serial.read();
+    //   }
+    // }
 
     speed = ((float) buffer[4] << 24);
     speed |= ((float) buffer[3] << 16);
