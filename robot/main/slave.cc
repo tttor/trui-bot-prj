@@ -60,14 +60,16 @@ int main() {
 
     //1. Wait msg from master
     while (true) {
-      if (Serial.available() >= 9) {
-        buffer[0] = Serial.read();
-        if (buffer[0] == 0xCE) {
+      if (Serial.available() > 0) {
+        buffer[0] == Serial.read();
+      }
+      if (buffer[0] == 0xCE) {
+        if (Serial.available() >= 8) {
           for (int i=1; i<9; i++) {
-            buffer[i] = Serial.read();
+              buffer[i] = Serial.read();
           }
-          break;
         }
+        break;
       }
     }
     // if (Serial.available() >= 9) {
