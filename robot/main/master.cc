@@ -114,7 +114,7 @@ int main() {
   Serial1.begin(57600);
   Serial2.begin(57600);    
   Serial3.begin(57600);
-  Wire.begin();
+  // Wire.begin();
 
   const uint8_t header= 0xCE;
   const uint8_t footer= 0xEE;
@@ -132,111 +132,117 @@ int main() {
   while (true) {
     
     //1. wait for cmd_speed from serial from controller
-    while (true) {
-      if (Serial.available() > 0) {
-        if (mavlink_parse_char(channel, Serial.read(), &rx_msg, &rx_status)) {
-          if ( (rx_msg.msgid==desired_msgid) ) {
-            break;
-          }
-        }
-      }
-    }
+    // while (true) {
+    //   if (Serial.available() > 0) {
+    //     if (mavlink_parse_char(channel, Serial.read(), &rx_msg, &rx_status)) {
+    //       if ( (rx_msg.msgid==desired_msgid) ) {
+    //         break;
+    //       }
+    //     }
+    //   }
+    // }
 
     //2. break down the speed into the speed for 3 motors
-    mavlink_set_position_target_local_ned_t msg;
-    mavlink_msg_set_position_target_local_ned_decode(&rx_msg, &msg);
+    // mavlink_set_position_target_local_ned_t msg;
+    // mavlink_msg_set_position_target_local_ned_decode(&rx_msg, &msg);
 
-    float slave1_cmd_speed= msg.vx;
-    float slave2_cmd_speed= msg.vy;
-    float slave3_cmd_speed= msg.vz;
+    float slave1_cmd_speed_f= 100;//= msg.vx;
+    // float slave2_cmd_speed_f= 50.0;//= msg.vy;
+    // float slave3_cmd_speed_f= 50.0;//= msg.vz;
+
+
+    uint32_t slave1_cmd_speed= abs(slave1_cmd_speed_f);
+    // uint32_t slave2_cmd_speed= abs(slave2_cmd_speed_f);
+    // uint32_t slave3_cmd_speed= abs(slave3_cmd_speed_f);
 
     //3. dispatch and send the 3 speed values
     uint8_t buffer1[9];
-    uint8_t buffer2[9];
-    uint8_t buffer3[9];
+    // uint8_t buffer2[9];
+    // uint8_t buffer3[9];
 
     buffer1[0]= header;
     buffer1[8]= footer;
-    buffer1[4]= (int) ((slave1_cmd_speed & 0xFF000000) >> 24);
-    buffer1[3]= (int) ((slave1_cmd_speed & 0x00FF0000) >> 16);
-    buffer1[2]= (int) ((slave1_cmd_speed & 0x0000FF00) >> 8);
-    buffer1[1]= (int) ((slave1_cmd_speed & 0x000000FF));
-    if(slave1_cmd_speed < 0.)  buffer1[5]= 0x0C;
-      else if (slave1_cmd_speed >= 0.)  buffer1[5]= 0xCC;
+    buffer1[4]= (slave1_cmd_speed >> 24) & 0xFF;
+    buffer1[3]= (slave1_cmd_speed >> 16) & 0xFF;
+    buffer1[2]= (slave1_cmd_speed >> 8) & 0xFF;
+    buffer1[1]= slave1_cmd_speed & 0xFF;
+    if(slave1_cmd_speed_f < 0.0f)  buffer1[5]= 0x0C;
+      else if (slave1_cmd_speed_f >= 0.0f)  buffer1[5]= 0xCC;
+      else buffer1[5] = 0x00;
     uint16_t checksum1= buffer1[0] + buffer1[1] + buffer1[2] + buffer1[3] + buffer1[4] + buffer1[8];
     buffer1[6]= (int) ((checksum1 & 0x00FF));
     buffer1[7]= (int) ((checksum1 & 0xFF00) >> 8);
 
 
-    buffer2[0]= header;
-    buffer2[8]= footer;
-    buffer2[4]= (int) ((slave2_cmd_speed & 0xFF000000) >> 24);
-    buffer2[3]= (int) ((slave2_cmd_speed & 0x00FF0000) >> 16);
-    buffer2[2]= (int) ((slave2_cmd_speed & 0x0000FF00) >> 8);
-    buffer2[1]= (int) ((slave2_cmd_speed & 0x000000FF));
-    if(slave2_cmd_speed < 0.)  buffer2[5]= 0x0C;
-      else if (slave2_cmd_speed >= 0.)  buffer2[5]= 0xCC;
-    uint16_t checksum2= buffer2[0] + buffer2[1] + buffer2[2] + buffer2[3] + buffer2[4] + buffer2[8];
-    buffer2[6]= (int) ((checksum2 & 0x00FF));
-    buffer2[7]= (int) ((checksum2 & 0xFF00) >> 8);
+    // buffer2[0]= header;
+    // buffer2[8]= footer;
+    // buffer2[4]= (int) ((slave2_cmd_speed & 0xFF000000) >> 24);
+    // buffer2[3]= (int) ((slave2_cmd_speed & 0x00FF0000) >> 16);
+    // buffer2[2]= (int) ((slave2_cmd_speed & 0x0000FF00) >> 8);
+    // buffer2[1]= (int) ((slave2_cmd_speed & 0x000000FF));
+    // if(slave2_cmd_speed_f < 0.)  buffer2[5]= 0x0C;
+    //   else if (slave2_cmd_speed_f >= 0.)  buffer2[5]= 0xCC;
+    // uint16_t checksum2= buffer2[0] + buffer2[1] + buffer2[2] + buffer2[3] + buffer2[4] + buffer2[8];
+    // buffer2[6]= (int) ((checksum2 & 0x00FF));
+    // buffer2[7]= (int) ((checksum2 & 0xFF00) >> 8);
 
-    buffer3[0]= header;
-    buffer3[8]= footer;
-    buffer3[4]= (int) ((slave3_cmd_speed & 0xFF000000) >> 24);
-    buffer3[3]= (int) ((slave3_cmd_speed & 0x00FF0000) >> 16);
-    buffer3[2]= (int) ((slave3_cmd_speed & 0x0000FF00) >> 8);
-    buffer3[1]= (int) ((slave3_cmd_speed & 0x000000FF));
-    if(slave3_cmd_speed < 0.)  buffer3[5]= 0x0C;
-      else if (slave3_cmd_speed >= 0.)  buffer3[5]= 0xCC;
-    uint16_t checksum3= buffer3[0] + buffer3[1] + buffer3[2] + buffer3[3] + buffer3[4] + buffer3[8];
-    buffer3[6]= (int) ((checksum3 & 0x00FF));
-    buffer3[7]= (int) ((checksum3 & 0xFF00) >> 8);
-    
+    // buffer3[0]= header;
+    // buffer3[8]= footer;
+    // buffer3[4]= (int) ((slave3_cmd_speed & 0xFF000000) >> 24);
+    // buffer3[3]= (int) ((slave3_cmd_speed & 0x00FF0000) >> 16);
+    // buffer3[2]= (int) ((slave3_cmd_speed & 0x0000FF00) >> 8);
+    // buffer3[1]= (int) ((slave3_cmd_speed & 0x000000FF));
+    // if(slave3_cmd_speed_f < 0.)  buffer3[5]= 0x0C;
+    //   else if (slave3_cmd_speed_f >= 0.)  buffer3[5]= 0xCC;
+    // uint16_t checksum3= buffer3[0] + buffer3[1] + buffer3[2] + buffer3[3] + buffer3[4] + buffer3[8];
+    // buffer3[6]= (int) ((checksum3 & 0x00FF));
+    // buffer3[7]= (int) ((checksum3 & 0xFF00) >> 8);
+
     Serial1.write(buffer1, 9);
-    Serial2.write(buffer2, 9);
-    Serial3.write(buffer3, 9);
+    // Serial2.write(buffer2, 9);
+    // Serial3.write(buffer3, 9);
 
     //hit-manipulation slave
-    float slave_hit1_speed;
-    float slave_hit2_speed;
-    int target_pos1;
-    int target_pos2;
-    uint8_t buffer_hit1[11];
-    uint8_t buffer_hit2[11];
+    // int32_t slave_hit1_speed;
+    // int32_t slave_hit2_speed;
+    // int target_pos1;
+    // int target_pos2;
+    // uint8_t buffer_hit1[11];
+    // uint8_t buffer_hit2[11];
 
-    buffer_hit1[0]= header;
-    buffer_hit1[10]= footer;
-    buffer_hit1[1]= hit_mode;
-    buffer_hit1[2]= hit_flag;
-    buffer_hit1[6]= (int) ((slave_hit1_speed & 0xFF000000) >> 24);
-    buffer_hit1[5]= (int) ((slave_hit1_speed & 0x00FF0000) >> 16);
-    buffer_hit1[4]= (int) ((slave_hit1_speed & 0x0000FF00) >> 8);
-    buffer_hit1[3]= (int) ((slave_hit1_speed & 0x000000FF));
-    buffer_hit1[7]= target_pos1;
-    uint16_t checksum_hit1= buffer_hit1[0] + buffer_hit1[1] + buffer_hit1[2] + buffer_hit1[3] + buffer_hit1[4] + buffer_hit1[5] + buffer_hit1[6] + buffer_hit1[7] + buffer_hit1[10];
-    buffer_hit1[8]= (int) ((checksum_hit1 & 0x00FF));
-    buffer_hit1[9]= (int) ((checksum_hit1 & 0xFF00));
+    // buffer_hit1[0]= header;
+    // buffer_hit1[10]= footer;
+    // buffer_hit1[1]= hit_mode;
+    // buffer_hit1[2]= hit_flag;
+    // buffer_hit1[6]= (int) ((slave_hit1_speed & 0xFF000000) >> 24);
+    // buffer_hit1[5]= (int) ((slave_hit1_speed & 0x00FF0000) >> 16);
+    // buffer_hit1[4]= (int) ((slave_hit1_speed & 0x0000FF00) >> 8);
+    // buffer_hit1[3]= (int) ((slave_hit1_speed & 0x000000FF));
+    // buffer_hit1[7]= target_pos1;
+    // uint16_t checksum_hit1= buffer_hit1[0] + buffer_hit1[1] + buffer_hit1[2] + buffer_hit1[3] + buffer_hit1[4] + buffer_hit1[5] + buffer_hit1[6] + buffer_hit1[7] + buffer_hit1[10];
+    // buffer_hit1[8]= (int) ((checksum_hit1 & 0x00FF));
+    // buffer_hit1[9]= (int) ((checksum_hit1 & 0xFF00));
     
-    buffer_hit2[0]= header;
-    buffer_hit2[10]= footer;
-    buffer_hit2[1]= hit_mode;
-    buffer_hit2[2]= hit_flag;
-    buffer_hit2[6]= (int) ((slave_hit2_speed & 0xFF000000) >> 24);
-    buffer_hit2[5]= (int) ((slave_hit2_speed & 0x00FF0000) >> 16);
-    buffer_hit2[4]= (int) ((slave_hit2_speed & 0x0000FF00) >> 8);
-    buffer_hit2[3]= (int) ((slave_hit2_speed & 0x000000FF));
-    buffer_hit2[7]= target_pos2;
-    uint16_t checksum_hit2= buffer_hit2[0] + buffer_hit2[1] + buffer_hit2[2] + buffer_hit2[3] + buffer_hit2[4] + buffer_hit2[5] + buffer_hit2[6] + buffer_hit2[7] + buffer_hit2[10];
-    buffer_hit2[8]= (int) ((checksum_hit2 & 0x00FF));
-    buffer_hit2[9]= (int) ((checksum_hit2 & 0xFF00));
+    // buffer_hit2[0]= header;
+    // buffer_hit2[10]= footer;
+    // buffer_hit2[1]= hit_mode;
+    // buffer_hit2[2]= hit_flag;
+    // buffer_hit2[6]= (int) ((slave_hit2_speed & 0xFF000000) >> 24);
+    // buffer_hit2[5]= (int) ((slave_hit2_speed & 0x00FF0000) >> 16);
+    // buffer_hit2[4]= (int) ((slave_hit2_speed & 0x0000FF00) >> 8);
+    // buffer_hit2[3]= (int) ((slave_hit2_speed & 0x000000FF));
+    // buffer_hit2[7]= target_pos2;
+    // uint16_t checksum_hit2= buffer_hit2[0] + buffer_hit2[1] + buffer_hit2[2] + buffer_hit2[3] + buffer_hit2[4] + buffer_hit2[5] + buffer_hit2[6] + buffer_hit2[7] + buffer_hit2[10];
+    // buffer_hit2[8]= (int) ((checksum_hit2 & 0x00FF));
+    // buffer_hit2[9]= (int) ((checksum_hit2 & 0xFF00));
 
-    Wire.beginTransmission(0x15);
-    Wire.write(buffer_hit1, 11);
-    Wire.endTransmission();
+    // Wire.beginTransmission(0x15);
+    // Wire.write(buffer_hit1, 11);
+    // Wire.endTransmission();
 
-    Wire.beginTransmission(0x09);
-    Wire.write(buffer_hit2, 11);
-    Wire.endTransmission();
+    // Wire.beginTransmission(0x09);
+    // Wire.write(buffer_hit2, 11);
+    // Wire.endTransmission();
     //4. activate timer according to dt using timer overflow interrupt
     //activateTimer();
 

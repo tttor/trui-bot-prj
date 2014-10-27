@@ -13,6 +13,7 @@ const int encoder_out_a_pin = 2;
 const int encoder_out_b_pin = 3;
 const int encoder_resolution = 360; //Only needed for Initialization, not used unless .rot() is called
 
+uint32_t received_speed;
 float speed;
 
 trui::Motor motor(pwm_pin, dir_pin, encoder_out_a_pin, encoder_out_b_pin, encoder_resolution, outmax, outmin);
@@ -43,6 +44,10 @@ ISR(TIMER1_COMPA_vect)        // interrupt service routine
   motor.set_speed(speed);
 }
 
+void receive_data() {
+
+}
+
 int main() {
   init();// this needs to be called before setup() or some functions won't work there
   setup();
@@ -52,39 +57,32 @@ int main() {
 
   long timeNow = 0, timeOld = 0;
   int incoming_byte = 0;
-  uint8_t buffer[9];
-  int state = READ_HEADER;
-  int n;
+  uint8_t buffer[2];
 
   while (true) {
 
     //1. Wait msg from master
-    while (true) {
-      if (Serial.available() > 0) {
-        buffer[0] == Serial.read();
+
+    while(true){
+      if(Serial.available() >= 9) {
+        buffer[0]= Serial.read();
       }
-      if (buffer[0] == 0xCE) {
-        if (Serial.available() >= 8) {
-          for (int i=1; i<9; i++) {
-              buffer[i] = Serial.read();
-          }
+      if (buffer[0] == 0xCE){
+        for (int i=1; i<9; i++) {
+          buffer[i]= Serial.read();
         }
         break;
       }
     }
-    // if (Serial.available() >= 9) {
-    //   for (int i=0; i<9; i++) {
-    //     buffer[i] = Serial.read();
-    //   }
-    // }
 
-    speed = ((float) buffer[4] << 24);
-    speed |= ((float) buffer[3] << 16);
-    speed |= ((float) buffer[2] << 8);
-    speed |= ((float) buffer[1]);
+    received_speed = (buffer[4] << 24);
+    received_speed |= (buffer[3] << 16);
+    received_speed |= (buffer[2] << 8);
+    received_speed |= (buffer[1]);
 
-    if(buffer[5] == 0x0C) speed= -speed;
-    else if(buffer[5] == 0xCC) speed= speed;
+    if(buffer[5] == 0x00) speed= (float) received_speed;
+
+    // speed= (float) received_speed;
 
     // //2. Identify msg
     // //2A. If msgid = manual_setpoint, set speed control to cmd_speed
