@@ -8,6 +8,11 @@
 #include <vector>
 #include <map>
 #include <cmath>
+#include <move_base_msgs/MoveBaseAction.h>
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
+#include <tf/transform_datatypes.h>
+
 
 namespace rbmt_teleop {
 
@@ -16,6 +21,7 @@ class TeleopTranslator {
   TeleopTranslator(ros::NodeHandle nh);
   ~TeleopTranslator();
   void run();
+  typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
  private:
   ros::NodeHandle nh_;
@@ -65,6 +71,8 @@ class TeleopTranslator {
   float vel_range(const std::string type);
 
   float reverse(const float& val);
+
+  size_t send_goal(const move_base_msgs::MoveBaseGoal& goal, MoveBaseClient& ac);
 };
 
 }// namespace rbmt_teleop

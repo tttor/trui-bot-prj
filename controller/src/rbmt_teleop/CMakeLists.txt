@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
+  actionlib 
 )
 
 ## System dependencies are found with CMake's conventions
@@ -104,6 +105,9 @@ include_directories(
 add_library(rbmt_teleop
   src/rbmt_teleop_translator.cpp
 )
+target_link_libraries(rbmt_teleop
+  ${catkin_LIBRARIES}
+)
 
 ## Declare a cpp executable
 add_executable(rbmt_teleop_node src/rbmt_teleop_node.cpp)
@@ -111,6 +115,9 @@ add_executable(rbmt_teleop_node src/rbmt_teleop_node.cpp)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(rbmt_teleop_node rbmt_teleop_generate_messages_cpp)
+if(catkin_EXPORTED_TARGETS)
+  add_dependencies(rbmt_nav_node ${catkin_EXPORTED_TARGETS})
+endif()
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rbmt_teleop_node
