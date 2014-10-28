@@ -21,7 +21,7 @@ SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_MCU_TAG= m328p
 SLAVE_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
-SLAVE_PORT= /dev/ttyUSB4
+SLAVE_PORT= /dev/ttyUSB2
 SLAVE_UPLOAD_BAUDRATE=57600
 
 TARGET_INCDIR=./include

@@ -111,9 +111,9 @@ void isr() {
 int main() {
   init();
   Serial.begin(115200);
-  Serial1.begin(57600);
-  Serial2.begin(57600);    
-  Serial3.begin(57600);
+  Serial1.begin(9600);
+  Serial2.begin(9600);    
+  Serial3.begin(9600);
   // Wire.begin();
 
   const uint8_t header= 0xCE;
@@ -146,32 +146,29 @@ int main() {
     // mavlink_set_position_target_local_ned_t msg;
     // mavlink_msg_set_position_target_local_ned_decode(&rx_msg, &msg);
 
-    float slave1_cmd_speed_f= 100;//= msg.vx;
+    float slave1_cmd_speed_f= -100.0;//= msg.vx;
     // float slave2_cmd_speed_f= 50.0;//= msg.vy;
     // float slave3_cmd_speed_f= 50.0;//= msg.vz;
 
 
-    uint32_t slave1_cmd_speed= abs(slave1_cmd_speed_f);
+    int slave1_cmd_speed= abs(slave1_cmd_speed_f);
     // uint32_t slave2_cmd_speed= abs(slave2_cmd_speed_f);
     // uint32_t slave3_cmd_speed= abs(slave3_cmd_speed_f);
 
     //3. dispatch and send the 3 speed values
-    uint8_t buffer1[9];
+    uint8_t buffer1[7];
     // uint8_t buffer2[9];
     // uint8_t buffer3[9];
 
     buffer1[0]= header;
-    buffer1[8]= footer;
-    buffer1[4]= (slave1_cmd_speed >> 24) & 0xFF;
-    buffer1[3]= (slave1_cmd_speed >> 16) & 0xFF;
+    buffer1[6]= footer;
     buffer1[2]= (slave1_cmd_speed >> 8) & 0xFF;
     buffer1[1]= slave1_cmd_speed & 0xFF;
-    if(slave1_cmd_speed_f < 0.0f)  buffer1[5]= 0x0C;
-      else if (slave1_cmd_speed_f >= 0.0f)  buffer1[5]= 0xCC;
-      else buffer1[5] = 0x00;
-    uint16_t checksum1= buffer1[0] + buffer1[1] + buffer1[2] + buffer1[3] + buffer1[4] + buffer1[8];
-    buffer1[6]= (int) ((checksum1 & 0x00FF));
-    buffer1[7]= (int) ((checksum1 & 0xFF00) >> 8);
+    if(slave1_cmd_speed_f < 0.0f)  buffer1[3]= 0x0C;
+      else if (slave1_cmd_speed_f >= 0.0f)  buffer1[3]= 0xCC;
+    uint16_t checksum1= buffer1[0] + buffer1[1] + buffer1[2] + buffer1[6];
+    buffer1[4]= checksum1 & 0x00FF;
+    buffer1[5]= (checksum1 & 0xFF00) >> 8;
 
 
     // buffer2[0]= header;
@@ -198,9 +195,16 @@ int main() {
     // buffer3[6]= (int) ((checksum3 & 0x00FF));
     // buffer3[7]= (int) ((checksum3 & 0xFF00) >> 8);
 
-    Serial1.write(buffer1, 9);
+    Serial1.write(buffer1, 7);
     // Serial2.write(buffer2, 9);
     // Serial3.write(buffer3, 9);
+
+    int read= 0;
+
+    if(Serial1.available() > 0) {
+      read= Serial1.read();
+      Serial.println(read, DEC);
+    }
 
     //hit-manipulation slave
     // int32_t slave_hit1_speed;

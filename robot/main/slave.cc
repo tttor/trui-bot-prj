@@ -13,7 +13,7 @@ const int encoder_out_a_pin = 2;
 const int encoder_out_b_pin = 3;
 const int encoder_resolution = 360; //Only needed for Initialization, not used unless .rot() is called
 
-uint32_t received_speed;
+int received_speed;
 float speed;
 
 trui::Motor motor(pwm_pin, dir_pin, encoder_out_a_pin, encoder_out_b_pin, encoder_resolution, outmax, outmin);
@@ -44,43 +44,39 @@ ISR(TIMER1_COMPA_vect)        // interrupt service routine
   motor.set_speed(speed);
 }
 
-void receive_data() {
-
-}
-
 int main() {
   init();// this needs to be called before setup() or some functions won't work there
   setup();
   motor.setup();
 
-  Serial.begin(57600);
+  Serial.begin(9600);
 
   long timeNow = 0, timeOld = 0;
   int incoming_byte = 0;
-  uint8_t buffer[2];
+  uint8_t buffer[7];
 
   while (true) {
 
     //1. Wait msg from master
 
     while(true){
-      if(Serial.available() >= 9) {
+      if(Serial.available() >= 7) {
         buffer[0]= Serial.read();
-      }
-      if (buffer[0] == 0xCE){
-        for (int i=1; i<9; i++) {
-          buffer[i]= Serial.read();
+        if (buffer[0] == 0xCE){
+          for (int i=1; i<7; i++) {
+            buffer[i]= Serial.read();
+          }
+          break;
         }
-        break;
-      }
+      }      
     }
 
-    received_speed = (buffer[4] << 24);
-    received_speed |= (buffer[3] << 16);
-    received_speed |= (buffer[2] << 8);
+    received_speed = (buffer[2] << 8);
     received_speed |= (buffer[1]);
 
-    if(buffer[5] == 0x00) speed= (float) received_speed;
+    if (buffer[3] == 0x0C) speed= -1.0 * received_speed;
+    else if (buffer[3] == 0xCC) speed= 1.0 * received_speed;
+    Serial.write(buffer[3]);
 
     // speed= (float) received_speed;
 
