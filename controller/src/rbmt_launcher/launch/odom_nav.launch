@@ -28,6 +28,8 @@
     <node pkg="rbmt_teleop" type="rbmt_teleop_node" name="teleop" output="screen"/>
   </group>
 
+  <node pkg="rbmt_tracking" type="rbmt_tracking_node" name="tracker" output="screen"/>
+
   <!-- RVIZ start-up -->
   <group if="$(arg rviz_on)">
     <include file="$(find rbmt_urdf)/launch/display.launch"/>
