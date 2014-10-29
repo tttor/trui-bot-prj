@@ -5,7 +5,7 @@ namespace trui {
 
   
 
-  Motor::Motor (size_t pwm_pin_, size_t dir_pin_, size_t encoder_out_a_pin, size_t encoder_out_b_pin, uint16_t encoder_resolution, float outmax_, float outmin_) : pwm_pin_(pwm_pin_), dir_pin_(dir_pin_), encoder_out_a_pin(encoder_out_a_pin), encoder_out_b_pin(encoder_out_b_pin), encoder_resolution(encoder_resolution), outmax_(outmax_), outmin_(outmin_) {
+  Motor::Motor (size_t pwm_pin_, size_t dir_pin_, size_t encoder_out_a_pin, size_t encoder_out_b_pin, uint16_t encoder_resolution, float outmax_, float outmin_, int numerator_, int denominator_) : pwm_pin_(pwm_pin_), dir_pin_(dir_pin_), encoder_out_a_pin(encoder_out_a_pin), encoder_out_b_pin(encoder_out_b_pin), encoder_resolution(encoder_resolution), outmax_(outmax_), outmin_(outmin_), numerator_(numerator_), denominator_(denominator_) {
     omega_=0, omega_input_=0, last_omega_=0;
     tick_= 0;
     tick_enc_= 0;
@@ -42,7 +42,7 @@ namespace trui {
     omega_input_ = cmd_speed; //setpoint
       tick_enc_ = encoder_->pos();
 
-      omega_ = (float)(tick_enc_ - last_tick_enc_)*24/5; // Tetha = ((tickEnc - last_tickEnc)/250) * 2 * PI rad
+      omega_ = (float)(tick_enc_ - last_tick_enc_)*numerator_/denominator_; // Tetha = ((tickEnc - last_tickEnc)/250) * 2 * PI rad
                                              // omega = Tetha / Delta_Time -- Delta_Time = 50ms
                                              // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/250) * 2 * PI * 1000/50 rad/s
                                              // omega = (tickEnc - last_tickEnc) * 4/25 * PI rad/s
@@ -58,7 +58,7 @@ namespace trui {
       if(iTerm_ > outmax_) iTerm_ = outmax_;
       else if(iTerm_ < outmin_) iTerm_ = outmin_;
                     
-      deriv_comp_ = (tick_enc_ - 2*last_tick_enc_ + last2_tick_enc_)*24/5;
+      deriv_comp_ = (tick_enc_ - 2*last_tick_enc_ + last2_tick_enc_)*numerator_/denominator_;
                     
       mv_ =  (float)error_*kp_ + iTerm_ - deriv_comp_*kd_;
       

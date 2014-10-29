@@ -11,7 +11,7 @@ MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunct
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
 MASTER_MCU_TAG= m2560 #: m2560
 MASTER_UPLOAD_PROTOCOL= wiring #: arduino (for atmega328p), wiring (for atmega2560), avr109
-MASTER_PORT= /dev/ttyACM1
+MASTER_PORT= /dev/ttyACM0
 MASTER_UPLOAD_BAUDRATE=115200
 
 SLAVE_BOARD=arduino
@@ -21,7 +21,7 @@ SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_MCU_TAG= m328p
 SLAVE_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
-SLAVE_PORT= /dev/ttyUSB2
+SLAVE_PORT= /dev/ttyUSB4
 SLAVE_UPLOAD_BAUDRATE=57600
 
 TARGET_INCDIR=./include

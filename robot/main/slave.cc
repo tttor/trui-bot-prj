@@ -9,6 +9,12 @@ const size_t dir_pin = 12;
 const float outmax = 100.0; 
 const float outmin = -100.0; 
 
+const int numerator= 24; // for slave with 13 ppr encoder
+const int denominator= 5; // for slave with 13 ppr encoder
+// const int numerator= 600; // for slave with 3 ppr encoder
+// const int denominator= 29; // for slave with 3 ppr encoder
+
+
 const int encoder_out_a_pin = 2;
 const int encoder_out_b_pin = 3;
 const int encoder_resolution = 360; //Only needed for Initialization, not used unless .rot() is called
@@ -16,7 +22,7 @@ const int encoder_resolution = 360; //Only needed for Initialization, not used u
 int received_speed;
 float speed;
 
-trui::Motor motor(pwm_pin, dir_pin, encoder_out_a_pin, encoder_out_b_pin, encoder_resolution, outmax, outmin);
+trui::Motor motor(pwm_pin, dir_pin, encoder_out_a_pin, encoder_out_b_pin, encoder_resolution, outmax, outmin, numerator, denominator);
 
 void setup()
 {
@@ -27,7 +33,11 @@ void setup()
   TCCR1B = 0;     // same for TCCR1B
  
   // set compare match register to desired timer count:
-  OCR1A = 780;
+  OCR1A = 780; // 780 for 50ms
+  // target time = timer resolution * (timer counts + 1)
+  // (timer counts + 1) = target time / timer resolution
+  // (timer counts + 1) = 50.10^-3 / (1 / (16.10^6 / 1024))
+
   // turn on CTC mode:
   TCCR1B |= (1 << WGM12);
   // Set CS10 and CS12 bits for 1024 prescaler:
@@ -76,7 +86,7 @@ int main() {
 
     if (buffer[3] == 0x0C) speed= -1.0 * received_speed;
     else if (buffer[3] == 0xCC) speed= 1.0 * received_speed;
-    Serial.write(buffer[3]);
+    // Serial.write(buffer[3]);
 
     // speed= (float) received_speed;
 
