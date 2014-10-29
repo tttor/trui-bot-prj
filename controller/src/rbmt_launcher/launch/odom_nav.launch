@@ -1,16 +1,20 @@
 <launch>
   <!-- vim: ft=xml -->
   
-  <arg name="real_rbmt_on" default="False" />
-  <param name="real_rbmt_on" value="$(arg real_rbmt_on)"/>
-
+  <!-- Launch params -->
+  <arg name="real_rbmt" default="False" />
   <arg name="rviz_on" default="False" />
-   
-  <group if="$(arg real_rbmt_on)">
+  <arg name="teleop" default="True" />
+
+  <!-- Set up parameter server -->
+  <param name="real_rbmt" value="$(arg real_rbmt)"/>
+
+  <!-- Simulator start-up -->
+  <group if="$(arg real_rbmt)">
     <include file="$(find rbmt_base_ctrl)/launch/rbmt_serial.launch"/>
   </group>
 
-  <group unless="$(arg real_rbmt_on)">    
+  <group unless="$(arg real_rbmt)">    
     <node pkg="rbmt_sim" type="rbmt_sim_node" name="rbmt_sim" output="screen"/>
   </group>
   
@@ -18,6 +22,11 @@
   <include file="$(find rbmt_map)/launch/frame_setup.launch"/>
   <include file="$(find rbmt_nav)/launch/nav_cfg.launch"/>
   <include file="$(find rbmt_nav)/launch/move_base.launch"/>
+
+  <group if="$(arg teleop)">
+    <node pkg="joy" type="joy_node" name="joy" output="screen"/>
+    <node pkg="rbmt_teleop" type="rbmt_teleop_node" name="teleop" output="screen"/>
+  </group>
 
   <!-- RVIZ start-up -->
   <group if="$(arg rviz_on)">

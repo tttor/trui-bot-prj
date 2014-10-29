@@ -13,6 +13,9 @@ $ sudo apt-get install ros-indigo-navigation
 $ sudo apt-get install ros-indigo-mavlink
 4) for removing build/ and devel/ for _clean_ catkin_make:
 $ ./clean.sh
+5) for using joysticks
+$ sudo apt-get install ros-indigo-joy
+
 
 ===
 Scripts:

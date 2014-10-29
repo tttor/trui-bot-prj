@@ -332,6 +332,8 @@ int main() {
   motor.servoInit();
   setPOINT = 0;
   delay(1000);
+  uint8_t buffer[11];
+
   while (1) {
     // timeNow = millis();
     
@@ -345,7 +347,11 @@ int main() {
     //   Serial.print("setPOINT : "); Serial.print(setPOINT);
     //   Serial.print(" counter : "); Serial.println(counter);
 
-
+    if (Serial.available() >= 11) {
+      for (int i=0; i<11; i++) {
+        buffer[i] = Serial.read();
+      }
+    }
 
     timeNow = millis();
     if(timeNow - timeOld > 1){
@@ -367,7 +373,9 @@ int main() {
       Serial.print(" setPOINT : "); Serial.print(setPOINT);
       Serial.print(" counter : "); Serial.println(counter);
 
-    }  
+    }
+
+
   }
   
 }
