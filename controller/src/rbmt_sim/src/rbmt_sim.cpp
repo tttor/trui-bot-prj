@@ -24,10 +24,11 @@ void Simulator::cmd_wheel_speed_sub_cb(const geometry_msgs::TwistStampedConstPtr
   act_wheel_speed = simulate_wheel_speed_realization(cmd_wheel_speed);
 
   //
+  const float realization_factor = 0.7;
   geometry_msgs::TwistStamped act_wheel_speed_msg;
-  act_wheel_speed_msg.twist.linear.x = act_wheel_speed.at(0);
-  act_wheel_speed_msg.twist.linear.y = act_wheel_speed.at(1);
-  act_wheel_speed_msg.twist.linear.z = act_wheel_speed.at(2);
+  act_wheel_speed_msg.twist.linear.x = act_wheel_speed.at(0) * realization_factor;
+  act_wheel_speed_msg.twist.linear.y = act_wheel_speed.at(1) * realization_factor;
+  act_wheel_speed_msg.twist.linear.z = act_wheel_speed.at(2) * realization_factor;
 
   act_wheel_speed_pub_.publish(act_wheel_speed_msg);
 }
