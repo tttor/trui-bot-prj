@@ -30,10 +30,10 @@ TeleopTranslator::TeleopTranslator(ros::NodeHandle nh): nh_(nh) {
   axis_maxs_.at(5) =  1.0;
   axis_normals_.at(5) = 1.0;
 
-  vel_param_["x_vel_min"] = -1.0;
   vel_param_["x_vel_max"] =  1.0;
-  vel_param_["y_vel_min"] = -1.0;
-  vel_param_["y_vel_max"] =  1.0;
+  vel_param_["x_vel_min"] = -1.0 * vel_param_["x_vel_max"];
+  vel_param_["y_vel_max"] =  vel_param_["x_vel_max"];
+  vel_param_["y_vel_min"] = -1.0 * vel_param_["y_vel_max"];
   vel_param_["theta_vel_min"] = 0.0;
   vel_param_["theta_vel_max"] = 0.25 * M_PI;
 
