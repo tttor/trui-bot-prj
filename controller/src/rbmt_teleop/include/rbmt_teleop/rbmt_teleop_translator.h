@@ -5,6 +5,7 @@
 #include <ros/console.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
+#include <sensor_msgs/JointState.h>
 #include <vector>
 #include <map>
 #include <cmath>
@@ -27,6 +28,7 @@ class TeleopTranslator {
   ros::NodeHandle nh_;
   ros::Subscriber joy_sub_;
   ros::Publisher cmd_vel_pub_;
+  ros::Publisher act_joint_state_pub_;
 
   size_t n_axes_;
   size_t n_button_;

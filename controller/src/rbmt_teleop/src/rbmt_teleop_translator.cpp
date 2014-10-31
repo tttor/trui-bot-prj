@@ -40,6 +40,7 @@ TeleopTranslator::TeleopTranslator(ros::NodeHandle nh): nh_(nh) {
   //
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &TeleopTranslator::joy_sub_cb, this);
   cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 100);
+  act_joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("act_joint_state",100);
 }
 
 TeleopTranslator::~TeleopTranslator() {
@@ -53,6 +54,22 @@ void TeleopTranslator::joy_sub_cb(const sensor_msgs::JoyConstPtr& msg) {
 
 void TeleopTranslator::run() {
   const bool debug = false;
+
+  const size_t n_joint = 4;
+
+  sensor_msgs::JointState joint_state;
+
+  joint_state.name.resize(n_joint);
+  joint_state.name.at(0) = "whel1-joint";
+  joint_state.name.at(1) = "wheel2-joint";
+  joint_state.name.at(2) = "wheel3-joint";
+  joint_state.name.at(3) = "roll_joint";
+
+  joint_state.position.resize(n_joint);
+  joint_state.position.at(0)=0;
+  joint_state.position.at(1)=0;
+  joint_state.position.at(2)=0;
+  joint_state.position.at(3)=0;
 
   // axes(5): RT _must_ be initialized because _before_ first update _only_, axes_.at(5) has a normal value of 0, plus, if another axes is pushed before RT is initialized, then RT changes to not-normal value; weird!
   bool RT_initialized = false;
@@ -89,7 +106,7 @@ void TeleopTranslator::run() {
     ROS_DEBUG_STREAM_COND(debug, "cmd_vel.linear.y= "<< cmd_vel.linear.y);
     ROS_DEBUG_STREAM_COND(debug, "cmd_vel.angular.z= "<< cmd_vel.angular.z);
 
-    cmd_vel_pub_.publish(cmd_vel);  
+
 
     if(buttons_.at(3)==1) {
       const std::string action_server_name = "move_base";
@@ -106,10 +123,26 @@ void TeleopTranslator::run() {
       send_goal(goal, ac); 
     }
 
+    if (buttons_.at(5)==1) {
+      const double MAX_POS = 3.14;
+      joint_state.position.at(3) = MAX_POS;
+
+    }
+    
+    if (buttons_.at(4)==1) {
+      const double CENTER_POS = 0;
+      joint_state.position.at(3) = CENTER_POS;
+    }
+
+    //
+    cmd_vel_pub_.publish(cmd_vel);
+    act_joint_state_pub_.publish(joint_state);  
+
     //
     ros::spinOnce();
     rate.sleep();
   }
+  
 }
 
 float TeleopTranslator::axis_range(const size_t& ith) {
