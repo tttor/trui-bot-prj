@@ -1,5 +1,5 @@
 <launch>
-	<arg name="gui" default="False" />
+	<arg name="gui" default="True" />
 
 	<param name="robot_description" textfile="$(find rbmt_urdf)/urdf/rbmt.urdf" />
 	<param name="use_gui" value="$(arg gui)"/>

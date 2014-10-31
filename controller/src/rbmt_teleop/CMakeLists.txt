@@ -7,6 +7,7 @@ project(rbmt_teleop)
 find_package(catkin REQUIRED COMPONENTS
   cmake_modules
   geometry_msgs
+  sensor_msgs
   move_base_msgs
   roscpp
   std_msgs
