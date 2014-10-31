@@ -4,7 +4,7 @@
   <!-- Launch params -->
   <arg name="real_rbmt" default="False" />
   <arg name="rviz_on" default="False" />
-  <arg name="teleop" default="True" />
+  <arg name="teleop" default="False" />
 
   <!-- Set up parameter server -->
   <param name="real_rbmt" value="$(arg real_rbmt)"/>

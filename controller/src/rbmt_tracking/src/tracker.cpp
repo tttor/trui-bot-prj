@@ -1,4 +1,6 @@
 #include <rbmt_tracking/tracker.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 namespace rbmt_tracking{
 
@@ -10,9 +12,21 @@ Tracker::~Tracker() {
 }
 
 void Tracker::run() {
+  
+  using namespace std;
+  using namespace cv;
+  
   ros::Rate loop_rate(10);
   
+  VideoCapture cap(1); //capture the video from webcam
+  namedWindow("Camera", 1);
+
   while (ros::ok()) {
+    
+    Mat imgOriginal;
+    cap.read(imgOriginal);
+    imshow("Camera", imgOriginal);
+    
     geometry_msgs::Pose pose;
 
     pose.position.x = 0.0;
@@ -28,6 +42,11 @@ void Tracker::run() {
     ros::spinOnce();
 
     loop_rate.sleep();
+    if (waitKey(1) == 27) //wait for 'esc' key press for 1ms. If 'esc' key is pressed, break loop
+    {
+      cout << "esc key is pressed" << endl;
+      break;
+    }
   }
 } 
 

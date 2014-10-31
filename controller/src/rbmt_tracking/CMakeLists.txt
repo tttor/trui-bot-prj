@@ -10,6 +10,9 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
 )
 
+## Find opencv macros and libraries
+find_package(OpenCV REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -96,12 +99,17 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
 add_library(rbmt_tracking
    src/tracker.cpp
  )
+target_link_libraries(rbmt_tracking
+  ${OpenCV_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
 
 ## Declare a cpp executable
 add_executable(rbmt_tracking_node src/tracking_node.cpp)
