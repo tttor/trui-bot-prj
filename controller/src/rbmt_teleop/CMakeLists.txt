@@ -103,7 +103,7 @@ include_directories(
 
 ## Declare a cpp library
 add_library(rbmt_teleop
-  src/rbmt_teleop_translator.cpp
+  src/rbmt_teleop.cpp
 )
 target_link_libraries(rbmt_teleop
   ${catkin_LIBRARIES}

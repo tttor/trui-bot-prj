@@ -1,4 +1,4 @@
-#include <rbmt_teleop/rbmt_teleop_translator.h>
+#include <rbmt_teleop/rbmt_teleop.h>
 #include <log4cxx/logger.h>
 
 int main(int argc, char** argv){
