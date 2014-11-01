@@ -5,14 +5,14 @@ CC=avr-gcc
 CXX=avr-g++
 
 MASTER_MCU=-mmcu=atmega2560 #: atmega2560, atmega328p
-MASTER_MCU_TAG=m328p #: m2560, m328p
+MASTER_MCU_TAG=m2560 #: m2560, m328p
 MASTER_UPLOAD_PROTOCOL=wiring #: arduino (for atmega328p), wiring (for atmega2560), avr109
 MASTER_BOARD=arduino
 MASTER_CPU_SPEED=-DF_CPU=16000000UL
 MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
 MASTER_UPLOAD_BAUDRATE=115200 #(for promini m328p), 115200 (for mega m2560, uno m328p)
-MASTER_PORT=/dev/ttyACM1
+MASTER_PORT=/dev/ttyACM0
 
 SLAVE_MCU=-mmcu=atmega328p #: atmega328p, #atmega2560
 SLAVE_MCU_TAG=m328p #: m2560, m328p

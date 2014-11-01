@@ -1,19 +1,16 @@
-#include <rbmt_teleop/rbmt_teleop_translator.h>
+#include <rbmt_teleop/rbmt_teleop.h>
 
 namespace rbmt_teleop {
 
 TeleopTranslator::TeleopTranslator(ros::NodeHandle nh): nh_(nh) {
   //
   n_axes_ = 8;
-  n_button_ = 11;
 
   axes_.resize(n_axes_);
   axis_mins_.resize(n_axes_);
   axis_maxs_.resize(n_axes_);
   axis_normals_.resize(n_axes_);
-  buttons_.resize(n_button_);
 
-  //
   axis_mins_.at(0) = -1.0;
   axis_maxs_.at(0) =  1.0;
   axis_normals_.at(0) = 0.0;
@@ -30,16 +27,35 @@ TeleopTranslator::TeleopTranslator(ros::NodeHandle nh): nh_(nh) {
   axis_maxs_.at(5) =  1.0;
   axis_normals_.at(5) = 1.0;
 
-  vel_param_["x_vel_min"] = -1.0;
+  //
+  n_button_ = 11;
+  buttons_.resize(n_button_);
+
+  //
+  num_["button_A"] = 0;
+  num_["button_B"] = 1;
+  num_["button_X"] = 2;
+  num_["button_Y"] = 3;
+  num_["button_LB"] = 4;
+  num_["button_RB"] = 5;
+  num_["button_BACK"] = 6;
+  num_["button_START"] = 7;
+  num_["button_UNKNOWN"] = 8;
+  num_["button_LEFT_ANALOG"] = 9;
+  num_["button_RIGHT_ANALOG"] = 10;
+
+  //
   vel_param_["x_vel_max"] =  1.0;
-  vel_param_["y_vel_min"] = -1.0;
-  vel_param_["y_vel_max"] =  1.0;
+  vel_param_["x_vel_min"] = -1.0 * vel_param_["x_vel_max"];
+  vel_param_["y_vel_max"] =  vel_param_["x_vel_max"];
+  vel_param_["y_vel_min"] = -1.0 * vel_param_["y_vel_max"];
   vel_param_["theta_vel_min"] = 0.0;
   vel_param_["theta_vel_max"] = 0.25 * M_PI;
 
   //
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 1, &TeleopTranslator::joy_sub_cb, this);
   cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 100);
+  cmd_service_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("cmd_service", 100);
 }
 
 TeleopTranslator::~TeleopTranslator() {
@@ -51,7 +67,7 @@ void TeleopTranslator::joy_sub_cb(const sensor_msgs::JoyConstPtr& msg) {
   buttons_ = msg->buttons;
 }
 
-void TeleopTranslator::run() {
+void TeleopTranslator::run(ros::Rate rate) {
   const bool debug = false;
 
   // axes(5): RT _must_ be initialized because _before_ first update _only_, axes_.at(5) has a normal value of 0, plus, if another axes is pushed before RT is initialized, then RT changes to not-normal value; weird!
@@ -65,7 +81,6 @@ void TeleopTranslator::run() {
   }
   ROS_INFO("LT (axis(2)) and RT (axis(5)) is initialized.");
 
-  ros::Rate rate(10);
   while (ros::ok()) {
     // Set the values based on joy readings
     double x_vel, y_vel, theta_vel;
@@ -91,7 +106,7 @@ void TeleopTranslator::run() {
 
     cmd_vel_pub_.publish(cmd_vel);  
 
-    if(buttons_.at(3)==1) {
+    if(buttons_.at(num_["button_LB"])==1) {
       const std::string action_server_name = "move_base";
       MoveBaseClient ac(action_server_name);
       ac.waitForServer(); 
@@ -104,6 +119,23 @@ void TeleopTranslator::run() {
       goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
       
       send_goal(goal, ac); 
+    }
+
+    if (buttons_.at(num_["button_RB"])==1) {
+      // TODO @tttor: Replace with a compact (customized) msg; 
+      // The choice for geometry_msgs::PoseStamped is because, for now, we use mavros built-in plugin: setpoint_position
+      geometry_msgs::PoseStamped spose;
+
+      //
+      const double yaw = M_PI;// this mean do-service
+      tf::Quaternion q = tf::createQuaternionFromYaw(yaw);
+
+      spose.pose.orientation.x = q.x();
+      spose.pose.orientation.y = q.y();
+      spose.pose.orientation.z = q.z();
+      spose.pose.orientation.w = q.w();
+
+      cmd_service_pub_.publish(spose);
     }
 
     //

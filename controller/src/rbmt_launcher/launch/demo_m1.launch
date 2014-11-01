@@ -8,6 +8,7 @@
 
   <!-- Set up parameter server -->
   <param name="real_rbmt" value="$(arg real_rbmt)"/>
+  <rosparam param="source_list">['act_joint_state']</rosparam>
 
   <!-- Simulator start-up -->
   <group if="$(arg real_rbmt)">
