@@ -20,7 +20,7 @@ class TeleopTranslator {
  public:
   TeleopTranslator(ros::NodeHandle nh);
   ~TeleopTranslator();
-  void run();
+  void run(ros::Rate rate);
   typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
  private:

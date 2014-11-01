@@ -67,7 +67,7 @@ void TeleopTranslator::joy_sub_cb(const sensor_msgs::JoyConstPtr& msg) {
   buttons_ = msg->buttons;
 }
 
-void TeleopTranslator::run() {
+void TeleopTranslator::run(ros::Rate rate) {
   const bool debug = false;
 
   // axes(5): RT _must_ be initialized because _before_ first update _only_, axes_.at(5) has a normal value of 0, plus, if another axes is pushed before RT is initialized, then RT changes to not-normal value; weird!
@@ -81,7 +81,6 @@ void TeleopTranslator::run() {
   }
   ROS_INFO("LT (axis(2)) and RT (axis(5)) is initialized.");
 
-  ros::Rate rate(10);
   while (ros::ok()) {
     // Set the values based on joy readings
     double x_vel, y_vel, theta_vel;
