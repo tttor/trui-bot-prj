@@ -27,6 +27,7 @@ class TeleopTranslator {
   ros::NodeHandle nh_;
   ros::Subscriber joy_sub_;
   ros::Publisher cmd_vel_pub_;
+  ros::Publisher cmd_service_pub_;
 
   size_t n_axes_;
   size_t n_button_;
@@ -39,6 +40,9 @@ class TeleopTranslator {
   std::vector<float> axis_normals_;
 
   std::map<std::string, float> vel_param_;
+
+  //! Map the button or axis names to their number in either buttons_ or axes_
+  std::map<std::string, size_t> num_;
 
 /*!
  * axes.at(0) horizontal left analog
