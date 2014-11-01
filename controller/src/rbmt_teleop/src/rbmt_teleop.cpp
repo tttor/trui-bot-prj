@@ -107,7 +107,7 @@ void TeleopTranslator::run() {
 
     cmd_vel_pub_.publish(cmd_vel);  
 
-    if(buttons_.at(3)==1) {
+    if(buttons_.at(num_["button_Y"])==1) {
       const std::string action_server_name = "move_base";
       MoveBaseClient ac(action_server_name);
       ac.waitForServer(); 
