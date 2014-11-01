@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   actionlib 
   move_base_msgs 
+  geometry_msgs
   tf
 )
 
@@ -96,16 +97,21 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-# add_library(rbmt_nav
-#   src/${PROJECT_NAME}/rbmt_nav.cpp
-# )
+add_library(rbmt_nav
+  src/navigator.cpp
+)
+target_link_libraries(rbmt_nav
+  ${catkin_LIBRARIES}
+)
 
 ## Declare a cpp executable
 add_executable(rbmt_nav_node src/rbmt_nav_node.cpp)
+add_executable(navigator_node src/navigator_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -118,6 +124,10 @@ endif()
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rbmt_nav_node
   ${catkin_LIBRARIES}
+)
+target_link_libraries(navigator_node
+  ${catkin_LIBRARIES}
+  rbmt_nav
 )
 
 #############
