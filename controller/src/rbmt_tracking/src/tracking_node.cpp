@@ -1,6 +1,4 @@
 #include <rbmt_tracking/tracker.h>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 
 int main(int argc, char** argv){
   using namespace std;
@@ -9,7 +7,7 @@ int main(int argc, char** argv){
   ros::NodeHandle nh;
 
   rbmt_tracking::Tracker tracker(nh);
-  tracker.run();
+  tracker.run(ros::Rate(10));
 
   return(0);
 }

@@ -1,18 +1,20 @@
 #include <rbmt_tracking/tracker.h>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 
 namespace rbmt_tracking{
 
 Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
   cock_pose_pub_ = nh_.advertise<geometry_msgs::Pose>("cock_pose", 1);
+  quad = cv::Mat::zeros(500, 500, CV_8UC3);
 }
 Tracker::~Tracker() {
   
 }
 
-/*void CallBackFunc(int event, int x, int y, int flags, void* userdata)
+/*void Tracker::CallBackFunc(int event, int x, int y, int flags, void* userdata)
 {
+    using namespace cv;
+    using namespace std;
+
     if  ( event == EVENT_LBUTTONDOWN )
     {
         cout << "\n\n\nSET\n\n\n";
@@ -35,29 +37,11 @@ Tracker::~Tracker() {
     }
 }*/
 
-void Tracker::run() {
+void Tracker::run(ros::Rate loop_rate) {
   
   using namespace std;
   using namespace cv;
-  
-  //=============== VARIABLES ========================================//
-  int xVal;
-  int yVal;
-  int xHover;
-  int yHover;
-  Point2f tl;
-  Point2f tr;
-  Point2f bl;
-  Point2f br;
-  Point2f center;
-  Mat imgOriginal;
-  Mat imgBuffer;
-  Mat quad = Mat::zeros(500, 500, CV_8UC3);
-  vector<Point2f> corners;
-//=============== variables ========================================//
 
-  ros::Rate loop_rate(10);
-  
   VideoCapture cap(1); //capture the video from webcam
 
   if ( !cap.isOpened() )  // if not success, exit program
@@ -88,9 +72,9 @@ void Tracker::run() {
   createTrackbar("HighV", "Object", &iHighV, 255);
 //============================== object control =====================================================//
 
-
-//============================== SETUP CORNERS ======================================================//
 /*
+//============================== SETUP CORNERS ======================================================//
+
   cout << "Setup top left...\n Press any key to start, press esc when done \n\n";
   waitKey();
 
@@ -102,7 +86,7 @@ void Tracker::run() {
     namedWindow("Camera", 1);
 
     //set the callback function for any mouse event
-    setMouseCallback("Camera", CallBackFunc, NULL);
+    setMouseCallback("Camera", (cv::MouseCallback) &Tracker::CallBackFunc, NULL);
 
     // show clicked value
     cout << "\t" << xHover << "\t" << yHover << endl;
@@ -131,7 +115,7 @@ void Tracker::run() {
       namedWindow("Camera", 1);
 
       //set the callback function for any mouse event
-      setMouseCallback("Camera", CallBackFunc, NULL);
+      setMouseCallback("Camera", (cv::MouseCallback) &Tracker::CallBackFunc, NULL);
 
       // show clicked value
       cout << "\t" << xHover << "\t" << yHover << endl;
@@ -160,7 +144,7 @@ void Tracker::run() {
       namedWindow("Camera", 1);
 
       //set the callback function for any mouse event
-      setMouseCallback("Camera", CallBackFunc, NULL);
+      setMouseCallback("Camera", (cv::MouseCallback) &Tracker::CallBackFunc, NULL);
 
       // show clicked value
       cout << "\t" << xHover << "\t" << yHover << endl;
@@ -189,7 +173,7 @@ void Tracker::run() {
       namedWindow("Camera", 1);
 
       //set the callback function for any mouse event
-      setMouseCallback("Camera", CallBackFunc, NULL);
+      setMouseCallback("Camera", (cv::MouseCallback) &Tracker::CallBackFunc, NULL);
 
       // show clicked value
       cout << "\t" << xHover << "\t" << yHover << endl;
@@ -205,17 +189,17 @@ void Tracker::run() {
           cout << "bottom right: " << br << "\n\n";
             break;
       }
-  }*/
+  }
 //============================== setup corners ======================================================//
-
-  tl.x = 100;
-  tl.y = 100;
-  tr.x = 500;
-  tr.y = 100;
-  bl.x = 100;
-  bl.y = 300;
-  br.x = 500;
-  br.y = 300;
+*/
+  tl.x = 171;
+  tl.y = 319;
+  tr.x = 378;
+  tr.y = 320;
+  bl.x = 98;
+  bl.y = 424;
+  br.x = 424;
+  br.y = 422;
   
   // get mass center
   center.x = (tl.x + tr.x + bl.x + br.x) / 4;
@@ -297,8 +281,8 @@ void Tracker::run() {
         // Draw a circle
         circle( quad, Point(posX,posY), 16.0, Scalar( 0, 0, 255), 3, 8 );
 
-        cout << posX << "\t";
-        cout << posY << "\n\n";
+        //cout << posX << "\t";
+        //cout << posY << "\n\n";
     }
 //==================== object detection ===========================================================================//
 
@@ -320,17 +304,11 @@ void Tracker::run() {
 
 //========================== create and show image ==================================================//
 
-    if (waitKey(1) == 27) //wait for 'esc' key press for 1ms. If 'esc' key is pressed, break loop
-    {
-        cout << "esc key is pressed" << endl;
-            break;
-    }
-
     geometry_msgs::Pose pose;
 
-    pose.position.x = 0.0;
-    pose.position.y = 1.0;
-    pose.position.z = 2.0;
+    pose.position.x = posX;
+    pose.position.y = posY;
+    pose.position.z = 0.0;
 
     pose.orientation.x = 0.0;
     pose.orientation.y = 0.0;
