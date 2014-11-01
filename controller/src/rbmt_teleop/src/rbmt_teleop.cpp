@@ -107,7 +107,7 @@ void TeleopTranslator::run() {
 
     cmd_vel_pub_.publish(cmd_vel);  
 
-    if(buttons_.at(num_["button_Y"])==1) {
+    if(buttons_.at(num_["button_LB"])==1) {
       const std::string action_server_name = "move_base";
       MoveBaseClient ac(action_server_name);
       ac.waitForServer(); 
@@ -122,13 +122,13 @@ void TeleopTranslator::run() {
       send_goal(goal, ac); 
     }
 
-    if (buttons_.at(num_["button_A"])==1) {
+    if (buttons_.at(num_["button_RB"])==1) {
       // TODO @tttor: Replace with a compact (customized) msg; 
       // The choice for geometry_msgs::PoseStamped is because, for now, we use mavros built-in plugin: setpoint_position
       geometry_msgs::PoseStamped spose;
 
       //
-      const double yaw = M_PI * 0.5;// this mean do-service
+      const double yaw = M_PI;// this mean do-service
       tf::Quaternion q = tf::createQuaternionFromYaw(yaw);
 
       spose.pose.orientation.x = q.x();
