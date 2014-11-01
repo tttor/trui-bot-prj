@@ -9,7 +9,7 @@ namespace trui {
 
 class Motor {
    public:
-    Motor(size_t pwm_pin, size_t dir_pin, size_t encoder_out_a_pin, size_t encoder_out_b_pin, uint16_t encoder_resolution, float outmax_, float outmin_);
+    Motor(size_t pwm_pin_, size_t dir_pin_, size_t encoder_out_a_pin, size_t encoder_out_b_pin, uint16_t encoder_resolution, float outmax_, float outmin_, int numerator_, int denominator_);
     ~Motor();
     size_t encoder_out_a_pin;
     size_t encoder_out_b_pin;
@@ -47,8 +47,10 @@ class Motor {
     float kd_;
     float outmax_;
     float outmin_;
+    int numerator_;
+    int denominator_;
     uint8_t data_;
-    uint16_t ocr_;
+    float ocr_;
 
     crim::TwoPhaseIncrementalEncoder* encoder_;
 
