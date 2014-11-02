@@ -5,6 +5,8 @@ namespace rbmt_tracking{
 Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
   cock_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("cock_pose", 1);
   quad = cv::Mat::zeros(500, 500, CV_8UC3);
+  marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
+
 }
 Tracker::~Tracker() {
   
@@ -43,6 +45,11 @@ void Tracker::run_dummy(ros::Rate rate) {
   //
   vector<geometry_msgs::Pose> poses;
   geometry_msgs::Pose pose;
+  
+  // Set our initial shape type to be a cube
+  uint32_t shape = visualization_msgs::Marker::CUBE;
+
+  visualization_msgs::Marker marker;
 
   pose.position.x = 1.0;
   pose.position.y = 0.0;
@@ -84,13 +91,32 @@ void Tracker::run_dummy(ros::Rate rate) {
   std_msgs::Header header;
   header.frame_id = "map";
 
+  marker.header.frame_id = "map";
+  marker.header.stamp = ros::Time::now();
+  marker.type = shape;
+  marker.action = visualization_msgs::Marker::ADD;
+
+  marker.scale.x = 0.1;
+  marker.scale.y = 0.1;
+  marker.scale.z = 0.1;
+
+  marker.color.r = 0.0f;
+  marker.color.g = 1.0f;
+  marker.color.b = 0.0f;
+  marker.color.a = 1.0;
+
+  marker.lifetime = ros::Duration();
+
   size_t idx = 0;
   while (ros::ok())  {
     geometry_msgs::PoseStamped spose;
     spose.header = header;
     spose.pose = poses.at(idx%poses.size());
 
+    marker.pose = spose.pose;
+
     cock_pose_pub_.publish(spose);
+    marker_pub_.publish(marker);
 
     ++idx;
     ros::spinOnce();

@@ -5,7 +5,8 @@ int main(int argc, char** argv){
 
   ros::init(argc, argv, "tracking");
   ros::NodeHandle nh;
-
+  ros::Publisher marker_pub;
+  
   rbmt_tracking::Tracker tracker(nh);
   // tracker.run(ros::Rate(10));
 
