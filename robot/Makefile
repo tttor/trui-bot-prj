@@ -11,7 +11,7 @@ MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunct
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
 MASTER_MCU_TAG= m2560 #: m2560
 MASTER_UPLOAD_PROTOCOL= wiring #: arduino (for atmega328p), wiring (for atmega2560), avr109
-MASTER_PORT= /dev/ttyACM2
+MASTER_PORT= /dev/ttyACM0
 MASTER_UPLOAD_BAUDRATE=115200
 
 SLAVE_BOARD=arduino
@@ -21,8 +21,8 @@ SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_MCU_TAG= m328p
 SLAVE_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
-SLAVE_PORT= /dev/ttyUSB0
-SLAVE_UPLOAD_BAUDRATE=57600
+SLAVE_PORT= /dev/ttyACM0#USB0
+SLAVE_UPLOAD_BAUDRATE=115200#57600
 
 TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib
@@ -32,8 +32,9 @@ TARGET_BUILDDIR=./build
 ARDUINO_SRC= ./src/arduino/
 ARDUINO_INC=-I $(ARDUINO_SRC)
 ARDUINO_OBJ=$(ARDUINO_SRC)pins_arduino.o $(ARDUINO_SRC)wiring.o $(ARDUINO_SRC)wiring_analog.o $(ARDUINO_SRC)wiring_digital.o \
-			$(ARDUINO_SRC)wiring_pulse.o $(ARDUINO_SRC)wiring_shift.o $(ARDUINO_SRC)HardwareSerial.o  $(ARDUINO_SRC)Print.o   \
-			$(ARDUINO_SRC)Tone.o $(ARDUINO_SRC)WMath.o $(ARDUINO_SRC)WString.o $(ARDUINO_SRC)WInterrupts.o $(ARDUINO_SRC)new.o 
+			$(ARDUINO_SRC)wiring_pulse.o $(ARDUINO_SRC)wiring_shift.o $(ARDUINO_SRC)Stream.h $(ARDUINO_SRC)HardwareSerial.o  $(ARDUINO_SRC)Print.o   \
+			$(ARDUINO_SRC)Tone.o $(ARDUINO_SRC)WMath.o $(ARDUINO_SRC)WString.o $(ARDUINO_SRC)WInterrupts.o $(ARDUINO_SRC)new.o \
+			$(ARDUINO_SRC)twi.o $(ARDUINO_SRC)Wire.o 
 
 # NOTICE: the library linking order does matter 
 # see: http://stackoverflow.com/questions/11111966/eclipse-arduino-linker-trouble
@@ -42,7 +43,7 @@ MASTER_LIBS= $(TARGET_LIBDIR) -larduino-master -lm
 MASTER_INCDIR= /opt/ros/indigo/include
 MASTER_INCFLAGS = -I $(MASTER_INCDIR) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino
 
-SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp ./src/comm/arduino_mavlink_packet_handler.cpp ./src/actuator/motor.cpp
+SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp ./src/comm/arduino_mavlink_packet_handler.cpp ./src/actuator/motor.cpp ./src/pid/pid.c ./src/DynamixelSerial/DynamixelSerial.cpp
 SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
 SLAVE_INCFLAGS= -I $(MASTER_INCDIR) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino 
 
@@ -63,10 +64,14 @@ slave_main:
 	mkdir -p $(TARGET_INCDIR)/comm
 	mkdir -p $(TARGET_INCDIR)/sensor
 	mkdir -p $(TARGET_INCDIR)/actuator
+	mkdir -p $(TARGET_INCDIR)/pid
+	mkdir -p $(TARGET_INCDIR)/DynamixelSerial
 	cp ./src/comm/*.hpp $(TARGET_INCDIR)/comm
 	cp ./src/comm/*.h $(TARGET_INCDIR)/comm
 	cp ./src/actuator/*.h $(TARGET_INCDIR)/actuator
 	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
+	cp ./src/pid/*.h $(TARGET_INCDIR)/pid
+	cp ./src/DynamixelSerial/*.h $(TARGET_INCDIR)/DynamixelSerial
 	$(CC) $(SLAVE_CFLAGS) $(SLAVE_INCFLAGS) $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
