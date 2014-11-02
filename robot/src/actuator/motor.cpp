@@ -14,11 +14,11 @@ namespace trui {
     mv_=0, iTerm_= 0;    
     delta_=0, error_=0, last_error_=0; 
     data_=0;
+    //kp_= 0.316, ki_= 0.0528, kd_= 0;
     kp_= 0.316, ki_= 0.0528, kd_= 0;
-
     setup();
-    encoder_ = new crim::TwoPhaseIncrementalEncoder(encoder_out_a_pin, encoder_out_b_pin, encoder_resolution);
 
+    encoder_ = new crim::TwoPhaseIncrementalEncoder(encoder_out_a_pin, encoder_out_b_pin, encoder_resolution);
   }
 
   Motor::~Motor() {
