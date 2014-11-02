@@ -1,7 +1,7 @@
 <launch>
   <!-- vim: ft=xml -->
   
-  <arg name="rbmt_url" default="/dev/ttyACM0:115200" />
+  <arg name="rbmt_url" default="/dev/rfcomm1:57600" />
   <arg name="target_system_id" default="1" />
   <arg name="target_component_id" default="1" />
 
