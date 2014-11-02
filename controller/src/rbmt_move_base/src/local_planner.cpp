@@ -15,6 +15,7 @@ bool LocalPlanner::plan(const std::vector<geometry_msgs::PoseStamped>& global_pl
 
     geometry_msgs::Twist cmd_vel;
 
+    //TODO @tttor: consider max vel, break into segments if one segment is too long
     cmd_vel.linear.x = waypoint_j.pose.position.x - waypoint_i.pose.position.x;
     cmd_vel.linear.y = waypoint_j.pose.position.y - waypoint_i.pose.position.y;
     cmd_vel.linear.z = 0.0;
