@@ -25,19 +25,12 @@ class Tracker {
   ros::NodeHandle nh_;
 
   //=============== VARIABLES ========================================//
-  int xVal;
-  int yVal;
-  int xHover;
-  int yHover;
-  cv::Point2f tl;
-  cv::Point2f tr;
-  cv::Point2f bl;
-  cv::Point2f br;
-  cv::Point2f center;
-  cv::Mat imgOriginal;
-  cv::Mat imgBuffer;
-  cv::Mat quad;
+  int xVal, yVal, xHover, yHover, fWidth, fLength, rWidth, rLength;
+  cv::Point2f tl, tr, bl, br;
+  cv::Point2f center, rCenter;
+  cv::Mat imgOriginal, imgBuffer, quad, quadCopy;
   std::vector<cv::Point2f> corners;
+  double deg, h, l, w, dist;
 //=============== variables ========================================//
 
 };
