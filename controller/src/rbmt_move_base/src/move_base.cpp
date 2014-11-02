@@ -58,12 +58,21 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
   using namespace std;
   ROS_DEBUG("move_base: executeCb: BEGIN");
 
+  // TODO @tttor: put these in param servers
+  const double dt = 1.0; // in seconds
+  const double dt_tolerance = 0.5;
+
   // TODO @tttor: do planning, then publish velocity to the cmd_vel topic
   geometry_msgs::PoseStamped start_pose, goal_pose;
   start_pose = get_pose();
   goal_pose.pose = move_base_goal->target_pose.pose;
 
   global_planner_->plan(start_pose, goal_pose, &global_plan_);
+  for (size_t i=0; i<global_plan_.size(); ++i) {
+    ROS_DEBUG_STREAM("global_plan_.at(" << i << ")");
+    ROS_DEBUG_STREAM("pose.position.x= " << global_plan_.at(i).pose.position.x);
+    ROS_DEBUG_STREAM("pose.position.y= " << global_plan_.at(i).pose.position.y);
+  }
 
   //
   std::vector<geometry_msgs::Twist> local_plan;
@@ -71,7 +80,13 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
 
   // Publish the local plan 
   for (size_t i=0; i<local_plan.size(); ++i) {
+    ROS_DEBUG_STREAM("local_plan.at(" << i << ")");
+    ROS_DEBUG_STREAM("linear.x= " << local_plan.at(i).linear.x);
+    ROS_DEBUG_STREAM("linear.y= " << local_plan.at(i).linear.y);
+    ROS_DEBUG_STREAM("angular.z= " << local_plan.at(i).angular.z);
+
     vel_pub_.publish( local_plan.at(i) );  
+    ros::Duration(dt+dt_tolerance).sleep();
   }
 
   // // TODO @tttor: check to see if we've reached the goal position, see file:goal_functions.cpp

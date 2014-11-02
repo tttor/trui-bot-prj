@@ -18,27 +18,23 @@ void Navigator::cock_pose_sub_cb(const geometry_msgs::PoseStampedConstPtr& msg) 
 
   //
   move_base_msgs::MoveBaseGoal goal;
-  goal.target_pose.header.frame_id = "map";// the reference frame of the goal pose
-  goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.pose.position.x = msg->pose.position.x;
-  goal.target_pose.pose.position.y = msg->pose.position.y;
-  goal.target_pose.pose.position.z = 0.0;
-  goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+  goal.target_pose = *msg;
 
   send_goal(goal, ac);
 }
 
-
-
 size_t Navigator::send_goal(const move_base_msgs::MoveBaseGoal& goal, MoveBaseClient& ac) {
-  ROS_INFO("send_goal(): BEGIN");
+  const bool debug = !false;
+
+  ROS_INFO_COND(debug, "send_goal(): BEGIN");
   size_t status = 0;
   
   //
   ac.sendGoal(goal);
 
+  const double timeout = 10.0;
   bool finished_before_timeout;
-  finished_before_timeout = ac.waitForResult(ros::Duration(5.0));//TODO @tttor: may use a callback fo this
+  finished_before_timeout = ac.waitForResult(ros::Duration(timeout));//TODO @tttor: may use a callback fo this
 
   if (finished_before_timeout) {
     actionlib::SimpleClientGoalState state = ac.getState();
@@ -48,7 +44,7 @@ size_t Navigator::send_goal(const move_base_msgs::MoveBaseGoal& goal, MoveBaseCl
       status = 1;
     }
     else {
-      ROS_DEBUG("The base failed to move forward 2 meters for some reason");
+      ROS_DEBUG("The base failed to move for some reason");
       status = 2;
     }
   }
@@ -57,7 +53,8 @@ size_t Navigator::send_goal(const move_base_msgs::MoveBaseGoal& goal, MoveBaseCl
     status = 3;
   }
 
-  ROS_INFO("send_goal(): BEGIN");
+  ROS_INFO_STREAM_COND(debug, "status= " << status);
+  ROS_INFO_COND(debug, "send_goal(): END");
   return status;
 }
 
