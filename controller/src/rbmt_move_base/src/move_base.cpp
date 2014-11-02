@@ -68,11 +68,11 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
   goal_pose.pose = move_base_goal->target_pose.pose;
 
   global_planner_->plan(start_pose, goal_pose, &global_plan_);
-  for (size_t i=0; i<global_plan_.size(); ++i) {
-    ROS_DEBUG_STREAM("global_plan_.at(" << i << ")");
-    ROS_DEBUG_STREAM("pose.position.x= " << global_plan_.at(i).pose.position.x);
-    ROS_DEBUG_STREAM("pose.position.y= " << global_plan_.at(i).pose.position.y);
-  }
+  // for (size_t i=0; i<global_plan_.size(); ++i) {
+  //   ROS_DEBUG_STREAM("global_plan_.at(" << i << ")");
+  //   ROS_DEBUG_STREAM("pose.position.x= " << global_plan_.at(i).pose.position.x);
+  //   ROS_DEBUG_STREAM("pose.position.y= " << global_plan_.at(i).pose.position.y);
+  // }
 
   //
   std::vector<geometry_msgs::Twist> local_plan;
@@ -80,10 +80,10 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
 
   // Publish the local plan 
   for (size_t i=0; i<local_plan.size(); ++i) {
-    ROS_DEBUG_STREAM("local_plan.at(" << i << ")");
-    ROS_DEBUG_STREAM("linear.x= " << local_plan.at(i).linear.x);
-    ROS_DEBUG_STREAM("linear.y= " << local_plan.at(i).linear.y);
-    ROS_DEBUG_STREAM("angular.z= " << local_plan.at(i).angular.z);
+    // ROS_DEBUG_STREAM("local_plan.at(" << i << ")");
+    // ROS_DEBUG_STREAM("linear.x= " << local_plan.at(i).linear.x);
+    // ROS_DEBUG_STREAM("linear.y= " << local_plan.at(i).linear.y);
+    // ROS_DEBUG_STREAM("angular.z= " << local_plan.at(i).angular.z);
 
     vel_pub_.publish( local_plan.at(i) );  
     ros::Duration(dt+dt_tolerance).sleep();
