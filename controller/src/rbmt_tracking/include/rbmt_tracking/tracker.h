@@ -6,7 +6,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-
 namespace rbmt_tracking {
 
 typedef void (*voidFuncPtr)(void);
@@ -17,6 +16,9 @@ class Tracker {
   ~Tracker();
 
   void run(ros::Rate loop_rate);
+
+  //! Dummy: publish hardcoded cock end position
+  void run_dummy(ros::Rate rate);
   
   void CallBackFunc(int event, int x, int y, int flags, void* userdata);
  
