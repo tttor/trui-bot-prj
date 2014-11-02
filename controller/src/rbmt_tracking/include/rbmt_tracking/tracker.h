@@ -5,6 +5,7 @@
 #include <ros/ros.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <visualization_msgs/Marker.h>
 
 namespace rbmt_tracking {
 
@@ -25,6 +26,7 @@ class Tracker {
  private:
   ros::Publisher cock_pose_pub_;
   ros::NodeHandle nh_;
+  ros::Publisher marker_pub_;
 
   //=============== VARIABLES ========================================//
   int xVal;
