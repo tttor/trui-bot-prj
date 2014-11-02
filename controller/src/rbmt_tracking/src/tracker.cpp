@@ -41,15 +41,12 @@ Tracker::~Tracker() {
 
 void Tracker::run_dummy(ros::Rate rate) {
   using namespace std;
+  
+  marker_init();
 
   //
   vector<geometry_msgs::Pose> poses;
   geometry_msgs::Pose pose;
-  
-  // Set our initial shape type to be a cube
-  uint32_t shape = visualization_msgs::Marker::CUBE;
-
-  visualization_msgs::Marker marker;
 
   pose.position.x = 1.0;
   pose.position.y = 0.0;
@@ -91,20 +88,6 @@ void Tracker::run_dummy(ros::Rate rate) {
   std_msgs::Header header;
   header.frame_id = "map";
 
-  marker.header.frame_id = "map";
-  marker.header.stamp = ros::Time::now();
-  marker.type = shape;
-  marker.action = visualization_msgs::Marker::ADD;
-
-  marker.scale.x = 0.1;
-  marker.scale.y = 0.1;
-  marker.scale.z = 0.1;
-
-  marker.color.r = 0.0f;
-  marker.color.g = 1.0f;
-  marker.color.b = 0.0f;
-  marker.color.a = 1.0;
-
   marker.lifetime = ros::Duration();
 
   size_t idx = 0;
@@ -124,9 +107,30 @@ void Tracker::run_dummy(ros::Rate rate) {
   }
 }
 
+void Tracker::marker_init() {
+ // Set our initial shape type to be a cube
+  uint32_t shape = visualization_msgs::Marker::CUBE;
+
+  marker.header.frame_id = "map";
+  marker.header.stamp = ros::Time::now();
+  marker.type = shape;
+  marker.action = visualization_msgs::Marker::ADD;
+
+  marker.scale.x = 0.1;
+  marker.scale.y = 0.1;
+  marker.scale.z = 0.1;
+
+  marker.color.r = 0.0f;
+  marker.color.g = 1.0f;
+  marker.color.b = 0.0f;
+  marker.color.a = 1.0;
+}
+
 void Tracker::run(ros::Rate loop_rate) {
   using namespace std;
   using namespace cv;
+
+  marker_init();
 
   VideoCapture cap(1); //capture the video from webcam
 
@@ -392,6 +396,8 @@ void Tracker::run(ros::Rate loop_rate) {
 
     geometry_msgs::Pose pose;
 
+    marker.lifetime = ros::Duration();
+    
     pose.position.x = posX;
     pose.position.y = posY;
     pose.position.z = 0.0;
@@ -402,6 +408,9 @@ void Tracker::run(ros::Rate loop_rate) {
     pose.orientation.w = 1.0;
 
     cock_pose_pub_.publish(pose);
+    marker.pose = pose;
+    marker_pub_.publish(marker);
+
     ros::spinOnce();
 
     loop_rate.sleep();
