@@ -2,18 +2,23 @@
 #include <mavlink/v1.0/common/mavlink.h>
 
 #define SLAVE_ON
-#define DEBUG_LEVEL_1
+//#define DEBUG_LEVEL_1
 
 int main() {
   init();// this needs to be called before setup() otherwise some functions won't work
-  Serial.begin(115200);
+  Serial.begin(57600);
   #ifdef SLAVE_ON
   Serial1.begin(9600);
   Serial2.begin(9600);    
   Serial3.begin(9600);
+  pinMode(13,OUTPUT);
 
   const uint8_t header= 0xCE;
   const uint8_t footer= 0xEE;
+
+  const uint8_t hit_mode= 0x0A;
+  const uint8_t position_mode= 0x0B;
+  const uint8_t hit_flag= 0x0F;
 
   float slave1_cmd_speed_f = 0.0;
   float slave2_cmd_speed_f = 0.0;
@@ -28,7 +33,7 @@ int main() {
     mavlink_status_t rx_status;
     bool found = false;
     
-    Serial.println("Waiting ...");
+    //Serial.println("Waiting ...");
     while (!found) {
       if (Serial.available() > 0) {
         if (mavlink_parse_char(MAVLINK_COMM_0, Serial.read(), &rx_msg, &rx_status)) {
@@ -102,10 +107,34 @@ int main() {
         Serial2.write(buffer2, 7);
         Serial3.write(buffer3, 7);
 
+        //hit-manipulation slave
+        int8_t slave_hit1_speed;
+        int8_t slave_hit2_speed;
+        int target_pos1;
+        int target_pos2;
+        uint8_t buffer_hit1[11];
+        uint8_t buffer_hit2[11];
+        uint8_t buffer_hit3[11];
+
         // Interpret the service command
         float hit_service = msg.y;
-        if (hit_service > 0.0) {
-          // TODO: Send hit_service command!
+        if (hit_service > 0.0) {        
+          buffer_hit3[0]= header;
+          buffer_hit3[10]= footer;
+          buffer_hit3[1]= hit_mode;
+          buffer_hit3[2]= hit_flag;
+          buffer_hit3[6]= (int) ((slave_hit1_speed & 0xFF000000) >> 24);
+          buffer_hit3[5]= (int) ((slave_hit1_speed & 0x00FF0000) >> 16);
+          buffer_hit3[4]= (int) ((slave_hit1_speed & 0x0000FF00) >> 8);
+          buffer_hit3[3]= (int) ((slave_hit1_speed & 0x000000FF));
+          buffer_hit3[7]= target_pos1;
+          uint16_t checksum_hit1= buffer_hit1[0] + buffer_hit1[1] + buffer_hit1[2] + buffer_hit1[3] + buffer_hit1[4] + buffer_hit1[5] + buffer_hit1[6] + buffer_hit1[7] + buffer_hit1[10];
+          buffer_hit3[8]= (int) ((checksum_hit1 & 0x00FF));
+          buffer_hit3[9]= (int) ((checksum_hit1 & 0xFF00));
+
+          Wire.beginTransmission(93);
+          Wire.write(buffer_hit3, 11);
+          Wire.endTransmission();
         }
         #endif
       }// case MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED
