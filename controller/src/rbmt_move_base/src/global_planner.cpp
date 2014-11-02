@@ -2,7 +2,14 @@
 
 namespace rbmt_move_base {
 
-GlobalPlanner::GlobalPlanner() {};
+GlobalPlanner::GlobalPlanner() {
+  ros::NodeHandle nh;
+
+  const double max_linear_vel_default_val = 0.1;
+  nh.param<double> ("max_linear_vel", max_linear_vel_, max_linear_vel_default_val);
+
+};
+
 GlobalPlanner::~GlobalPlanner() {};
 
 bool GlobalPlanner::plan(const geometry_msgs::PoseStamped& start_pose, const geometry_msgs::PoseStamped& goal_pose, std::vector<geometry_msgs::PoseStamped>* global_plan) {
@@ -12,12 +19,11 @@ bool GlobalPlanner::plan(const geometry_msgs::PoseStamped& start_pose, const geo
   Eigen::Vector2d g(goal_pose.pose.position.x, goal_pose.pose.position.y);
 
   // For now, consider only 2D pose
-  const double max_linear_vel = 1.0;// w.r.t /map
   const double dist = get_cartesian_dist<Eigen::Vector2d>(s, g);
 
-  size_t n_segment = ((size_t) dist / max_linear_vel);
-  if (remainder(dist,max_linear_vel) > 0.0) {
-    ++n_segment;// since we desire each segment can be done in,at most, max_linear_vel
+  size_t n_segment = ((size_t) dist / max_linear_vel_);
+  if (remainder(dist,max_linear_vel_) > 0.0) {
+    ++n_segment;// since we desire each segment can be done in,at most, max_linear_vel_
   }
 
   Eigen::Vector2d segment;

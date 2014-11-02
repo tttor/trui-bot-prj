@@ -21,13 +21,14 @@ typedef actionlib::SimpleActionServer<move_base_msgs::MoveBaseAction> MoveBaseAc
 
 class MoveBase {
  public:
- 	MoveBase(tf::TransformListener& tf_listener);
+ 	MoveBase(ros::NodeHandle nh, tf::TransformListener& tf_listener);
  	~MoveBase();
 
  private:
   void executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal);
   geometry_msgs::PoseStamped get_pose();
 
+  ros::NodeHandle nh_;
   MoveBaseActionServer* as_;
   GlobalPlanner* global_planner_;
   LocalPlanner* local_planner_;
@@ -35,6 +36,7 @@ class MoveBase {
   ros::Publisher vel_pub_;
   tf::TransformListener& tf_listener_;
   std::vector<geometry_msgs::PoseStamped> global_plan_;
+  double dt_realization_;
 };
 
 }// namespace rbmt_move_base
