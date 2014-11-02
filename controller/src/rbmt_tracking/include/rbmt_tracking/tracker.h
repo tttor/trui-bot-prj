@@ -22,6 +22,8 @@ class Tracker {
   void run_dummy(ros::Rate rate);
   
   void CallBackFunc(int event, int x, int y, int flags, void* userdata);
+
+  void marker_init();
  
  private:
   ros::Publisher cock_pose_pub_;
@@ -42,6 +44,7 @@ class Tracker {
   cv::Mat imgBuffer;
   cv::Mat quad;
   std::vector<cv::Point2f> corners;
+  visualization_msgs::Marker marker;
 //=============== variables ========================================//
 
 };
