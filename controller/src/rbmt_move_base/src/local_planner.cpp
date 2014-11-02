@@ -6,8 +6,6 @@ LocalPlanner::LocalPlanner() {};
 LocalPlanner::~LocalPlanner() {};
 
 bool LocalPlanner::plan(const std::vector<geometry_msgs::PoseStamped>& global_plan, std::vector<geometry_msgs::Twist>* local_plan) {
-  const double dt = 1.0;// in seconds
-
   local_plan->clear();
   for (size_t i=0; i<(global_plan.size()-1); ++i) {
     //
@@ -19,7 +17,8 @@ bool LocalPlanner::plan(const std::vector<geometry_msgs::PoseStamped>& global_pl
     double dy = waypoint_j.pose.position.y - waypoint_i.pose.position.y;
     double dtheta = tf::getYaw(waypoint_j.pose.orientation) - tf::getYaw(waypoint_i.pose.orientation);
 
-    //
+    // The velocity in each trajectory segment, i.e. between two waypoints, is always measures in one (discrete time unit) dt
+    const double dt = 1.0;// yes, dt means one dt
     geometry_msgs::Twist cmd_vel;
 
     cmd_vel.linear.x = dx/dt;

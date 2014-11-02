@@ -3,12 +3,12 @@
 
 namespace rbmt_move_base {
 
-MoveBase::MoveBase(tf::TransformListener& tf_listener): tf_listener_(tf_listener), as_(NULL) {
+MoveBase::MoveBase(ros::NodeHandle nh, tf::TransformListener& tf_listener): nh_(nh), tf_listener_(tf_listener), as_(NULL) {
   using namespace std;
 
-  ros::NodeHandle private_nh("~");
-  ros::NodeHandle nh;
-  
+  const double dt_realization_default_val = 0.1;
+  nh_.param<double> ("dt_realization", dt_realization_, dt_realization_default_val);
+
   global_planner_ = new GlobalPlanner();
   local_planner_ = new LocalPlanner();
 
@@ -58,11 +58,6 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
   using namespace std;
   ROS_DEBUG("move_base: executeCb: BEGIN");
 
-  // TODO @tttor: put these in param servers
-  const double dt = 1.0; // in seconds
-  const double dt_tolerance = 0.5;
-
-  // TODO @tttor: do planning, then publish velocity to the cmd_vel topic
   geometry_msgs::PoseStamped start_pose, goal_pose;
   start_pose = get_pose();
   goal_pose.pose = move_base_goal->target_pose.pose;
@@ -86,7 +81,7 @@ void MoveBase::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_g
     // ROS_DEBUG_STREAM("angular.z= " << local_plan.at(i).angular.z);
 
     vel_pub_.publish( local_plan.at(i) );  
-    ros::Duration(dt+dt_tolerance).sleep();
+    ros::Duration(dt_realization_).sleep();
   }
 
   // // TODO @tttor: check to see if we've reached the goal position, see file:goal_functions.cpp
