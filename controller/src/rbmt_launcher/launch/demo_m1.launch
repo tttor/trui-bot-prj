@@ -19,6 +19,9 @@
     <node pkg="rbmt_sim" type="rbmt_sim_node" name="sim" output="screen"/>
   <!-- /group -->
   
+  <!-- Tracking start-up -->
+  <node pkg="rbmt_tracking" type="rbmt_tracking_node" name="tracker" output="screen"/>
+
   <!-- Navigation node start-up -->
   <include file="$(find rbmt_map)/launch/frame_setup.launch"/>
   <include file="$(find rbmt_nav)/launch/nav_cfg.launch"/>
@@ -27,6 +30,10 @@
   <group if="$(arg teleop)">
     <node pkg="joy" type="joy_node" name="joy" output="screen"/>
     <node pkg="rbmt_teleop" type="rbmt_teleop_node" name="teleop" output="screen"/>
+  </group>
+
+  <group unless="$(arg teleop)">
+    <node pkg="rbmt_nav" type="navigator_node" name="nav" output="screen"/>
   </group>
 
   <!-- RVIZ start-up -->
