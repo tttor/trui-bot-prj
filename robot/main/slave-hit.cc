@@ -409,6 +409,7 @@ void receiveEvent(int howMany)
 int main() {
   
   init();
+<<<<<<< HEAD
   // setup();
   // Motor motor;
 
@@ -425,6 +426,20 @@ int main() {
   // motor.servoInit();
   // setPOINT = 0;
   // delay(1000);
+=======
+  setup();
+  Motor motor;
+
+  float x;// a speed order from master
+  long timeNow = 0, timeOld = 0;
+  long setPOINT;
+  int counter=0, countSetP=0;
+  long timeStamp = 0;
+  motor.servoInit();
+  setPOINT = 0;
+  delay(1000);
+  uint8_t buffer[11];
+>>>>>>> upstream/master
 
   while (1) {
     // timeNow = millis();
@@ -459,9 +474,41 @@ int main() {
     //   Serial.print(" setPOINT : "); Serial.print(setPOINT);
     //   Serial.print(" counter : "); Serial.println(counter);
 
+<<<<<<< HEAD
     // }
 
 
+=======
+    if (Serial.available() >= 11) {
+      for (int i=0; i<11; i++) {
+        buffer[i] = Serial.read();
+      }
+    }
+
+    timeNow = millis();
+    if(timeNow - timeOld > 1){
+      timeOld = timeNow;
+      counter++;
+      if(counter == 200) {
+        // if(setPOINT >= 900) {setPOINT = 300;}
+        // else  setPOINT=setPOINT+100;
+        if(countSetP == 1) setPOINT = 900;
+        else setPOINT = 300;
+        counter = 0;
+        countSetP = !countSetP;
+        }
+      if(movingFlag == 1){
+      timeStamp = millis();
+      motor.set_degPControl(setPOINT);}
+      timeStamp = millis() - timeStamp;
+      Serial.print("timeStamp : "); Serial.print(timeStamp);
+      Serial.print(" setPOINT : "); Serial.print(setPOINT);
+      Serial.print(" counter : "); Serial.println(counter);
+
+    }
+
+
+>>>>>>> upstream/master
   }
   
 }

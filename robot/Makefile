@@ -4,25 +4,39 @@
 CC=avr-gcc
 CXX=avr-g++
 
+MASTER_MCU=-mmcu=atmega2560 #: atmega2560, atmega328p
+MASTER_MCU_TAG=m2560 #: m2560, m328p
+MASTER_UPLOAD_PROTOCOL=wiring #: arduino (for atmega328p), wiring (for atmega2560), avr109
 MASTER_BOARD=arduino
-MASTER_MCU=-mmcu=atmega2560 #: atmega2560
 MASTER_CPU_SPEED=-DF_CPU=16000000UL
 MASTER_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 MASTER_LIBNAME=lib$(MASTER_BOARD)-master.a
+<<<<<<< HEAD
 MASTER_MCU_TAG= m2560 #: m2560
 MASTER_UPLOAD_PROTOCOL= wiring #: arduino (for atmega328p), wiring (for atmega2560), avr109
 MASTER_PORT= /dev/ttyACM0
 MASTER_UPLOAD_BAUDRATE=115200
+=======
+MASTER_UPLOAD_BAUDRATE=115200 #(for promini m328p), 115200 (for mega m2560, uno m328p)
+MASTER_PORT=/dev/ttyACM0
+>>>>>>> upstream/master
 
+SLAVE_MCU=-mmcu=atmega328p #: atmega328p, #atmega2560
+SLAVE_MCU_TAG=m328p #: m2560, m328p
+SLAVE_UPLOAD_PROTOCOL=arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
 SLAVE_BOARD=arduino
-SLAVE_MCU=-mmcu=atmega328p # atmega328p, #atmega2560 
 SLAVE_CPU_SPEED=-DF_CPU=16000000UL
 SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
+<<<<<<< HEAD
 SLAVE_MCU_TAG= m328p
 SLAVE_UPLOAD_PROTOCOL= arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
 SLAVE_PORT= /dev/ttyACM0#USB0
 SLAVE_UPLOAD_BAUDRATE=115200#57600
+=======
+SLAVE_UPLOAD_BAUDRATE=57600 #: 57600 (for promini m328p), 115200 (for mega m2560, uno m328p)
+SLAVE_PORT=/dev/ttyACM2
+>>>>>>> upstream/master
 
 TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib

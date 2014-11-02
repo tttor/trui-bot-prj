@@ -1,0 +1,48 @@
+1) sudo apt-get install bluetooth bluez-utils
+2) In terminal write: hcitool scan
+   a MAC Address should appear
+   example:
+   20:13:11:28:04:22    H-C-2010-06-01
+
+3) Write: rfcomm bind 0 20:13:xx:xx:xx:xx (0 stands for channel, you can use other channels)
+4) write: rfcomm connect 0 20:13:xx:xx:xx:xx
+
+
+
+5) Arduino Code:
+  
+#include <arduino/Arduino.h>
+void setup(){
+    // Open serial communications and wait for port to open:
+    Serial.begin(9600);
+    while (!Serial) {
+      ; // wait for serial port to connect. Needed for Leonardo only
+    }
+ 
+    Serial.println("Ready!");
+    Serial1.begin(57600);
+}
+
+int main(){
+  setup();
+  init();
+
+  while(1) // run over and over
+  {
+   if (Serial1.available())
+     Serial.write(Serial1.read());
+   if (Serial.available())
+      Serial1.write(Serial.read());
+  }
+}
+  
+
+6) To test connection write in terminal: echo "TEST" > /dev/rfcommX where X is the channel
+7) After hanging up(CTRL-C), If you get: 
+   
+      Can't create RFCOMM TTY: Address already in use
+
+   when trying to reconnect, write in :
+    
+      sudo rfcomm release X where X is the channel
+

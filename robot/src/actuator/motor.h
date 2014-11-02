@@ -29,11 +29,19 @@ class Motor {
     
     size_t pwm_pin_;
     size_t dir_pin_;
+<<<<<<< HEAD
     int32_t tick_;
     int32_t tick_enc_;
     int32_t last_tick_enc_;
     int32_t last2_tick_enc_;
     int32_t deriv_comp_;
+=======
+    int64_t tick_;
+    int64_t tick_enc_;
+    int64_t last_tick_enc_;
+    int64_t last2_tick_enc_;
+    int64_t deriv_comp_;
+>>>>>>> upstream/master
     float omega_;
     float omega_input_;
     float last_omega_;

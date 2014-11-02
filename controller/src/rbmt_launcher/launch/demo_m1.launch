@@ -1,0 +1,44 @@
+<launch>
+  <!-- vim: ft=xml -->
+  
+  <!-- Launch params -->
+  <arg name="real_rbmt" default="False" />
+  <arg name="rviz_on" default="False" />
+  <arg name="teleop" default="False" />
+
+  <!-- Set up parameter server -->
+  <param name="real_rbmt" value="$(arg real_rbmt)"/>
+  <rosparam param="source_list">['act_joint_state']</rosparam>
+
+  <!-- Simulator start-up -->
+  <group if="$(arg real_rbmt)">
+    <include file="$(find rbmt_base_ctrl)/launch/rbmt_serial.launch"/>
+  </group>
+
+  <!-- group unless="$(arg real_rbmt)" (Commented because the control loop is still open: no feedback from the real robot)-->    
+    <node pkg="rbmt_sim" type="rbmt_sim_node" name="sim" output="screen"/>
+  <!-- /group -->
+  
+  <!-- Tracking start-up -->
+  <node pkg="rbmt_tracking" type="rbmt_tracking_node" name="tracker" output="screen"/>
+
+  <!-- Navigation node start-up -->
+  <include file="$(find rbmt_map)/launch/frame_setup.launch"/>
+  <include file="$(find rbmt_nav)/launch/nav_cfg.launch"/>
+  <include file="$(find rbmt_nav)/launch/move_base.launch"/>
+
+  <group if="$(arg teleop)">
+    <node pkg="joy" type="joy_node" name="joy" output="screen"/>
+    <node pkg="rbmt_teleop" type="rbmt_teleop_node" name="teleop" output="screen"/>
+  </group>
+
+  <group unless="$(arg teleop)">
+    <node pkg="rbmt_nav" type="navigator_node" name="nav" output="screen"/>
+  </group>
+
+  <!-- RVIZ start-up -->
+  <group if="$(arg rviz_on)">
+    <include file="$(find rbmt_urdf)/launch/display.launch"/>
+  </group>
+
+</launch>

@@ -2,6 +2,7 @@
 #define RBMT_BASE_CTRL_H_
 
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <rbmt_base_ctrl/rbmt_base_kinematics.h>
 #include <Eigen/Dense>

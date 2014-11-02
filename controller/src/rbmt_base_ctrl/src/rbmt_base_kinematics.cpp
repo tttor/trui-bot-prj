@@ -39,7 +39,8 @@ bool Wheel::init() {
 	// TODO @tttor: fix these values
 	joint_name = "wheel_joint";
 	link_name = "wheel_link";
-	wheel_radius = 0.005;
+	// wheel radius 10cm
+  wheel_radius = 0.010;
 	wheel_speed_actual = 0.0;
 	wheel_speed_cmd = 0.0;
 	wheel_speed_error = 0.0;

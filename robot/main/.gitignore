@@ -1,0 +1,8 @@
+# back-up files
+*.2014*
+*.2015*
+
+# the main files are ignored.
+# they should be make (copied) from some desired main files.
+master.cc
+slave.cc

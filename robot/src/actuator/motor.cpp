@@ -16,7 +16,12 @@ namespace trui {
     data_=0;
     //kp_= 0.316, ki_= 0.0528, kd_= 0;
     kp_= 0.316, ki_= 0.0528, kd_= 0;
+<<<<<<< HEAD
     
+=======
+
+    setup();
+>>>>>>> upstream/master
     encoder_ = new crim::TwoPhaseIncrementalEncoder(encoder_out_a_pin, encoder_out_b_pin, encoder_resolution);
 
   }

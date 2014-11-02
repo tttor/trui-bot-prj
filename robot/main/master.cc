@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <arduino/Arduino.h>
 #include <comm/arduino_mavlink_packet_handler.hpp>
 #include <comm/custom.h>
@@ -255,3 +256,5 @@ int main() {
   return 0;
 }
 
+=======
+>>>>>>> upstream/master
