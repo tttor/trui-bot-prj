@@ -2,24 +2,39 @@
 #include <sensor/two_phase_incremental_encoder.hpp>
 #include <Wire.h>
 #include "stdint.h" 
+#include <pid/pid.h>
 
 
+#define K_P     1.00
+#define K_I     0.00
+#define K_D     0.00
 #define motorPin  9//11
 #define motorCS   10//12
 #define OUTMAX    100.0
 #define OUTMIN    -100.0
+#define initSetpoint 0;
+
+//! Parameters for regulator
+struct PID_DATA pidData;
+
+/*! \brief Flags for status information
+ */
+struct GLOBAL_FLAGS {
+  //! True when PID control loop should run one time
+  uint8_t pidTimer:1;
+  uint8_t dummy:7;
+} gFlags = {0, 0};
 
 using namespace std;
 
 long tick = 0, tickEnc = 0, last_tickEnc = 0, last2_tickEnc = 0; 
 long derivComp, omega=0, omega_input=0, i = 0;
-int tickDirFlag = 1;
+int tickDirFlag = 1,dirFlag = 1,movingFlag = 0,baseSub;
 float MV=0, iTerm = 0;    
 float delta=0, error=0, last_error=0, last_omega=0; 
 unsigned char data=0;
 float Kp = 0.750, Ki = 0.005, Kd = 0;
 float Gain = 250;
-int dirFlag = 1,movingFlag = 0,baseSub;
 float tetha = 0,tethaEnc=0,tethaMem=0,degMoved=0;
 long now_tickTest=0, tickTest=0,last_tickTest=0;
 long timeOtherNew = 0, timeOtherOld = 0;
@@ -29,6 +44,7 @@ int received_data;
 
 
 void setup() {
+  pid_Init(K_P * SCALING_FACTOR, K_I * SCALING_FACTOR , K_D * SCALING_FACTOR , &pidData);
   pinMode(motorCS, OUTPUT);
   pinMode(motorPin, OUTPUT);
   pinMode(12, INPUT);
@@ -65,6 +81,7 @@ class Motor {
         delay(100);
       }
     }
+
 
     void set_rpm(int rpm_motor) {
       if(rpm_motor < 0) dirFlag = -1; else dirFlag = 1;
@@ -112,6 +129,51 @@ class Motor {
 
     }
 
+    int get_rpm() {
+      if(omega < 0) dirFlag = -1; else dirFlag = 1;
+      omega_input = abs(rpm_motor); //setpoint
+      tickEnc = encoder_->pos();
+      omega = abs(tickEnc - last_tickEnc)*2/3; // Tetha = ((tickEnc - last_tickEnc)/250) * 2 * PI rad
+                                             // omega = Tetha / Delta_Time -- Delta_Time = 50ms
+                                             // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/250) * 2 * PI * 1000/50 rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 4/25 * PI rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 4/25 * PI * (1/(2PI)) rotation/rad rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 rotation/s
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 rotation/(1/60) minute
+                                             // omega = (tickEnc - last_tickEnc) * 2/25 * 60 rotation/minute
+                                             // omega = (tickEnc - last_tickEnc) * 24/5 RPM
+      //Serial.println(omega);
+      error = omega_input - omega;
+      iTerm = iTerm + (float)error*Ki;       //Integral Term of PID Control 
+      
+      if(iTerm > OUTMAX) iTerm = OUTMAX;
+      else if(iTerm < OUTMIN) iTerm = OUTMIN;
+      //i = i + error;    
+                    
+      derivComp = (tickEnc - 2*last_tickEnc + last2_tickEnc)*10/3; //Wonder why the derivative differentiates encoders instead of error
+                    
+      MV =  (float)error*Kp + iTerm - derivComp*Kd;
+      
+      if(MV > OUTMAX) MV = OUTMAX;
+      else if(MV < OUTMIN) MV = OUTMIN;
+                    
+      motorPWM_percentage(dirFlag * MV); 
+           
+      last_error = error;
+      last2_tickEnc = last_tickEnc; 
+      last_tickEnc = tickEnc;
+
+      //printf("RPM yang dikirim: %d\n", rpm_motor);
+      //printf("Nilai MV: %d\n", MV);
+      //Serial.print(error);
+      //Serial.print(" ");
+      //Serial.print(tickEnc);
+      //Serial.print(" ");
+      //Serial.print(rpm_motor);
+      //Serial.print(" ");
+      //Serial.println(MV);
+
+    }
 
     void set_degPControl(int deg_motor) {
       tethaEnc = encoder_->pos();
@@ -255,7 +317,36 @@ class Motor {
 
     }
 
-    void motorPWM_percentage(signed int pwm)
+    
+};
+
+
+
+
+
+void receiveEvent(int howMany)
+{
+  int i = 0;
+  while(0 < Wire.available()) // loop through all
+  {
+    buffer[i] = Wire.read(); // receive byte as a character
+    i++;
+  }
+
+  int checksum= (buffer[8] << 8);
+  checksum |= buffer[7];
+  if(checksum == (buffer[0] + buffer[1] + buffer[2] + buffer[3] + buffer[4] + buffer[9])) Serial.println("OK");
+  else Serial.println("ERROR");
+
+  // received_data = (buffer[6] << 8);
+  // received_data |= (buffer[5]);
+
+  // Serial.println(received_data);
+
+}
+
+
+void motorPWM_percentage(signed int pwm)
     {
       int ocr;
       
@@ -284,126 +375,31 @@ class Motor {
       
       //Serial.println(ocr);
     }
-};
 
-
-
-class PID{
-
-  
-   
-/*! \brief Initialisation of PID controller parameters.  
- *  
- *  Initialise the variables used by the PID algorithm.  
- *  
- *  \param p_factor  Proportional term.  
- *  \param i_factor  Integral term.  
- *  \param d_factor  Derivate term.  
- *  \param pid  Struct with PID status.  
- */   
- public:
-    void pid_Init(int16_t p_factor, int16_t i_factor, int16_t d_factor, struct PID_DATA *pid)   
-    // Set up PID controller parameters   
-    {   
-      // Start values for PID controller   
-      pid->sumError = 0;   
-      pid->lastProcessValue = 0;   
-      // Tuning constants for PID loop   
-      pid->P_Factor = p_factor;   
-      pid->I_Factor = i_factor;   
-      pid->D_Factor = d_factor;   
-      // Limits to avoid overflow   
-      pid->maxError = MAX_INT / (pid->P_Factor + 1);   
-      pid->maxSumError = MAX_I_TERM / (pid->I_Factor + 1);   
-    }   
-      
-    /*! \brief PID control algorithm.  
-     *  
-     *  Calculates output from setpoint, process value and PID status.  
-     *  
-     *  \param setPoint  Desired value.  
-     *  \param processValue  Measured value.  
-     *  \param pid_st  PID status struct.  
-     */   
-    int16_t pid_Controller(int16_t setPoint, int16_t processValue, struct PID_DATA *pid_st)   
-    {   
-      int16_t error, p_term, d_term;   
-      int32_t i_term, ret, temp;   
-       
-      error = setPoint - processValue;   
-       
-      // Calculate Pterm and limit error overflow   
-      if (error > pid_st->maxError){   
-        p_term = MAX_INT;   
-      }   
-      else if (error < -pid_st->maxError){   
-        p_term = -MAX_INT;   
-      }   
-      else{   
-        p_term = pid_st->P_Factor * error;   
-      }   
-       
-      // Calculate Iterm and limit integral runaway   
-      temp = pid_st->sumError + error;   
-      if(temp > pid_st->maxSumError){   
-        i_term = MAX_I_TERM;   
-        pid_st->sumError = pid_st->maxSumError;   
-      }   
-      else if(temp < -pid_st->maxSumError){   
-        i_term = -MAX_I_TERM;   
-        pid_st->sumError = -pid_st->maxSumError;   
-      }   
-      else{   
-        pid_st->sumError = temp;   
-        i_term = pid_st->I_Factor * pid_st->sumError;   
-      }   
-       
-      // Calculate Dterm   
-      d_term = pid_st->D_Factor * (pid_st->lastProcessValue - processValue);   
-       
-      pid_st->lastProcessValue = processValue;   
-       
-      ret = (p_term + i_term + d_term) / SCALING_FACTOR;   
-      if(ret > MAX_INT){   
-        ret = MAX_INT;   
-      }   
-      else if(ret < -MAX_INT){   
-        ret = -MAX_INT;   
-      }   
-       
-      return((int16_t)ret);   
-    }   
-       
-    /*! \brief Resets the integrator.  
-     *  
-     *  Calling this function will reset the integrator in the PID regulator.  
-     */   
-    void pid_Reset_Integrator(pidData_t *pid_st)   
-    {   
-      pid_st->sumError = 0;   
-    }   
-
-};
-
-void receiveEvent(int howMany)
+void setup()
 {
-  int i = 0;
-  while(0 < Wire.available()) // loop through all
-  {
-    buffer[i] = Wire.read(); // receive byte as a character
-    i++;
-  }
+  
+  // initialize timer1 
+  noInterrupts();           // disable all interrupts
+  TCCR1A = 0;      // set entire TCCR1A register to 0
+  TCCR1B = 0;     // same for TCCR1B
+ 
+  // set compare match register to desired timer count:
+  OCR1A = 780;
+  // turn on CTC mode:
+  TCCR1B |= (1 << WGM12);
+  // Set CS10 and CS12 bits for 1024 prescaler:
+  TCCR1B |= (1 << CS10);
+  TCCR1B |= (1 << CS12);
+  // enable timer compare interrupt:
+  TIMSK1 |= (1 << OCIE1A);
+  interrupts();             // enable all interrupts
+}
 
-  int checksum= (buffer[8] << 8);
-  checksum |= buffer[7];
-  if(checksum == (buffer[0] + buffer[1] + buffer[2] + buffer[3] + buffer[4] + buffer[9])) Serial.println("OK");
-  else Serial.println("ERROR");
-
-  // received_data = (buffer[6] << 8);
-  // received_data |= (buffer[5]);
-
-  // Serial.println(received_data);
-
+ISR(TIMER1_COMPA_vect)        // interrupt service routine 
+{
+  //interrupts();
+  gFlags.pidTimer = TRUE;
 }
 
 int main() {
@@ -422,8 +418,8 @@ int main() {
   // long setPOINT;
   // int counter=0, countSetP=0;
   // long timeStamp = 0;
-  // motor.servoInit();
-  // setPOINT = 0;
+   motor.servoInit();
+   setPOINT = initSetpoint;
   // delay(1000);
 
   while (1) {
@@ -438,7 +434,17 @@ int main() {
       
     //   Serial.print("setPOINT : "); Serial.print(setPOINT);
     //   Serial.print(" counter : "); Serial.println(counter);    
+   if(gFlags.pidTimer)
+    {
+      referenceValue = Get_Reference();
+      measurementValue = Get_Measurement();
 
+      inputValue = pid_Controller(referenceValue, measurementValue, &pidData);
+
+      Set_Input(inputValue);
+
+      gFlags.pidTimer = FALSE;
+    }
     // timeNow = millis();
     // if(timeNow - timeOld > 1){
     //   timeOld = timeNow;
@@ -459,41 +465,9 @@ int main() {
     //   Serial.print(" setPOINT : "); Serial.print(setPOINT);
     //   Serial.print(" counter : "); Serial.println(counter);
 
-<<<<<<< HEAD
-    if (Serial.available() >= 11) {
-      for (int i=0; i<11; i++) {
-        buffer[i] = Serial.read();
-      }
-    }
-
-    timeNow = millis();
-    if(timeNow - timeOld > 1){
-      timeOld = timeNow;
-      counter++;
-      if(counter == 200) {
-        // if(setPOINT >= 900) {setPOINT = 300;}
-        // else  setPOINT=setPOINT+100;
-        if(countSetP == 1) setPOINT = 900;
-        else setPOINT = 300;
-        counter = 0;
-        countSetP = !countSetP;
-        }
-      if(movingFlag == 1){
-      timeStamp = millis();
-      motor.set_degPControl(setPOINT);}
-      timeStamp = millis() - timeStamp;
-      Serial.print("timeStamp : "); Serial.print(timeStamp);
-      Serial.print(" setPOINT : "); Serial.print(setPOINT);
-      Serial.print(" counter : "); Serial.println(counter);
-
-    }
-
-
-=======
     // }
 
 
->>>>>>> c9b6bde8302e9c7db173c7a57dacbab4ea50512d
   }
   
 }
