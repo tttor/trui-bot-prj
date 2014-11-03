@@ -4,7 +4,7 @@ namespace rbmt_tracking{
 
 Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
   cock_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("cock_pose", 1);
-  quad = cv::Mat::zeros(500, 500, CV_8UC3);
+  quad = cv::Mat::zeros(480, 720, CV_8UC3);
   marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
 
 }
@@ -142,13 +142,13 @@ void Tracker::run(ros::Rate loop_rate) {
 //============================== OBJECT CONTROL =====================================================//
   namedWindow("Object", CV_WINDOW_AUTOSIZE); //create a window called "Object"
 
-  int iLowH = 0;
-  int iHighH = 10;
+  int iLowH = 30;
+  int iHighH = 50;
 
-  int iLowS = 135;
-  int iHighS = 255;
+  int iLowS = 65;
+  int iHighS = 170;
 
-  int iLowV = 50;
+  int iLowV = 120;
   int iHighV = 255;
 
   //Create trackbars in "Object" window
@@ -282,14 +282,14 @@ void Tracker::run(ros::Rate loop_rate) {
   }
 //============================== setup corners ======================================================//
 */
-  tl.x = 171;
-  tl.y = 319;
-  tr.x = 378;
-  tr.y = 320;
-  bl.x = 98;
-  bl.y = 424;
-  br.x = 424;
-  br.y = 422;
+  tl.x = 154;
+  tl.y = 283;
+  tr.x = 504;
+  tr.y = 291;
+  bl.x = 22;
+  bl.y = 387;
+  br.x = 620;
+  br.y = 401;
   
   // get mass center
   center.x = (tl.x + tr.x + bl.x + br.x) / 4;
@@ -394,21 +394,21 @@ void Tracker::run(ros::Rate loop_rate) {
 
 //========================== create and show image ==================================================//
 
-    geometry_msgs::Pose pose;
+    geometry_msgs::PoseStamped sPose;
 
     marker.lifetime = ros::Duration();
     
-    pose.position.x = posX;
-    pose.position.y = posY;
-    pose.position.z = 0.0;
+    sPose.pose.position.x = (double)posX * 0.005;
+    sPose.pose.position.y = (480 - (double)posY) * 0.005;
+    sPose.pose.position.z = 0.0;
 
-    pose.orientation.x = 0.0;
-    pose.orientation.y = 0.0;
-    pose.orientation.z = 0.0;
-    pose.orientation.w = 1.0;
+    sPose.pose.orientation.x = 0.0;
+    sPose.pose.orientation.y = 0.0;
+    sPose.pose.orientation.z = 0.0;
+    sPose.pose.orientation.w = 1.0;
 
-    cock_pose_pub_.publish(pose);
-    marker.pose = pose;
+    cock_pose_pub_.publish(sPose);
+    marker.pose = sPose.pose;
     marker_pub_.publish(marker);
 
     ros::spinOnce();
