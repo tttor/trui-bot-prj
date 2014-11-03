@@ -12,7 +12,7 @@
 
   	<!-- remap mavros topics -->
   	<remap from="/serial/setpoint/cmd_vel" to="cmd_wheel_speed" />
-    <remap from="/serial/setpoint/local_setpoint" to="cmd_service" />
+    <remap from="/serial/setpoint/local_position" to="cmd_service" />
   </node>
 
 </launch>
