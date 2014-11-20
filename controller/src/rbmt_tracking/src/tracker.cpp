@@ -69,7 +69,7 @@ void Tracker::run_dummy(ros::Rate rate) {
   pose.position.x = 3.0;
   pose.position.y = 3.0;
   pose.position.z = 0.0;
-  pose.orientation.x = 0.0;
+  pose.orientation.x = 0.0im;
   pose.orientation.y = 0.0;
   pose.orientation.z = 0.0;
   pose.orientation.w = 1.0;
@@ -92,19 +92,51 @@ void Tracker::run_dummy(ros::Rate rate) {
 
   size_t idx = 0;
   while (ros::ok())  {
-    geometry_msgs::PoseStamped spose;
-    spose.header = header;
-    spose.pose = poses.at(idx%poses.size());
+    // // Generate the pose of cock's end randomly
+    // const double x_max, x_min, y_max, y_min;
+    // x_min = 0.0;
+    // y_min = 0.0;
+    // x_max = 8.500;
+    // y_max = 16.400;
 
-    marker.pose = spose.pose;
+    // double x, y;
+    // bool passed = false;
+    // while (!passed) {
+    //   x = random();// TODO fix me
 
-    cock_pose_pub_.publish(spose);
-    marker_pub_.publish(marker);
+    //   if ((x<x_min) or (x>x_max)) continue;
+    //   else break;
+    // }
+    // while (!passed) {
+    //   y = random();
 
-    ++idx;
-    ros::spinOnce();
-    rate.sleep();
-  }
+    //   if ((y<y_min) or (y>y_max)) continue;
+    //   else break;
+    // }
+
+  //   //
+  //   geometry_msgs::Pose pose;
+  //   pose.position.x = x;
+  //   pose.position.y = y;
+  //   pose.orientation.x = 0.0;
+  //   pose.orientation.y = 0.0;
+  //   pose.orientation.z = 0.0;
+  //   pose.orientation.w = 1.0;
+
+  //   //
+  //   geometry_msgs::PoseStamped spose;
+  //   spose.header = header;
+  //   spose.pose = pose;
+
+  //   marker.pose = spose.pose;
+
+  //   cock_pose_pub_.publish(spose);
+  //   marker_pub_.publish(marker);
+
+  //   ++idx;
+  //   ros::spinOnce();
+  //   rate.sleep();
+  // }
 }
 
 void Tracker::marker_init() {
