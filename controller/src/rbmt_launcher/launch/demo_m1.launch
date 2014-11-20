@@ -9,7 +9,8 @@
   <!-- Set up parameter server -->
   <param name="real_rbmt" value="$(arg real_rbmt)"/>
   <param name="dt_realization" value="0.1" type="double"/> <!-- one discrete time unit dt is realized as <value> seconds -->
-  <param name='max_linear_vel' value="1.0" type="double"/> <!-- vel is w.r.t. /map and in ((meter) per (one discrete time unit dt)) -->
+  <param name='max_linear_vel' value="1.0" type="double"/> <!-- the linear vel is w.r.t. /map and in ((meter) per (one discrete time unit dt)) -->
+  <param name='max_angular_vel' value="0.785" type="double"/> <!-- the angular vel is w.r.t. x+ axis of /map and in ((radian) per (one discrete time unit dt)) -->
   <rosparam param="source_list">['act_joint_state']</rosparam>
 
   <!-- Simulator start-up -->

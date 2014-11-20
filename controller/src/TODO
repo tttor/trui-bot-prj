@@ -1,4 +1,10 @@
 TODO
 
-> @tttor: do not compile unused plugins in mavros
-> @tttor: move rbmt_joy package to rbmt_teleop package
+@tttor:
+> make compact costumized msg types in mavlink, e.g. wheel_speed, trajectory_metadata, see http://qgroundcontrol.org/mavlink/create_new_mavlink_message
+> make costumized mavros plugins, see http://wiki.ros.org/mavros
+> implement AMCL (adaptive Monte Carlo Localization), see http://wiki.ros.org/amcl?distro=indigo
+> constraint the workspace, complete the configuration of the cost map
+> do not compile unused plugins in mavros
+> standardize source code file naming on packages
+> refine .launch, follows http://wiki.ros.org/roslaunch/Tutorials/Roslaunch%20tips%20for%20larger%20projects

@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <tf/transform_datatypes.h>
 #include <Eigen/Dense>
 
 #include <vector>
@@ -24,6 +25,7 @@ class GlobalPlanner {
 
  private:
   double max_linear_vel_;
+  double max_angular_vel_;
 
   template<typename T>
   double get_cartesian_dist(const T& p1, const T& p2) {
@@ -37,6 +39,9 @@ class GlobalPlanner {
       
     return sqrt(total);
   }
+
+  //! return the smallest distance, either CCW or CW
+  double get_yaw_dist(const double& y2, const double& y1);
 };
 
 }// namespace rbmt_move_base
