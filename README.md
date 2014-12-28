@@ -1,7 +1,7 @@
 trui-bot-prj
 ============
 
-Work on making useful and winning robots.
+Work on making useful and winning robots for http://robocon.tvri.co.id/
 
 Coding style:
 http://google-styleguide.googlecode.com/svn/trunk/cppguide.html
