@@ -1,0 +1,21 @@
+---
+Note
+
+From http://developer.mbed.org/handbook/Exporting-to-GCC-ARM-Embedded:
+GNU Tools for ARM Embedded Processors is one of the external offline toolchains supported by the mbed platform.
+Whilst we support exporting your project and the libraries to an alternate toolchain, 
+we cannot guarantee the same consistency as using the mbed Online Compiler.
+
+---
+Links
+
+http://developer.mbed.org/handbook/Homepage
+http://developer.mbed.org/handbook/mbed-SDK
+http://developer.mbed.org/handbook/Exporting-to-GCC-ARM-Embedded
+
+https://github.com/adamgreen/gcc4mbed
+http://developer.mbed.org/users/AdamGreen/notebook/gcc4mbed/
+
+https://launchpad.net/gcc-arm-embedded/
+https://github.com/0xc0170/mbed_gcc_makefile.git
+http://developer.mbed.org/users/mbed_official/code/mbed/
