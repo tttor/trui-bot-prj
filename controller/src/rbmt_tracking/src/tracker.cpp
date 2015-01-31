@@ -3,6 +3,13 @@
 namespace rbmt_tracking{
 
 Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
+  cock_pose_pub_ = nh_.advertise<geometry_msgs::Pose>("cock_pose", 1);
+  quad = cv::Mat::zeros(500, 500, CV_8UC3);
+  fWidth = 500; //in pixels
+  fLength = 500; //in pixels
+  rWidth = 180; //in cm
+  rLength = 180; //in cm
+  dist = 58; //in cm
   cock_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("cock_pose", 1);
   quad = cv::Mat::zeros(480, 720, CV_8UC3);
   marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
@@ -69,7 +76,7 @@ void Tracker::run_dummy(ros::Rate rate) {
   pose.position.x = 3.0;
   pose.position.y = 3.0;
   pose.position.z = 0.0;
-  pose.orientation.x = 0.0im;
+  pose.orientation.x = 0.0;
   pose.orientation.y = 0.0;
   pose.orientation.z = 0.0;
   pose.orientation.w = 1.0;
@@ -136,7 +143,7 @@ void Tracker::run_dummy(ros::Rate rate) {
   //   ++idx;
   //   ros::spinOnce();
   //   rate.sleep();
-  // }
+  }
 }
 
 void Tracker::marker_init() {
@@ -193,6 +200,52 @@ void Tracker::run(ros::Rate loop_rate) {
   createTrackbar("LowV", "Object", &iLowV, 255);//Value (0 - 255)
   createTrackbar("HighV", "Object", &iHighV, 255);
 //============================== object control =====================================================//
+
+//================================ LEFT CONTROL =====================================================//
+  namedWindow("Left", CV_WINDOW_AUTOSIZE); //create a window called "Left"
+
+  int lLowH = 90;
+  int lHighH = 115;
+
+  int lLowS = 170;
+  int lHighS = 255;
+
+  int lLowV = 120;
+  int lHighV = 255;
+
+  //Create trackbars in "Left" window
+  createTrackbar("LowH", "Left", &lLowH, 179); //Hue (0 - 179)
+  createTrackbar("HighH", "Left", &lHighH, 179);
+
+  createTrackbar("LowS", "Left", &lLowS, 255); //Saturation (0 - 255)
+  createTrackbar("HighS", "Left", &lHighS, 255);
+
+  createTrackbar("LowV", "Left", &lLowV, 255);//Value (0 - 255)
+  createTrackbar("HighV", "Left", &lHighV, 255);
+//================================ left control =====================================================//
+
+//================================ RIGHT CONTROL =====================================================//
+  namedWindow("Right", CV_WINDOW_AUTOSIZE); //create a window called "Right"
+
+  int rLowH = 0;
+  int rHighH = 10;
+
+  int rLowS = 150;
+  int rHighS = 255;
+
+  int rLowV = 50;
+  int rHighV = 255;
+
+  //Create trackbars in "Right" window
+  createTrackbar("LowH", "Right", &rLowH, 179); //Hue (0 - 179)
+  createTrackbar("HighH", "Right", &rHighH, 179);
+
+  createTrackbar("LowS", "Right", &rLowS, 255); //Saturation (0 - 255)
+  createTrackbar("HighS", "Right", &rHighS, 255);
+
+  createTrackbar("LowV", "Right", &rLowV, 255);//Value (0 - 255)
+  createTrackbar("HighV", "Right", &rHighV, 255);
+//================================ right control =====================================================//
 
 /*
 //============================== SETUP CORNERS ======================================================//
@@ -314,6 +367,7 @@ void Tracker::run(ros::Rate loop_rate) {
   }
 //============================== setup corners ======================================================//
 */
+
   tl.x = 154;
   tl.y = 283;
   tr.x = 504;
@@ -365,6 +419,7 @@ void Tracker::run(ros::Rate loop_rate) {
     quad_pts.push_back(Point2f(quad.cols, quad.rows));
     quad_pts.push_back(Point2f(0, quad.rows));
     Mat transmtx = getPerspectiveTransform(corners, quad_pts);
+    warpPerspective(imgBuffer, quadCopy, transmtx, quad.size());
     warpPerspective(imgBuffer, quad, transmtx, quad.size());
 
 //============================== get prespective ====================================================//
@@ -408,21 +463,111 @@ void Tracker::run(ros::Rate loop_rate) {
     }
 //==================== object detection ===========================================================================//
 
+//==================== ROBOT LEFT DETECTION =======================================================================//
+    Mat imgHSVLeft;
+    cvtColor(quad, imgHSVLeft, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
+
+    Mat imgLeft;
+    inRange(imgHSVLeft, Scalar(lLowH, lLowS, lLowV), Scalar(lHighH, lHighS, lHighV), imgLeft); //Threshold the image
+
+    //morphological opening (removes small objects from the foreground)
+    erode(imgLeft, imgLeft, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+    dilate( imgLeft, imgLeft, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+
+    //morphological closing (removes small holes from the foreground)
+    dilate( imgLeft, imgLeft, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+    erode(imgLeft, imgLeft, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+
+    //Calculate the moments of the thresholded image
+    Moments oMomentsL = moments(imgLeft);
+
+    double dM01L = oMomentsL.m01;
+    double dM10L = oMomentsL.m10;
+    double dAreaL = oMomentsL.m00;
+    int posXL, posYL;
+
+    // if the area <= 10000, I consider that the there are no object in the image
+    //and it's because of the noise, the area is not zero
+    if (dAreaL > 10000)
+    {
+        //calculate the position of the ball
+        posXL = dM10L / dAreaL;
+        posYL = dM01L / dAreaL;
+
+        // Draw a circle
+        circle( quadCopy, Point(posXL,posYL), 6.0, Scalar( 0, 0, 255), 3, 8 );
+    }
+//==================== robot left detection =======================================================================//
+
+//==================== ROBOT RIGHT DETECTION =======================================================================//
+    Mat imgHSVRight;
+    cvtColor(quad, imgHSVRight, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
+
+    Mat imgRight;
+    inRange(imgHSVRight, Scalar(rLowH, rLowS, rLowV), Scalar(rHighH, rHighS, rHighV), imgRight); //Threshold the image
+
+    //morphological opening (removes small objects from the foreground)
+    erode(imgRight, imgRight, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+    dilate( imgRight, imgRight, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+
+    //morphological closing (removes small holes from the foreground)
+    dilate( imgRight, imgRight, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+    erode(imgRight, imgRight, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+
+    //Calculate the moments of the thresholded image
+    Moments oMomentsR = moments(imgRight);
+
+    double dM01R = oMomentsR.m01;
+    double dM10R = oMomentsR.m10;
+    double dAreaR = oMomentsR.m00;
+    int posXR, posYR;
+
+    // if the area <= 10000, I consider that the there are no object in the image
+    //and it's because of the noise, the area is not zero
+    if (dAreaR > 10000)
+    {
+        //calculate the position of the ball
+        posXR = dM10R / dAreaR;
+        posYR = dM01R / dAreaR;
+
+        // Draw a circle
+        circle( quadCopy, Point(posXR,posYR), 6.0, Scalar( 0, 0, 255), 3, 8 );
+    }
+//==================== robot right detection =======================================================================//
+
+
+//==================== ROBOT POSE ESTIMATION =======================================================================//
+
+    if(dAreaR > 10000 && dAreaL > 10000)
+    {
+        if(posYL > posYR)
+        {
+            h = posYL-posYR;
+            l = posXR-posXL;
+            deg = 90+(90*(asin(h/sqrt((l*l)+(h*h)))/1.57));
+        }
+        else if(posYL < posYR)
+        {
+            h = posYR-posYL;
+            l = posXR-posXL;
+            deg = 90-(90*(asin(h/sqrt((l*l)+(h*h)))/1.57));
+        }
+        else deg = 0;
+        rCenter.x = (posXL + posXR) / 2;
+        rCenter.y = (posYL + posYR) / 2;
+        cout << "Center: " << rCenter << "\tDegree: " << deg << "\n\n";
+    }
+//==================== robot pose estimation =======================================================================//
+
 
 //========================== CREATE AND SHOW IMAGE ==================================================//
 
-    //Create a window
-    //namedWindow("Camera", 1);
-
     //show the image
     imshow("Camera", imgOriginal);
-
-    //Create a window
-    //namedWindow("Perspective", 1);
-
-    //show the image
-    imshow("Perspective", quad);
+    imshow("Perspective", quadCopy);
     imshow("Thresholded Image", imgThresholded); //show the thresholded image
+    imshow("Left Bot", imgLeft); //show the thresholded image
+    imshow("Right Bot", imgRight); //show the thresholded image
 
 //========================== create and show image ==================================================//
 
