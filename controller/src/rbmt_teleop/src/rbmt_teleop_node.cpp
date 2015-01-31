@@ -1,4 +1,4 @@
-#include <rbmt_teleop/rbmt_teleop_translator.h>
+#include <rbmt_teleop/rbmt_teleop.h>
 #include <log4cxx/logger.h>
 
 int main(int argc, char** argv){
@@ -11,7 +11,7 @@ int main(int argc, char** argv){
   my_logger->setLevel(ros::console::g_level_lookup[ros::console::levels::Debug]);
 
   rbmt_teleop::TeleopTranslator teleop_trans(nh);
-  teleop_trans.run();
+  teleop_trans.run(ros::Rate(10));
   
   return(0);
 }

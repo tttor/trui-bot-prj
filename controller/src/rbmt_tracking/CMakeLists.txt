@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   geometry_msgs
+  visualization_msgs
 )
 
 ## Find opencv macros and libraries

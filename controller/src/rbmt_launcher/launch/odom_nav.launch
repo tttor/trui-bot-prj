@@ -14,9 +14,9 @@
     <include file="$(find rbmt_base_ctrl)/launch/rbmt_serial.launch"/>
   </group>
 
-  <group unless="$(arg real_rbmt)">    
-    <node pkg="rbmt_sim" type="rbmt_sim_node" name="rbmt_sim" output="screen"/>
-  </group>
+  <!-- group unless="$(arg real_rbmt)" (Commented because the control loop is still open: no feedback from the real robot)-->    
+    <node pkg="rbmt_sim" type="rbmt_sim_node" name="sim" output="screen"/>
+  <!-- /group -->
   
   <!-- Navigation node start-up -->
   <include file="$(find rbmt_map)/launch/frame_setup.launch"/>

@@ -1,5 +1,5 @@
-#ifndef RBMT_TELEOP_TRANSLATOR_H_
-#define RBMT_TELEOP_TRANSLATOR_H_
+#ifndef RBMT_TELEOP_H_
+#define RBMT_TELEOP_H_
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -20,13 +20,14 @@ class TeleopTranslator {
  public:
   TeleopTranslator(ros::NodeHandle nh);
   ~TeleopTranslator();
-  void run();
+  void run(ros::Rate rate);
   typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
  private:
   ros::NodeHandle nh_;
   ros::Subscriber joy_sub_;
   ros::Publisher cmd_vel_pub_;
+  ros::Publisher cmd_service_pub_;
 
   size_t n_axes_;
   size_t n_button_;
@@ -39,6 +40,9 @@ class TeleopTranslator {
   std::vector<float> axis_normals_;
 
   std::map<std::string, float> vel_param_;
+
+  //! Map the button or axis names to their number in either buttons_ or axes_
+  std::map<std::string, size_t> num_;
 
 /*!
  * axes.at(0) horizontal left analog

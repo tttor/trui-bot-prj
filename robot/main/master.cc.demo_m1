@@ -1,0 +1,147 @@
+#include <arduino/Arduino.h>
+#include <mavlink/v1.0/common/mavlink.h>
+
+#define SLAVE_ON
+//#define DEBUG_LEVEL_1
+
+int main() {
+  init();// this needs to be called before setup() otherwise some functions won't work
+  Serial.begin(57600);
+  #ifdef SLAVE_ON
+  Serial1.begin(9600);
+  Serial2.begin(9600);    
+  Serial3.begin(9600);
+  pinMode(13,OUTPUT);
+
+  const uint8_t header= 0xCE;
+  const uint8_t footer= 0xEE;
+
+  const uint8_t hit_mode= 0x0A;
+  const uint8_t position_mode= 0x0B;
+  const uint8_t hit_flag= 0x0F;
+
+  float slave1_cmd_speed_f = 0.0;
+  float slave2_cmd_speed_f = 0.0;
+  float slave3_cmd_speed_f = 0.0;
+  #endif
+  
+  const uint16_t rate = 50;
+  while (true) {
+    const uint8_t desired_msgid = MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED;
+  
+    mavlink_message_t rx_msg;
+    mavlink_status_t rx_status;
+    bool found = false;
+    
+    //Serial.println("Waiting ...");
+    while (!found) {
+      if (Serial.available() > 0) {
+        if (mavlink_parse_char(MAVLINK_COMM_0, Serial.read(), &rx_msg, &rx_status)) {
+          if ( (rx_msg.msgid==desired_msgid) ) {
+            found = true;
+          }
+        }
+      }
+    }
+
+    // Dispatch
+    switch (rx_msg.msgid) {
+      case MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED: {
+            //
+        mavlink_set_position_target_local_ned_t msg;
+        mavlink_msg_set_position_target_local_ned_decode(&rx_msg, &msg);
+
+        #ifdef DEBUG_LEVEL_1
+        Serial.print("msg.vx=speed_wheel_1= "); Serial.println(msg.vx);
+        Serial.print("msg.vy=speed_wheel_2= "); Serial.println(msg.vy);
+        Serial.print("msg.vz=speed_wheel_3= "); Serial.println(msg.vz);
+        Serial.print("msg.y=hit_service= "); Serial.println(msg.y);
+        #endif
+
+        #ifdef SLAVE_ON
+        // 2. break down the speed into the speed for 3 motors
+        slave1_cmd_speed_f = msg.vx;
+        slave2_cmd_speed_f = msg.vy;
+        slave3_cmd_speed_f = msg.vz;
+
+        int slave1_cmd_speed= abs(slave1_cmd_speed_f);
+        int slave2_cmd_speed= abs(slave2_cmd_speed_f);
+        int slave3_cmd_speed= abs(slave3_cmd_speed_f);
+
+        //3. dispatch and send the 3 speed values
+        uint8_t buffer1[7];
+        uint8_t buffer2[7];
+        uint8_t buffer3[7];
+
+        buffer1[0]= header;
+        buffer1[6]= footer;
+        buffer1[2]= (slave1_cmd_speed >> 8) & 0xFF;
+        buffer1[1]= slave1_cmd_speed & 0xFF;
+        if(slave1_cmd_speed_f < 0.0f)  buffer1[3]= 0x0C;
+          else if (slave1_cmd_speed_f >= 0.0f)  buffer1[3]= 0xCC;
+        uint16_t checksum1= buffer1[0] + buffer1[1] + buffer1[2] + buffer1[6];
+        buffer1[4]= checksum1 & 0x00FF;
+        buffer1[5]= (checksum1 & 0xFF00) >> 8;
+
+        buffer2[0]= header;
+        buffer2[6]= footer;
+        buffer2[2]= (slave2_cmd_speed >> 8) & 0xFF;
+        buffer2[1]= slave2_cmd_speed & 0xFF;
+        if(slave2_cmd_speed_f < 0.0f)  buffer2[3]= 0x0C;
+          else if (slave2_cmd_speed_f >= 0.0f)  buffer2[3]= 0xCC;
+        uint16_t checksum2= buffer2[0] + buffer2[1] + buffer2[2] + buffer2[6];
+        buffer2[4]= checksum2 & 0x00FF;
+        buffer2[5]= (checksum2 & 0xFF00) >> 8;
+
+        buffer3[0]= header;
+        buffer3[6]= footer;
+        buffer3[2]= (slave3_cmd_speed >> 8) & 0xFF;
+        buffer3[1]= slave3_cmd_speed & 0xFF;
+        if(slave3_cmd_speed_f < 0.0f)  buffer3[3]= 0x0C;
+          else if (slave3_cmd_speed_f >= 0.0f)  buffer3[3]= 0xCC;
+        uint16_t checksum3= buffer3[0] + buffer3[1] + buffer3[2] + buffer3[6];
+        buffer3[4]= checksum3 & 0x00FF;
+        buffer3[5]= (checksum3 & 0xFF00) >> 8;
+
+        Serial1.write(buffer1, 7);
+        Serial2.write(buffer2, 7);
+        Serial3.write(buffer3, 7);
+
+        //hit-manipulation slave
+        int8_t slave_hit1_speed;
+        int8_t slave_hit2_speed;
+        int target_pos1;
+        int target_pos2;
+        uint8_t buffer_hit1[11];
+        uint8_t buffer_hit2[11];
+        uint8_t buffer_hit3[11];
+
+        // Interpret the service command
+        float hit_service = msg.y;
+        if (hit_service > 0.0) {        
+          buffer_hit3[0]= header;
+          buffer_hit3[10]= footer;
+          buffer_hit3[1]= hit_mode;
+          buffer_hit3[2]= hit_flag;
+          buffer_hit3[6]= (int) ((slave_hit1_speed & 0xFF000000) >> 24);
+          buffer_hit3[5]= (int) ((slave_hit1_speed & 0x00FF0000) >> 16);
+          buffer_hit3[4]= (int) ((slave_hit1_speed & 0x0000FF00) >> 8);
+          buffer_hit3[3]= (int) ((slave_hit1_speed & 0x000000FF));
+          buffer_hit3[7]= target_pos1;
+          uint16_t checksum_hit1= buffer_hit1[0] + buffer_hit1[1] + buffer_hit1[2] + buffer_hit1[3] + buffer_hit1[4] + buffer_hit1[5] + buffer_hit1[6] + buffer_hit1[7] + buffer_hit1[10];
+          buffer_hit3[8]= (int) ((checksum_hit1 & 0x00FF));
+          buffer_hit3[9]= (int) ((checksum_hit1 & 0xFF00));
+
+          Wire.beginTransmission(93);
+          Wire.write(buffer_hit3, 11);
+          Wire.endTransmission();
+        }
+        #endif
+      }// case MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED
+    }// switch (rx_msg.msgid)
+
+    delay(1000/rate);;
+  }// while (true)
+
+  return 0;
+}

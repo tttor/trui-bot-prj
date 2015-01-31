@@ -1,5 +1,7 @@
 #include <arduino/Arduino.h>
 #include <sensor/two_phase_incremental_encoder.hpp>
+#include <Wire.h>
+#include "stdint.h" 
 
 
 #define motorPin  9//11
@@ -22,6 +24,8 @@ float tetha = 0,tethaEnc=0,tethaMem=0,degMoved=0;
 long now_tickTest=0, tickTest=0,last_tickTest=0;
 long timeOtherNew = 0, timeOtherOld = 0;
 int lastDir = 0;
+uint8_t buffer[10];
+int received_data;
 
 
 void setup() {
@@ -194,42 +198,6 @@ class Motor {
    
     }
 
-    void set_degLOSS(int deg_motor) {
-
-      //fPTOS = 
-
-      tethaEnc = encoder_->pos();
-      if(tickDirFlag == -1) degMoved = baseSub - tethaEnc;
-      else if(tickDirFlag == 1) degMoved = tethaEnc - baseSub;
-      error = tickDirFlag*(deg_motor - degMoved);
-      
-
-
-                    
-       if(error >= 250 && movingFlag == 1) MV = (float)(Gain*tickDirFlag);
-       else if(error <= -250 && movingFlag == 1) MV = (float)(Gain*tickDirFlag*(-1));
-       else if (error < 250 && error > 5 && movingFlag == 1){MV = (float)(error*Kp/*+iTerm*/)*tickDirFlag;}
-       else if(error < -5 && error > -250 && movingFlag == 1){MV =  (float)(error*Kp/*+iTerm*/)*tickDirFlag;}
-       else if(error <= 5 && error >= -5 && movingFlag == 1) {MV = 0;movingFlag = 0;}
-
-
-      
-
-      // if(abs(error) > 100) {
-
-
-      // }
-
-      if(MV > 255) MV = 255;
-      else if(MV < 15 && MV > 0) MV = 15;
-      else if(MV > -15 && MV < 0) MV = -15; //Minimum PWM so make the motor move, identified experimentally
-      else if(MV < -255) MV = -255;
-      motorPWM_percentage(MV);
-      
-
-
-   
-    }
 
     void servoInit()
     {
@@ -318,21 +286,145 @@ class Motor {
     }
 };
 
+
+
+class PID{
+
+  
+   
+/*! \brief Initialisation of PID controller parameters.  
+ *  
+ *  Initialise the variables used by the PID algorithm.  
+ *  
+ *  \param p_factor  Proportional term.  
+ *  \param i_factor  Integral term.  
+ *  \param d_factor  Derivate term.  
+ *  \param pid  Struct with PID status.  
+ */   
+ public:
+    void pid_Init(int16_t p_factor, int16_t i_factor, int16_t d_factor, struct PID_DATA *pid)   
+    // Set up PID controller parameters   
+    {   
+      // Start values for PID controller   
+      pid->sumError = 0;   
+      pid->lastProcessValue = 0;   
+      // Tuning constants for PID loop   
+      pid->P_Factor = p_factor;   
+      pid->I_Factor = i_factor;   
+      pid->D_Factor = d_factor;   
+      // Limits to avoid overflow   
+      pid->maxError = MAX_INT / (pid->P_Factor + 1);   
+      pid->maxSumError = MAX_I_TERM / (pid->I_Factor + 1);   
+    }   
+      
+    /*! \brief PID control algorithm.  
+     *  
+     *  Calculates output from setpoint, process value and PID status.  
+     *  
+     *  \param setPoint  Desired value.  
+     *  \param processValue  Measured value.  
+     *  \param pid_st  PID status struct.  
+     */   
+    int16_t pid_Controller(int16_t setPoint, int16_t processValue, struct PID_DATA *pid_st)   
+    {   
+      int16_t error, p_term, d_term;   
+      int32_t i_term, ret, temp;   
+       
+      error = setPoint - processValue;   
+       
+      // Calculate Pterm and limit error overflow   
+      if (error > pid_st->maxError){   
+        p_term = MAX_INT;   
+      }   
+      else if (error < -pid_st->maxError){   
+        p_term = -MAX_INT;   
+      }   
+      else{   
+        p_term = pid_st->P_Factor * error;   
+      }   
+       
+      // Calculate Iterm and limit integral runaway   
+      temp = pid_st->sumError + error;   
+      if(temp > pid_st->maxSumError){   
+        i_term = MAX_I_TERM;   
+        pid_st->sumError = pid_st->maxSumError;   
+      }   
+      else if(temp < -pid_st->maxSumError){   
+        i_term = -MAX_I_TERM;   
+        pid_st->sumError = -pid_st->maxSumError;   
+      }   
+      else{   
+        pid_st->sumError = temp;   
+        i_term = pid_st->I_Factor * pid_st->sumError;   
+      }   
+       
+      // Calculate Dterm   
+      d_term = pid_st->D_Factor * (pid_st->lastProcessValue - processValue);   
+       
+      pid_st->lastProcessValue = processValue;   
+       
+      ret = (p_term + i_term + d_term) / SCALING_FACTOR;   
+      if(ret > MAX_INT){   
+        ret = MAX_INT;   
+      }   
+      else if(ret < -MAX_INT){   
+        ret = -MAX_INT;   
+      }   
+       
+      return((int16_t)ret);   
+    }   
+       
+    /*! \brief Resets the integrator.  
+     *  
+     *  Calling this function will reset the integrator in the PID regulator.  
+     */   
+    void pid_Reset_Integrator(pidData_t *pid_st)   
+    {   
+      pid_st->sumError = 0;   
+    }   
+
+};
+
+void receiveEvent(int howMany)
+{
+  int i = 0;
+  while(0 < Wire.available()) // loop through all
+  {
+    buffer[i] = Wire.read(); // receive byte as a character
+    i++;
+  }
+
+  int checksum= (buffer[8] << 8);
+  checksum |= buffer[7];
+  if(checksum == (buffer[0] + buffer[1] + buffer[2] + buffer[3] + buffer[4] + buffer[9])) Serial.println("OK");
+  else Serial.println("ERROR");
+
+  // received_data = (buffer[6] << 8);
+  // received_data |= (buffer[5]);
+
+  // Serial.println(received_data);
+
+}
+
 int main() {
   
   init();
-  setup();
-  Motor motor;
+  // setup();
+  // Motor motor;
 
-  float x;// a speed order from master
-  long timeNow = 0, timeOld = 0;
-  long setPOINT;
-  int counter=0, countSetP=0;
-  long timeStamp = 0;
-  motor.servoInit();
-  setPOINT = 0;
-  delay(1000);
-  uint8_t buffer[11];
+  Serial.begin(9600);
+  Wire.begin(15); // 15 for slave1, 9 for slave2
+  Wire.onReceive(receiveEvent);
+
+
+  // float x;// a speed order from master
+  // long timeNow = 0, timeOld = 0;
+  // long setPOINT;
+  // int counter=0, countSetP=0;
+  // long timeStamp = 0;
+  // motor.servoInit();
+  // setPOINT = 0;
+  // delay(1000);
 
   while (1) {
     // timeNow = millis();
@@ -345,8 +437,29 @@ int main() {
     //   motor.set_degPControl(setPOINT);}
       
     //   Serial.print("setPOINT : "); Serial.print(setPOINT);
+    //   Serial.print(" counter : "); Serial.println(counter);    
+
+    // timeNow = millis();
+    // if(timeNow - timeOld > 1){
+    //   timeOld = timeNow;
+    //   counter++;
+    //   if(counter == 200) {
+    //     // if(setPOINT >= 900) {setPOINT = 300;}
+    //     // else  setPOINT=setPOINT+100;
+    //     if(countSetP == 1) setPOINT = 900;
+    //     else setPOINT = 300;
+    //     counter = 0;
+    //     countSetP = !countSetP;
+    //     }
+    //   if(movingFlag == 1){
+    //   timeStamp = millis();
+    //   motor.set_degPControl(setPOINT);}
+    //   timeStamp = millis() - timeStamp;
+    //   Serial.print("timeStamp : "); Serial.print(timeStamp);
+    //   Serial.print(" setPOINT : "); Serial.print(setPOINT);
     //   Serial.print(" counter : "); Serial.println(counter);
 
+<<<<<<< HEAD
     if (Serial.available() >= 11) {
       for (int i=0; i<11; i++) {
         buffer[i] = Serial.read();
@@ -376,6 +489,11 @@ int main() {
     }
 
 
+=======
+    // }
+
+
+>>>>>>> c9b6bde8302e9c7db173c7a57dacbab4ea50512d
   }
   
 }

@@ -7,7 +7,7 @@ int main(int argc, char** argv){
   ros::NodeHandle nh;
 
   rbmt_sim::Simulator sim(nh);
-  ros::spin();
+  sim.run(ros::Rate(10));
 
   return(0);
 }
