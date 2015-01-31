@@ -76,7 +76,7 @@ void Tracker::run_dummy(ros::Rate rate) {
   pose.position.x = 3.0;
   pose.position.y = 3.0;
   pose.position.z = 0.0;
-  pose.orientation.x = 0.0im;
+  pose.orientation.x = 0.0;
   pose.orientation.y = 0.0;
   pose.orientation.z = 0.0;
   pose.orientation.w = 1.0;
@@ -143,7 +143,7 @@ void Tracker::run_dummy(ros::Rate rate) {
   //   ++idx;
   //   ros::spinOnce();
   //   rate.sleep();
-  // }
+  }
 }
 
 void Tracker::marker_init() {
