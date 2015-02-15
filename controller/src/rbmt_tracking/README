@@ -1,0 +1,8 @@
+Dependencies:
+
+---
+ROS Indigo
+Ubuntu 14.04 LTS
+$ sudo apt-get install ros-indigo-freenect-stack
+$ sudo apt-get install ros-indigo-freenect-launch
+$ sudo apt-get install ros-indigo-freenect-camera

@@ -1,0 +1,26 @@
+tracking goals:
+- predict hit point of shuttle cock
+
+===
+to do list:
+1. collect training data
+	1.1 Collect input data: Wi = {x,y,z,color}
+		1.1.1 Robust centroid detection: using color, minimum number of points
+	1.2 Collect output data: Yi = {x,y,z,color}
+		1.2.1 With ps3 eye detect cock drop point at the floor
+	1.3 Integration input and output collection
+
+2. training the predictor
+	2.1 Design feature vector
+	2.2 Split data to training and testing data
+	2.3 Tune and train SVR (Support Vector Regression) -- (Scikit-learn.org)
+	2.4 Evaluate the regression model
+	2.5 Re-iterate: try gaussion process regressor, neural network, etc
+
+===
+library:
+1. Scikit-learn
+2. Eigen 
+3. Boost
+4. PCL
+5. OpenCV

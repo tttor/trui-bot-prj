@@ -9,6 +9,10 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   geometry_msgs
   visualization_msgs
+  pcl_conversions
+  pcl_ros
+  sensor_msgs
+  std_msgs
 )
 
 ## Find opencv macros and libraries
@@ -114,6 +118,7 @@ target_link_libraries(rbmt_tracking
 
 ## Declare a cpp executable
 add_executable(rbmt_tracking_node src/tracking_node.cpp)
+add_executable(pcl_tracking_node src/pcl_tracking_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -124,6 +129,10 @@ target_link_libraries(rbmt_tracking_node
    rbmt_tracking
    ${catkin_LIBRARIES}
  )
+ target_link_libraries(pcl_tracking_node
+  ${catkin_LIBRARIES}
+)
+
 
 #############
 ## Install ##
