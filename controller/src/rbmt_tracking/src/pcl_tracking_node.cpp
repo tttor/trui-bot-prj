@@ -57,7 +57,7 @@ cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   pcl::PCLPointCloud2* cloud = new pcl::PCLPointCloud2; 
   pcl::PCLPointCloud2ConstPtr cloudPtr(cloud);
   pcl::PCLPointCloud2 cloud_filtered;
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_segment (new pcl::PointCloud<pcl::PointXYZRGB>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_segment (new pcl::PointCloud<pcl::PointXYZ>);
 
    // Convert to PCL data type
   pcl_conversions::toPCL(*cloud_msg, *cloud);
@@ -68,27 +68,27 @@ cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   sor.setLeafSize (0.01, 0.01, 0.01);
   sor.filter (cloud_filtered);
 
-  // convert PointCloud2 to pcl::PointCloud<pcl::PointXYZRGB>
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  // convert PointCloud2 to pcl::PointCloud<pcl::PointXYZ>
+  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromPCLPointCloud2(cloud_filtered,*temp_cloud);
 
   // segmenting area
-  pcl::PassThrough<pcl::PointXYZRGB> pass;
+  pcl::PassThrough<pcl::PointXYZ> pass;
   pass.setInputCloud (temp_cloud);
-  pass.setFilterFieldName ("x");
-  pass.setFilterLimits (0, 0.3);
+  // pass.setFilterFieldName ("x");
+  // pass.setFilterLimits (0, 0.3);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   pass.setInputCloud (cloud_segment);
-  pass.setFilterFieldName ("y");
-  pass.setFilterLimits (-0.5, 0.3);
+  //pass.setFilterFieldName ("y");
+  //pass.setFilterLimits (-3, -0.2);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   pass.setInputCloud (cloud_segment);
-  pass.setFilterFieldName ("z");
-  pass.setFilterLimits (0, 1);
+  // pass.setFilterFieldName ("z");
+  // pass.setFilterLimits (0, 1);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
