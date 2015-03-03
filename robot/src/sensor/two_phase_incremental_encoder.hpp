@@ -16,13 +16,11 @@ class TwoPhaseIncrementalEncoder {
    * @brief return the number of rising-edge of the a phase pulse
    * 
    */
+
+
   int64_t pos();
-  
-  /**
-   * @brief return how much rotarion in radians, can be negative
-   * 
-   */
   double rot();
+  void reset_Enc();
   
  private:
   size_t out_a_pin_;// external interrupt 0 pin
