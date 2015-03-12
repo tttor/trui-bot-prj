@@ -2,7 +2,7 @@
 
 using namespace crim;
 
-int64_t TwoPhaseIncrementalEncoder::phase_a_counter_ = 0;
+int64_t TwoPhaseIncrementalEncoder::phase_a_counter_ = 0;//
 bool TwoPhaseIncrementalEncoder::phase_b_state_ = 0;
 
 TwoPhaseIncrementalEncoder::TwoPhaseIncrementalEncoder(size_t out_a_pin, size_t out_b_pin, uint64_t resolution)
@@ -32,6 +32,11 @@ double TwoPhaseIncrementalEncoder::rot() {
   return (double)phase_a_counter_/resolution_*2*3.14;
 }
 
+void TwoPhaseIncrementalEncoder::reset_Enc() {
+  phase_a_counter_ = 0;
+  phase_b_state_ = digitalRead(out_b_pin_);
+}
+
 void TwoPhaseIncrementalEncoder::ext_int0_handler() {
   if (phase_b_state_) 
     phase_a_counter_--;
@@ -42,3 +47,4 @@ void TwoPhaseIncrementalEncoder::ext_int0_handler() {
 void TwoPhaseIncrementalEncoder::ext_int1_handler() {
   phase_b_state_ = !phase_b_state_;
 }
+
