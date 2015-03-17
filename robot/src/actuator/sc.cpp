@@ -17,7 +17,7 @@ namespace trui {
     delta_=0, error_=0, last_error_=0; 
     data_=0;
     kp_= 0.4, ki_= 0.15, kd_= 0.01;
-    // kp_= 0.316, ki_= 0.0528, kd_= 0;//for 50ms sampling time
+    // kp_= 0.5, ki_= 0.0528, kd_= 0;//for 50ms sampling time
     setup();
 
     encoder_ = new crim::TwoPhaseIncrementalEncoder(encoder_out_a_pin, encoder_out_b_pin, encoder_resolution); 
@@ -28,11 +28,17 @@ namespace trui {
     delete encoder_;
   }
 
+
+
   void Sc::setup() {
     pinMode(dir_pin1_, OUTPUT);
     pinMode(dir_pin2_, OUTPUT);
     pinMode(pwm_pin_, OUTPUT);   
     encoder_->reset_Enc(); 
+  }
+
+  void Sc::reset(){
+    encoder_->reset_Enc();
   }
 
   int64_t Sc::read_encoder(){
@@ -56,7 +62,7 @@ namespace trui {
   void Sc::PIDvelocity_algorithm(float speed,float Kp,float Ki,float Kd,float delta_T){
       omega_input_ = speed; //setpoint
       tick_enc_ = encoder_->pos();
-      omega_ = (float)(tick_enc_ - last_tick_enc_)*1500/57;// Tetha = ((tickEnc - last_tickEnc)/228) * 2 * PI rad
+      omega_ = (float)(tick_enc_ - last_tick_enc_)*300/57;// Tetha = ((tickEnc - last_tickEnc)/228) * 2 * PI rad
                                              // omega = Tetha / Delta_Time -- Delta_Time = 50ms
                                              // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/228) * 2 * PI * 1000/50 rad/s
                                              // omega = (tickEnc - last_tickEnc) * 40/228 * PI rad/s

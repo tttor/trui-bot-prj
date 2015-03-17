@@ -83,34 +83,15 @@ int main() {
     
     //1. wait for cmd_speed from serial from controller
     //while (true) {
-      //For normal operation
-      // if (Serial.available() > 0) {
-      //   if(Serial.read() == 0xCE){ //Header
-      //       controllerBuffer[0] = Serial.read(); //Direction of Wheel 1
-      //       controllerBuffer[1] = Serial.read(); //MSB of Wheel Speed 1
-      //       controllerBuffer[2] = Serial.read(); //LSB of Wheel Speed 1
-      //       controllerBuffer[3] = Serial.read(); //Direction of Wheel 2
-      //       controllerBuffer[4] = Serial.read(); //MSB of Wheel Speed 2
-      //       controllerBuffer[5] = Serial.read(); //LSB of Wheel Speed 2
-      //       controllerBuffer[6] = Serial.read(); //Direction of Wheel 3
-      //       controllerBuffer[7] = Serial.read(); //MSB of Wheel Speed 3
-      //       controllerBuffer[8] = Serial.read(); //LSB of Wheel Speed 3
-      //       controllerBuffer[9] = Serial.read(); //Hit Flag
-      //       controllerBuffer[10] = Serial.read(); //MSB of Rotater
-      //       controllerBuffer[11] = Serial.read(); //LSB of Rotater
-      //       controllerBuffer[12] = Serial.read(); //Footer
-      //       }}
-
-      //For COMM Test
       if (Serial.available() >= 14) {
         if(Serial.read() == 0xCE){ //Header
-            controllerBuffer[0] = Serial.read(); //Direction of Wheel 1
+            controllerBuffer[0] = Serial.read(); //Feedback Flag for wheel 1
             controllerBuffer[1] = Serial.read(); //LSB of Wheel Speed 1
             controllerBuffer[2] = Serial.read(); //MSB of Wheel Speed 1
-            controllerBuffer[3] = Serial.read(); //Direction of Wheel 2
+            controllerBuffer[3] = Serial.read(); //Feedback Flag for wheel 2
             controllerBuffer[4] = Serial.read(); //LSB of Wheel Speed 2
             controllerBuffer[5] = Serial.read(); //MSB of Wheel Speed 2
-            controllerBuffer[6] = Serial.read(); //Direction of Wheel 3
+            controllerBuffer[6] = Serial.read(); //Feedback Flag for wheel 3
             controllerBuffer[7] = Serial.read(); //LSB of Wheel Speed 3
             controllerBuffer[8] = Serial.read(); //MSB of Wheel Speed 3
             controllerBuffer[9] = Serial.read(); //Hit Flag

@@ -13,8 +13,8 @@ const int encoder_out_a_pin = 2;
 const int encoder_out_b_pin = 3;
 const int encoder_resolution = 360; //Only needed for Initialization, not used unless .rot() is called
 
-const int outmax = 100.0;
-const int outmin = -100.0;
+const int outmax = 255.0;
+const int outmin = -255.0;
 
 
 const uint8_t header= 0xCE;
@@ -34,6 +34,7 @@ float U_t_=0;
 float U_t_1_=0;
 float delta_T=0.05;
 bool doFlag = 0;
+bool resetFlag=0;
 long error=0,thetaDot=0;
 float u_k;
 byte buffer[7] = {0,0,0,0,0,0,0};
@@ -48,7 +49,7 @@ void setup()
   TCCR1B = 0;     // same for TCCR1B
  
   // set compare match register to desired timer count:
-  OCR1A = 155;//780;
+  OCR1A = 156;//780;
                     // target time = timer resolution * (timer counts + 1)
                    // (timer counts + 1) = target time / timer resolution
                    // (timer counts + 1) = 5*10^-3 / (1 / (16.10^6 / 1024))
@@ -100,7 +101,6 @@ int main() {
 
   while (true) {
 
-    //1. Wait msg from master
     if (Serial.available() >= 7) {
       if(Serial.read() == 0xCE ){
       buffer[1] = Serial.read(); //LSB
@@ -112,14 +112,15 @@ int main() {
         }
       }
 
+
     bufferSpeed = ((buffer[2]<<8) | (buffer[1]));//bufferSpeed;
+    //Reset the encoder every time the setpoint is 0 RPM
+    if(speed == 0) {if(resetFlag == 0) {sc.reset(); resetFlag ==1;}}
+    else {resetFlag = 0;} //if speed is not 0, the resetFlag is set to 0 again
     speed = bufferSpeed;
     // buffer[3] = 0xCC;
     if(buffer[3] == 0xCC) speed = bufferSpeed;
-    // else if(buffer[3] == 0xBB) speed = -bufferSpeed;
-    
-
-    
+    // else if(buffer[3] == 0xBB) speed = -bufferSpeed;    
   }
 
   return 0;

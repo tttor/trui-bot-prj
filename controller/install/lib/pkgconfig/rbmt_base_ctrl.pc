@@ -1,0 +1,8 @@
+prefix=/home/lintang-sutawika/krai/trui-bot-prj/controller/install
+
+Name: rbmt_base_ctrl
+Description: Description of rbmt_base_ctrl
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/lintang-sutawika/krai/trui-bot-prj/controller/install/lib 
+Requires: 

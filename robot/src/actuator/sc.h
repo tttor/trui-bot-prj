@@ -26,6 +26,7 @@ class Sc {
      */
     void set_speed(float cmd_speed);
     void setup();
+    void reset();
     void outSignal(float pwm);
     void PIDvelocity_algorithm(float speed,float Kp,float Ki,float Kd,float delta_T);
     int64_t read_encoder();
