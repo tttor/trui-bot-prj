@@ -22,7 +22,7 @@ SLAVE_CPU_SPEED=-DF_CPU=16000000UL
 SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_UPLOAD_BAUDRATE=57600 #: 57600 (for promini m328p), 115200 (for mega m2560, uno m328p)
-SLAVE_PORT=/dev/ttyACM2
+SLAVE_PORT=/dev/ttyUSB0
 
 TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib
@@ -43,7 +43,7 @@ MASTER_LIBS= $(TARGET_LIBDIR) -larduino-master -lm
 MASTER_INCDIR= /opt/ros/indigo/include
 MASTER_INCFLAGS = -I $(MASTER_INCDIR) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino
 
-SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp ./src/comm/arduino_mavlink_packet_handler.cpp ./src/actuator/motor.cpp ./src/pid/pid.c ./src/DynamixelSerial/DynamixelSerial.cpp
+SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp ./src/sensor/encoder_hctl.cpp ./src/comm/arduino_mavlink_packet_handler.cpp ./src/actuator/motor.cpp ./src/actuator/sc.cpp ./src/pid/pid.c ./src/DynamixelSerial/DynamixelSerial.cpp
 SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
 SLAVE_INCFLAGS= -I $(MASTER_INCDIR) -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino 
 
@@ -56,6 +56,7 @@ master_main:
 	cp ./src/comm/*.hpp $(TARGET_INCDIR)/comm
 	cp ./src/comm/*.h $(TARGET_INCDIR)/comm
 	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
+	cp ./src/sensor/*.h $(TARGET_INCDIR)/sensor
 	$(CC) $(MASTER_CFLAGS) $(MASTER_INCFLAGS) $^ -o $(TARGET_BUILDDIR)/main.elf $(MASTER_OBJ) -L $(MASTER_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
@@ -70,6 +71,7 @@ slave_main:
 	cp ./src/comm/*.h $(TARGET_INCDIR)/comm
 	cp ./src/actuator/*.h $(TARGET_INCDIR)/actuator
 	cp ./src/sensor/*.hpp $(TARGET_INCDIR)/sensor
+	cp ./src/sensor/*.h $(TARGET_INCDIR)/sensor
 	cp ./src/pid/*.h $(TARGET_INCDIR)/pid
 	cp ./src/DynamixelSerial/*.h $(TARGET_INCDIR)/DynamixelSerial
 	$(CC) $(SLAVE_CFLAGS) $(SLAVE_INCFLAGS) $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)

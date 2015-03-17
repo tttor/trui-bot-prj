@@ -26,7 +26,8 @@ class TwoPhaseIncrementalEncoder {
   size_t out_a_pin_;// external interrupt 0 pin
   size_t out_b_pin_;// external interrupt 1 pin
   uint64_t resolution_;
-  static int64_t phase_a_counter_;
+  static int64_t counter_;
+  static bool phase_a_state_;
   static bool phase_b_state_;
   
   void ext_int0_handler();

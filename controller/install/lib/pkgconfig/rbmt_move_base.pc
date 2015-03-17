@@ -1,0 +1,8 @@
+prefix=/home/lintang-sutawika/krai/trui-bot-prj/controller/install
+
+Name: rbmt_move_base
+Description: Description of rbmt_move_base
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/lintang-sutawika/krai/trui-bot-prj/controller/install/lib 
+Requires: roscpp rospy

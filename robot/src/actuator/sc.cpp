@@ -16,8 +16,8 @@ namespace trui {
     mv_=0, iTerm_= 0;    
     delta_=0, error_=0, last_error_=0; 
     data_=0;
-    //kp_= 0.316, ki_= 0.0528, kd_= 0;
-    kp_= 0.316, ki_= 0.0528, kd_= 0;
+    kp_= 0.4, ki_= 0.15, kd_= 0.01;
+    // kp_= 0.5, ki_= 0.0528, kd_= 0;//for 50ms sampling time
     setup();
 
     encoder_ = new crim::TwoPhaseIncrementalEncoder(encoder_out_a_pin, encoder_out_b_pin, encoder_resolution); 
@@ -28,11 +28,17 @@ namespace trui {
     delete encoder_;
   }
 
+
+
   void Sc::setup() {
     pinMode(dir_pin1_, OUTPUT);
     pinMode(dir_pin2_, OUTPUT);
     pinMode(pwm_pin_, OUTPUT);   
     encoder_->reset_Enc(); 
+  }
+
+  void Sc::reset(){
+    encoder_->reset_Enc();
   }
 
   int64_t Sc::read_encoder(){
@@ -53,13 +59,27 @@ namespace trui {
     }
   }
 
-  float Sc::PIDvelocity_algorithm(float error,float Kp,float Ki,float Kd,float delta_T){
-      e_k_ = error;
+  void Sc::PIDvelocity_algorithm(float speed,float Kp,float Ki,float Kd,float delta_T){
+      omega_input_ = speed; //setpoint
+      tick_enc_ = encoder_->pos();
+      omega_ = (float)(tick_enc_ - last_tick_enc_)*300/57;// Tetha = ((tickEnc - last_tickEnc)/228) * 2 * PI rad
+                                             // omega = Tetha / Delta_Time -- Delta_Time = 50ms
+                                             // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/228) * 2 * PI * 1000/50 rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 40/228 * PI rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 40/228 * PI * (1/(2PI)) rotation/rad rad/s
+                                             // omega = (tickEnc - last_tickEnc) * 20/228 rotation/s
+                                             // omega = (tickEnc - last_tickEnc) * 20/228 rotation/(1/60) minute
+                                             // omega = (tickEnc - last_tickEnc) * 5/57 * 60 rotation/minute
+                                             // omega = (tickEnc - last_tickEnc) * 300/57 RPM
+                                             // Quadrature -> 300/57 RPM
+      e_k_ = omega_input_ - omega_;
       U_t_ = U_t_1_ + (Kp+Ki*delta_T+Kd/delta_T)*e_k_-(Kp+2*Kd/delta_T)*e_k_1_+(Kd/delta_T)*e_k_2_;
       e_k_2_ = e_k_1_;
       e_k_1_ = e_k_;
       U_t_1_ = U_t_;
-      return U_t_;
+      last_tick_enc_ = tick_enc_;  
+      outSignal(U_t_);
+      //return U_t_;
 
   }
 
@@ -67,7 +87,7 @@ namespace trui {
     omega_input_ = cmd_speed; //setpoint
       tick_enc_ = encoder_->pos();
 
-      omega_ = (float)(tick_enc_ - last_tick_enc_)*1200/57;// Tetha = ((tickEnc - last_tickEnc)/57) * 2 * PI rad
+      omega_ = (float)(tick_enc_ - last_tick_enc_)*1500/57;// Tetha = ((tickEnc - last_tickEnc)/57) * 2 * PI rad
                                              // omega = Tetha / Delta_Time -- Delta_Time = 50ms
                                              // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/57) * 2 * PI * 1000/50 rad/s
                                              // omega = (tickEnc - last_tickEnc) * 40/57 * PI rad/s
@@ -76,7 +96,7 @@ namespace trui {
                                              // omega = (tickEnc - last_tickEnc) * 20/57 rotation/(1/60) minute
                                              // omega = (tickEnc - last_tickEnc) * 20/57 * 60 rotation/minute
                                              // omega = (tickEnc - last_tickEnc) * 1200/57 RPM
-                                             // Quadrature -> 6/5 RPM
+                                             // Quadrature -> 300/57 RPM
       error_ = omega_input_ - omega_;
       iTerm_ = iTerm_ + (float)error_*ki_;       //Integral Term of PID Control 
       

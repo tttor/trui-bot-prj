@@ -1,0 +1,8 @@
+prefix=/home/lintang-sutawika/krai/trui-bot-prj/controller/install
+
+Name: rosserial_server
+Description: Description of rosserial_server
+Version: 0.6.3
+Cflags: -I/home/lintang-sutawika/krai/trui-bot-prj/controller/install/include
+Libs: -L/home/lintang-sutawika/krai/trui-bot-prj/controller/install/lib 
+Requires: roscpp rosserial_msgs topic_tools
