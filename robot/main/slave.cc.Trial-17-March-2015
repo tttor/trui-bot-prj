@@ -38,17 +38,6 @@ bool resetFlag=0;
 long error=0,thetaDot=0;
 float u_k;
 byte buffer[7] = {0,0,0,0,0,0,0};
-
-//Array to place measured data
-byte dataFrom_Encoder[2] = {0,0};
-int tempRead_Encoder = 0;
-int arrayIndex = 0;
-bool feedbackRequest = 0;
-bool sendRequest = 0;
-bool requestIs_Valid = 1;
-int i;
-
-
 trui::Sc sc(pwm_pin, dir_pin1,dir_pin2, encoder_out_a_pin, encoder_out_b_pin, encoder_resolution,outmax, outmin);
 
 void setup()
@@ -82,16 +71,7 @@ ISR(TIMER1_COMPA_vect)        // interrupt service routine
   
   // if(buffer[3] == 0xCC) sc.set_speed(-speed);//u_k = speed;//speed = (-1)*speed;
     // else if(buffer[3] == 0x0C) sc.set_speed(speed);//u_k = -speed;
-  tempRead_Encoder = sc.set_speed(speed);
-  
-  // if(requestIs_Valid == 0){
-    dataFrom_Encoder[0] = tempRead_Encoder & 0x00FF;
-    dataFrom_Encoder[1] = (tempRead_Encoder & 0xFF00)>>8;
-  //   arrayIndex+=2;
-  //   if(arrayIndex == 1000) {requestIs_Valid=1; sendRequest = 1;}
-  //   }
-
-  
+  sc.set_speed(speed);
 // sc.set_speed(30);
   
   //thetaDot = sc.read_encoder();
@@ -118,36 +98,29 @@ int main() {
   int incoming_byte = 0;
   
   int flag=0;
-  // speed = 100;//
+
   while (true) {
 
     if (Serial.available() >= 7) {
       if(Serial.read() == 0xCE ){
       buffer[1] = Serial.read(); //LSB
       buffer[2] = Serial.read(); //MSB
-      buffer[3] = Serial.read(); //Feedback request flag
+      buffer[3] = Serial.read(); //Direction
       buffer[4] = Serial.read(); //Checksum
       buffer[5] = Serial.read(); //Checksum
       buffer[6] = Serial.read();
         }
       }
 
-    
+
     bufferSpeed = ((buffer[2]<<8) | (buffer[1]));//bufferSpeed;
     //Reset the encoder every time the setpoint is 0 RPM
-    // speed = bufferSpeed;
-    speed = 200;
-    // if(requestIs_Valid == 1) speed = 0; 
-    // else speed = 100;
-    // if(speed == 0) {if(resetFlag == 0) {sc.reset(); resetFlag =1;}} else {resetFlag = 0;} //if speed is not 0, the resetFlag is set to 0 again
-
-      // Serial.write(0xCE);
-      // Serial.write(dataFrom_Encoder,2);
-      // Serial.write(dataFrom_Encoder[1]);
-      Serial.println(dataFrom_Encoder[0]|(dataFrom_Encoder[1]<<8));
-
-    
-
+    if(speed == 0) {if(resetFlag == 0) {sc.reset(); resetFlag ==1;}}
+    else {resetFlag = 0;} //if speed is not 0, the resetFlag is set to 0 again
+    speed = bufferSpeed;
+    // buffer[3] = 0xCC;
+    if(buffer[3] == 0xCC) speed = bufferSpeed;
+    // else if(buffer[3] == 0xBB) speed = -bufferSpeed;    
   }
 
   return 0;

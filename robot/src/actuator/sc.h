@@ -24,7 +24,7 @@ class Sc {
      * \param cmd_speed the commanded speed in rpm
      * \return the actual speed in rpm
      */
-    void set_speed(float cmd_speed);
+    float set_speed(float cmd_speed);
     void setup();
     void reset();
     void outSignal(float pwm);
@@ -44,6 +44,13 @@ class Sc {
     int64_t last2_tick_enc_;
     int64_t deriv_comp_;
     float omega_;
+    float omega_read_;
+    float omega_read_k_;
+    float omega_read_k_1_;
+    float omega_read_k_2_;
+    float omega_read_k_3_;
+    float omega_read_k_4_;
+    float omega_read_refined;
     float omega_input_;
     float last_omega_;
     float mv_;
@@ -51,6 +58,7 @@ class Sc {
     float delta_;
     float error_;
     float last_error_;
+    float error_over_time_;
     float kp_;
     float ki_;
     float kd_;

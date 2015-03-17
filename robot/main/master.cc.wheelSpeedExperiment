@@ -53,9 +53,9 @@ int main() {
   const uint8_t desired_msgid= MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED;    
 
   uint8_t controllerBuffer[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0}; 
-  byte dataBuffer1[2] ={};
-  byte dataBuffer2[2] ={};
-  byte dataBuffer3[2] ={};
+  float dataBuffer1[500] ={};
+  float dataBuffer2[500] ={};
+  float dataBuffer3[500] ={};
   bool fromSerial1 = 0;
   bool fromSerial2 = 0;
   bool fromSerial3 = 0;
@@ -85,64 +85,72 @@ int main() {
   toggleReset();
   delay(500);
   
-  Serial.println("Let us begin testing");
-        //For 1.5m/s
-      controllerBuffer[1] = 71;
-      controllerBuffer[4] = 142;
-      controllerBuffer[7] = 71;//-71;
   while (true) {
     
     //1. wait for cmd_speed from serial from controller
     //while (true) {
-      // if (Serial.available() >= 14) {
-      //   if(Serial.read() == 0xCE){ //Header
-      //       controllerBuffer[0] = Serial.read(); //Feedback Flag for wheel 1
-      //       controllerBuffer[1] = Serial.read(); //LSB of Wheel Speed 1
-      //       controllerBuffer[2] = Serial.read(); //MSB of Wheel Speed 1
-      //       controllerBuffer[3] = Serial.read(); //Feedback Flag for wheel 2
-      //       controllerBuffer[4] = Serial.read(); //LSB of Wheel Speed 2
-      //       controllerBuffer[5] = Serial.read(); //MSB of Wheel Speed 2
-      //       controllerBuffer[6] = Serial.read(); //Feedback Flag for wheel 3
-      //       controllerBuffer[7] = Serial.read(); //LSB of Wheel Speed 3
-      //       controllerBuffer[8] = Serial.read(); //MSB of Wheel Speed 3
-      //       controllerBuffer[9] = Serial.read(); //Hit Flag
-      //       controllerBuffer[10] = Serial.read(); //LSB of Rotater
-      //       controllerBuffer[11] = Serial.read(); //MSB of Rotater
-      //       controllerBuffer[12] = Serial.read(); //Footer
-      //       }
-      // }
+      if (Serial.available() >= 14) {
+        if(Serial.read() == 0xCE){ //Header
+            controllerBuffer[0] = Serial.read(); //Feedback Flag for wheel 1
+            controllerBuffer[1] = Serial.read(); //LSB of Wheel Speed 1
+            controllerBuffer[2] = Serial.read(); //MSB of Wheel Speed 1
+            controllerBuffer[3] = Serial.read(); //Feedback Flag for wheel 2
+            controllerBuffer[4] = Serial.read(); //LSB of Wheel Speed 2
+            controllerBuffer[5] = Serial.read(); //MSB of Wheel Speed 2
+            controllerBuffer[6] = Serial.read(); //Feedback Flag for wheel 3
+            controllerBuffer[7] = Serial.read(); //LSB of Wheel Speed 3
+            controllerBuffer[8] = Serial.read(); //MSB of Wheel Speed 3
+            controllerBuffer[9] = Serial.read(); //Hit Flag
+            controllerBuffer[10] = Serial.read(); //LSB of Rotater
+            controllerBuffer[11] = Serial.read(); //MSB of Rotater
+            controllerBuffer[12] = Serial.read(); //Footer
+            }
+      }
 
-
-
-      // Serial.println(fromSerial3);
-      if(Serial1.available() >= 3){
-        if(Serial1.read() == 0xCE){
-            dataBuffer1[0] = Serial1.read();
-            dataBuffer1[1] = Serial1.read();
+      if(Serial1.available() >= 501){
+        if(Serial.read() == 0xCE){
+          for(i=0;i<500;i++){
+            dataBuffer1[i] = Serial1.read();
+            fromSerial1 = 1;
+          }
         }
       }
 
-      if(Serial2.available() >= 3){
+      if(Serial2.available() >= 501){
         if(Serial2.read() == 0xCE){
-            dataBuffer2[0] = Serial2.read();
-            dataBuffer2[1] = Serial2.read();
+          for(i=0;i<500;i++){
+            dataBuffer2[i] = Serial2.read();
+            fromSerial2 = 1;
+          }
         }
       }
 
-      if(Serial3.available() >= 3){
+      if(Serial3.available() >= 501){
         if(Serial3.read() == 0xCE){
-            dataBuffer3[0] = Serial3.read();
-            dataBuffer3[1] = Serial3.read();
+          for(i=0;i<500;i++){
+            dataBuffer3[i] = Serial3.read();
+            fromSerial3 = 1;
+          }
         }
       }
 
-      
+      if(fromSerial1 == 1 && fromSerial2 == 1 && fromSerial3 == 1){
+        for(n = 0;n>500;n++){
+          Serial.print("W1: ");
+          Serial.print(dataBuffer1[n]);
+          Serial.print(", W2: ");
+          Serial.print(dataBuffer1[n]);
+          Serial.print(", W3: ");
+          Serial.println(dataBuffer1[n]);
+        }
+        return 0;
+      }
 
-    // Serial.println(dataBuffer3[0]|(dataBuffer3[1]<<8));
-    Serial.print(dataBuffer3[0]);
-    Serial.print(" ");
-    Serial.println(dataBuffer3[1]);
-        //2. break down the speed into the speed for 3 motors
+
+
+    
+
+    //2. break down the speed into the speed for 3 motors
     
     //if(controllerBuffer[9] == hit_flag){digitalWrite(hitPin,HIGH);}
     if((controllerBuffer[9] & 0x0F) == hit_flag){digitalWrite(hitPin,HIGH);} else digitalWrite(hitPin,LOW);
