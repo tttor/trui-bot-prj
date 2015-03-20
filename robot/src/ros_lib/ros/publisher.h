@@ -35,8 +35,8 @@
 #ifndef _ROS_PUBLISHER_H_
 #define _ROS_PUBLISHER_H_
 
-#include "rosserial_msgs/TopicInfo.h"
-#include "node_handle.h"
+#include <ros_lib/rosserial_msgs/TopicInfo.h>
+#include <ros_lib/ros/node_handle.h>
 
 namespace ros {
 

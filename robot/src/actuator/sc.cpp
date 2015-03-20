@@ -118,7 +118,7 @@ namespace trui {
       omega_read_k_3_ = omega_read_k_2_;
       omega_read_k_2_ = omega_read_k_;
       last_error_ = error_;
-      return iTerm_;//omega_read_refined;
+      return omega_read_refined;
       // last2_tick_enc_ = last_tick_enc_; 
       // last_tick_enc_ = tick_enc_;    
   }

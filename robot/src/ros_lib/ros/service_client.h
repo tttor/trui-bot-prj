@@ -35,10 +35,10 @@
 #ifndef _ROS_SERVICE_CLIENT_H_
 #define _ROS_SERVICE_CLIENT_H_
 
-#include "rosserial_msgs/TopicInfo.h"
+#include <ros_lib/rosserial_msgs/TopicInfo.h>
 
-#include "publisher.h"
-#include "subscriber.h"
+#include <ros_lib/ros/publisher.h>
+#include <ros_lib/ros/subscriber.h>
 
 namespace ros {
 

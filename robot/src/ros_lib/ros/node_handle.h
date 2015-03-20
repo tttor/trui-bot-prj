@@ -37,10 +37,10 @@
 
 #include <stdint.h>
 
-#include "std_msgs/Time.h"
-#include "rosserial_msgs/TopicInfo.h"
-#include "rosserial_msgs/Log.h"
-#include "rosserial_msgs/RequestParam.h"
+#include <ros_lib/std_msgs/Time.h>
+#include <ros_lib/rosserial_msgs/TopicInfo.h>
+#include <ros_lib/rosserial_msgs/Log.h>
+#include <ros_lib/rosserial_msgs/RequestParam.h>
 
 #define SYNC_SECONDS        5
 

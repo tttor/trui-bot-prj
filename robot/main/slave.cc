@@ -40,7 +40,7 @@ float u_k;
 byte buffer[7] = {0,0,0,0,0,0,0};
 
 //Array to place measured data
-byte dataFrom_Encoder[2] = {0,0};
+byte dataFrom_Encoder[4] = {0xCE,0,0,0xEE};
 int tempRead_Encoder = 0;
 int arrayIndex = 0;
 bool feedbackRequest = 0;
@@ -85,8 +85,7 @@ ISR(TIMER1_COMPA_vect)        // interrupt service routine
   tempRead_Encoder = sc.set_speed(speed);
   
   // if(requestIs_Valid == 0){
-    dataFrom_Encoder[0] = tempRead_Encoder & 0x00FF;
-    dataFrom_Encoder[1] = (tempRead_Encoder & 0xFF00)>>8;
+    
   //   arrayIndex+=2;
   //   if(arrayIndex == 1000) {requestIs_Valid=1; sendRequest = 1;}
   //   }
@@ -111,14 +110,14 @@ int main() {
 
   sc.setup();
   
-  //Serial.begin(1000000); //For normal operation
-  Serial.begin(9600); //Debugging use only
+  Serial.begin(9600); //For normal operation
+  // Serial.begin(115200); //Debugging use only
 
   long timeNow = 0, timeOld = 0;
   int incoming_byte = 0;
   
   int flag=0;
-  // speed = 100;//
+  // speed = 71;//
   while (true) {
 
     if (Serial.available() >= 7) {
@@ -134,17 +133,20 @@ int main() {
 
     
     bufferSpeed = ((buffer[2]<<8) | (buffer[1]));//bufferSpeed;
+    speed = bufferSpeed;
     //Reset the encoder every time the setpoint is 0 RPM
-    // speed = bufferSpeed;
-    speed = 200;
-    // if(requestIs_Valid == 1) speed = 0; 
-    // else speed = 100;
     // if(speed == 0) {if(resetFlag == 0) {sc.reset(); resetFlag =1;}} else {resetFlag = 0;} //if speed is not 0, the resetFlag is set to 0 again
-
-      // Serial.write(0xCE);
-      // Serial.write(dataFrom_Encoder,2);
+    // dataFrom_Encoder[0] = 0xCE;
+    // dataFrom_Encoder[1] = (tempRead_Encoder & 0x00FF);
+    // dataFrom_Encoder[2] = ((tempRead_Encoder & 0xFF00)>>8);
+    // dataFrom_Encoder[3] = 0xEE;
+      // Serial.write(dataFrom_Encoder,4);
+    // Serial.write(0xCE);
+    // Serial.write((tempRead_Encoder & 0x00FF));
+    // Serial.write(((tempRead_Encoder & 0xFF00)>>8));
+    // Serial.write(0xEE);
       // Serial.write(dataFrom_Encoder[1]);
-      Serial.println(dataFrom_Encoder[0]|(dataFrom_Encoder[1]<<8));
+      Serial.write(tempRead_Encoder);
 
     
 

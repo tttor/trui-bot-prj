@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "ros/msg.h"
-#include "ros/duration.h"
+#include <ros_lib/ros/msg.h>
+#include <ros_lib/ros/duration.h>
 
 namespace std_msgs
 {
