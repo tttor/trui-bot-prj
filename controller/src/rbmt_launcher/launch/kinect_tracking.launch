@@ -1,0 +1,31 @@
+<launch>  
+  
+  <arg name="rviz" default="True" />
+  <arg name="kinect_black" default="True"/>
+  <arg name="kinect_white" default="True"/>
+
+  <group if="$(arg kinect_black)">
+    <include file="$(find rbmt_tracking)/launch/freenect_black.launch"/>
+  </group>
+  
+  <group if="$(arg kinect_white)">
+    <include file="$(find rbmt_tracking)/launch/freenect_white.launch"/>
+  </group>
+  
+  <group>
+  	<node pkg="rbmt_tracking" name="pcl_input" type="pcl_input"/>
+  </group>
+  
+  <group>
+    <node pkg="rbmt_tracking" name="kinect_tf_broadcaster" type="kinect_tf_broadcaster"/>
+  </group>
+
+  <group>
+    <node pkg="rbmt_tracking" name="marker_transform" type="marker_transform"/>
+  </group>
+
+  <group if="$(arg rviz)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rbmt_tracking)/cfg/setting.rviz" />
+  </group>
+
+</launch>

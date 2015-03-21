@@ -5,9 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Status1
         - /Grid1
-        - /PointCloud21
+        - /Grid1/Offset1
+        - /PointCloud21/Autocompute Value Bounds1
+        - /TF1/Frames1
+        - /PointCloud22
       Splitter Ratio: 0.5
     Tree Height: 463
   - Class: rviz/Selection
@@ -47,16 +49,93 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 20
-      Reference Frame: <Fixed Frame>
+      Plane Cell Count: 10
+      Reference Frame: world
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 5.5176
-        Min Value: 0.0354636
+        Max Value: 2.993
+        Min Value: 0.496944
         Value: true
-      Axis: Z
+      Axis: X
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 1
+      Size (m): 0.01
+      Style: Points
+      Topic: /output_black
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        base_link:
+          Value: true
+        camera_black_link:
+          Value: true
+        camera_white_depth_frame:
+          Value: true
+        camera_white_depth_optical_frame:
+          Value: true
+        camera_white_link:
+          Value: true
+        camera_white_rgb_frame:
+          Value: true
+        camera_white_rgb_optical_frame:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        world:
+          base_link:
+            camera_black_link:
+              {}
+            camera_white_link:
+              camera_white_depth_frame:
+                camera_white_depth_optical_frame:
+                  {}
+              camera_white_rgb_frame:
+                camera_white_rgb_optical_frame:
+                  {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz/Marker
+      Enabled: false
+      Marker Topic: /visualization_marker
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 2.993
+        Min Value: 0.588571
+        Value: true
+      Axis: X
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
@@ -72,54 +151,17 @@ Visualization Manager:
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
-      Size (Pixels): 1
+      Size (Pixels): 3
       Size (m): 0.01
       Style: Points
-      Topic: /output
+      Topic: /output_white
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
-    - Class: rviz/TF
-      Enabled: true
-      Frame Timeout: 15
-      Frames:
-        All Enabled: true
-        camera_depth_frame:
-          Value: true
-        camera_depth_optical_frame:
-          Value: true
-        camera_link:
-          Value: true
-        camera_rgb_frame:
-          Value: true
-        camera_rgb_optical_frame:
-          Value: true
-        new_world:
-          Value: true
-      Marker Scale: 1
-      Name: TF
-      Show Arrows: true
-      Show Axes: true
-      Show Names: true
-      Tree:
-        new_world:
-          camera_depth_frame:
-            camera_depth_optical_frame:
-              {}
-      Update Interval: 0
-      Value: true
-    - Class: rviz/Marker
-      Enabled: false
-      Marker Topic: /visualization_marker
-      Name: Marker
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: new_world
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -140,22 +182,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.98579
+      Distance: 8.11997
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 3.74626
-        Y: 0.0325215
-        Z: -0.0699236
+        X: 4.03993
+        Y: 0.993587
+        Z: -0.112305
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.279796
+      Pitch: 0.239798
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.09238
+      Yaw: 3.36221
     Saved: ~
 Window Geometry:
   Displays:

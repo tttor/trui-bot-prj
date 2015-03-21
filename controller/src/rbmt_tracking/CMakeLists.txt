@@ -102,34 +102,32 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-add_library(rbmt_tracking
-   src/tracker.cpp
- )
-target_link_libraries(rbmt_tracking
-  ${OpenCV_LIBRARIES}
-  ${catkin_LIBRARIES}
-)
+# add_library(pcl_tracking
+#   src/${PROJECT_NAME}/pcl_tracking.cpp
+# )
 
 ## Declare a cpp executable
-add_executable(rbmt_tracking_node src/tracking_node.cpp)
-add_executable(pcl_tracking_node src/pcl_tracking_node.cpp)
+add_executable(pcl_input src/pcl_input.cpp)
+add_executable(kinect_tf_broadcaster src/kinect_tf_broadcaster.cpp)
+add_executable(marker_transform src/marker_transform.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(rbmt_tracking_node rbmt_tracking_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(rbmt_tracking_node
-   rbmt_tracking
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(pcl_tracking_node
+target_link_libraries(pcl_input
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(kinect_tf_broadcaster
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(marker_transform
   ${catkin_LIBRARIES}
 )
 
