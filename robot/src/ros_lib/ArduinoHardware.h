@@ -35,11 +35,11 @@
 #ifndef ROS_ARDUINO_HARDWARE_H_
 #define ROS_ARDUINO_HARDWARE_H_
 
-#if ARDUINO>=100
-  #include <Arduino.h>  // Arduino 1.0
-#else
-  #include <WProgram.h>  // Arduino 0022
-#endif
+// #if ARDUINO>=100
+  #include <arduino/Arduino.h>  // Arduino 1.0
+//#else
+//  #include <WProgram.h>  // Arduino 0022
+// #endif
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
   #include <usb_serial.h>  // Teensy 3.0 and 3.1

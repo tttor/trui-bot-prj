@@ -35,8 +35,8 @@
 #ifndef _ROS_H_
 #define _ROS_H_
 
-#include "ros/node_handle.h"
-#include "ArduinoHardware.h"
+#include <ros_lib/ros/node_handle.h>
+#include <ros_lib/ArduinoHardware.h>
 
 namespace ros
 {
