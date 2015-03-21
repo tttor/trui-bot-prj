@@ -1,0 +1,8 @@
+prefix=/home/lintang-sutawika/krai/trui-bot-prj/controller/install
+
+Name: mavros
+Description: Description of mavros
+Version: 0.8.0
+Cflags: -I/home/lintang-sutawika/krai/trui-bot-prj/controller/install/include -I/usr/include -I/opt/ros/indigo/include
+Libs: -L/home/lintang-sutawika/krai/trui-bot-prj/controller/install/lib -lmavconn -lmavros -l:/usr/lib/x86_64-linux-gnu/libboost_system.so
+Requires: diagnostic_msgs diagnostic_updater pluginlib roscpp sensor_msgs std_msgs tf geometry_msgs

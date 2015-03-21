@@ -1,0 +1,8 @@
+prefix=/home/lintang-sutawika/krai/trui-bot-prj/controller/install
+
+Name: rosserial_xbee
+Description: Description of rosserial_xbee
+Version: 0.6.3
+Cflags: 
+Libs: -L/home/lintang-sutawika/krai/trui-bot-prj/controller/install/lib 
+Requires: 
