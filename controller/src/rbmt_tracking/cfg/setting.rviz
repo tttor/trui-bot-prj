@@ -10,6 +10,7 @@ Panels:
         - /PointCloud21/Autocompute Value Bounds1
         - /TF1
         - /TF1/Frames1
+        - /Marker1
       Splitter Ratio: 0.790514
     Tree Height: 463
   - Class: rviz/Selection
@@ -91,15 +92,15 @@ Visualization Manager:
         camera_black_link:
           Value: true
         camera_white_depth_frame:
-          Value: true
+          Value: false
         camera_white_depth_optical_frame:
-          Value: true
+          Value: false
         camera_white_link:
           Value: true
         camera_white_rgb_frame:
-          Value: true
+          Value: false
         camera_white_rgb_optical_frame:
-          Value: true
+          Value: false
         world:
           Value: true
       Marker Scale: 1
@@ -126,14 +127,14 @@ Visualization Manager:
       Marker Topic: /visualization_marker
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: -0.216576
-        Min Value: -0.223952
+        Max Value: -0.165283
+        Min Value: -0.19072
         Value: true
       Axis: X
       Channel Name: intensity
@@ -182,22 +183,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.07324
+      Distance: 3.21541
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.24206
-        Y: 0.642017
-        Z: -0.523834
+        X: -0.314602
+        Y: 0.0334198
+        Z: -0.0337218
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.6498
+      Pitch: 1.0998
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.82231
+      Yaw: 3.23416
     Saved: ~
 Window Geometry:
   Displays:

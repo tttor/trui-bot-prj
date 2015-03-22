@@ -92,15 +92,14 @@ transformer_white (const geometry_msgs::PoseStamped& sPose)
   z_temp = r * sin(th);
 
   // angular transform on y - z plane
-  r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
-  th = atan(y_temp/x_temp);
-  
-  th = th + (90*M_PI/180);
-  x_temp = r * cos(th);
-  y_temp = r * sin(th);
+  // r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
+  // th = atan(y_temp/x_temp); 
+  // th = th + (90*M_PI/180);
+  // x_temp = r * cos(th);
+  // y_temp = r * sin(th);
 
   x_temp = x_temp;
-  y_temp = y_temp - 0.3;
+  y_temp = y_temp + 0.3;
   z_temp = z_temp;
 
 
@@ -127,12 +126,11 @@ transformer_black (const geometry_msgs::PoseStamped& sPose)
   z_temp = r * sin(th);
 
   // angular transform on y - z plane
-  r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
-  th = atan(y_temp/x_temp);
-  
-  th = th - (90*M_PI/180);
-  x_temp = r * cos(th);
-  y_temp = r * sin(th);
+  // r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
+  // th = atan(y_temp/x_temp);  
+  // th = th - (90*M_PI/180);
+  // x_temp = r * cos(th);
+  // y_temp = r * sin(th);
 
   x_temp = x_temp;
   y_temp = y_temp - 0.3;
@@ -178,11 +176,11 @@ main (int argc, char** argv)
       final_pose.pose.position.y = (black_pose.pose.position.y + white_pose.pose.position.y) / 2;
       final_pose.pose.position.z = (black_pose.pose.position.z + white_pose.pose.position.z) / 2;
       transform_pub.publish(final_pose);
-      marker.pose = black_pose.pose;
+      marker.pose = final_pose.pose;
 
-      p.x = black_pose.pose.position.x; // backward - forward
-      p.y = black_pose.pose.position.y; // right - left
-      p.z = black_pose.pose.position.z; // down - up
+      p.x = final_pose.pose.position.x; // backward - forward
+      p.y = final_pose.pose.position.y; // right - left
+      p.z = final_pose.pose.position.z; // down - up
 
       line.lifetime = ros::Duration(5);
       points.lifetime = ros::Duration(5);

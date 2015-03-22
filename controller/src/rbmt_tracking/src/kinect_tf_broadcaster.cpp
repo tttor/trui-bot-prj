@@ -22,12 +22,12 @@ int main(int argc, char** argv){
     transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "base_link"));
 
-    transform.setOrigin( tf::Vector3(0.0, 0.3, -0.5) );
-    transform.setRotation(tf::createQuaternionFromRPY(-(90*M_PI/180),-(90*M_PI/180),0));
+    transform.setOrigin( tf::Vector3(0.0, -0.3, -0.5) );
+    transform.setRotation(tf::createQuaternionFromRPY(0,-(90*M_PI/180),0));
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "camera_black_link"));
     
-    transform.setOrigin( tf::Vector3(0.0, -0.3, -0.5) );
-    transform.setRotation(tf::createQuaternionFromRPY((90*M_PI/180),-(90*M_PI/180),0));
+    transform.setOrigin( tf::Vector3(0.0, 0.3, -0.5) );
+    transform.setRotation(tf::createQuaternionFromRPY(0,-(90*M_PI/180),0));
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "camera_white_link"));
     rate.sleep();
 
