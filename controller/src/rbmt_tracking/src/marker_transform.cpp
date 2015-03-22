@@ -75,7 +75,7 @@ marker_init() {
   line.color.a = 1.0;
 
 
-  marker.lifetime = ros::Duration(0.001);
+  marker.lifetime = ros::Duration(1);
 }
 
 void 
@@ -102,7 +102,7 @@ transformer_white (const geometry_msgs::PoseStamped& sPose)
   // y_temp = r * sin(th);
 
   x_temp = x_temp;
-  y_temp = y_temp + 0.3;
+  y_temp = y_temp - 0.3;
   z_temp = z_temp;
 
   white_pose.pose.position.x = x_temp;
@@ -149,7 +149,7 @@ transformer_black (const geometry_msgs::PoseStamped& sPose)
   // y_temp = r * sin(th);
 
   x_temp = x_temp;
-  y_temp = y_temp - 0.3;
+  y_temp = y_temp + 0.3;
   z_temp = z_temp;
 
 
@@ -204,27 +204,33 @@ main (int argc, char** argv)
       count++;
 
       marker_pub.publish(marker);
-      // marker_pub.publish(line);
-      // marker_pub.publish(points);
+      marker_pub.publish(line);
+      marker_pub.publish(points);
 
+      if((marker.pose.position.x > 0.10 || marker.pose.position.x < -0.10) && (marker.pose.position.y > 0.10 || marker.pose.position.y < -0.10)) {
+        if(marker.pose.position.x > 0) move.linear.y = 1;
+        else move.linear.y = -1;
+        if(marker.pose.position.y > 0) move.linear.x = -1;
+        else move.linear.x = 1;
+      }
+      else if(marker.pose.position.x > 0.10 || marker.pose.position.x < -0.10) {
+        if(marker.pose.position.x > 0) move.linear.y = 1;
+        else move.linear.y = -1;
+      }
+      else if(marker.pose.position.y > 0.10 || marker.pose.position.y < -0.10) {
+        if(marker.pose.position.y > 0) move.linear.x = -1;
+        else move.linear.x = 1;
+      }
+      else {
+        move.linear.x = 0;
+        move.linear.y = 0; 
+      }
+
+      move_pub.publish(move);
     }
     last = p;
 
-    if(marker.pose.position.x > 0.20 && marker.pose.position.y > 0.20) {
-      move.linear.x = 1;
-      move.linear.y = 1;
-    }
-    else if(marker.pose.position.x > 0.20) {
-      move.linear.x = 1;
-    }
-    else if(marker.pose.position.y > 0.20) {
-      move.linear.y = 1;
-    }
-    else {
-      move.linear.x = 0;
-      move.linear.y = 0; 
-    }
-
+    
     // Spin
     ros::spinOnce();
   }

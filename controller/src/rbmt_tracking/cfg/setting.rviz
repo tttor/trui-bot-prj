@@ -4,13 +4,10 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /Grid1
         - /Grid1/Offset1
         - /PointCloud21/Autocompute Value Bounds1
         - /TF1
         - /TF1/Frames1
-        - /Marker1
       Splitter Ratio: 0.790514
     Tree Height: 463
   - Class: rviz/Selection
@@ -56,8 +53,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 2.993
-        Min Value: 0.496944
+        Max Value: -0.157631
+        Min Value: -0.314925
         Value: true
       Axis: X
       Channel Name: intensity
@@ -65,7 +62,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: AxisColor
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -81,7 +78,7 @@ Visualization Manager:
       Topic: /output_black
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
@@ -89,18 +86,26 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: true
+        camera_black_depth_frame:
+          Value: true
+        camera_black_depth_optical_frame:
+          Value: true
         camera_black_link:
-          Value: false
+          Value: true
+        camera_black_rgb_frame:
+          Value: true
+        camera_black_rgb_optical_frame:
+          Value: true
         camera_white_depth_frame:
-          Value: false
+          Value: true
         camera_white_depth_optical_frame:
-          Value: false
+          Value: true
         camera_white_link:
           Value: true
         camera_white_rgb_frame:
-          Value: false
+          Value: true
         camera_white_rgb_optical_frame:
-          Value: false
+          Value: true
         world:
           Value: true
       Marker Scale: 1
@@ -112,7 +117,12 @@ Visualization Manager:
         world:
           base_link:
             camera_black_link:
-              {}
+              camera_black_depth_frame:
+                camera_black_depth_optical_frame:
+                  {}
+              camera_black_rgb_frame:
+                camera_black_rgb_optical_frame:
+                  {}
             camera_white_link:
               camera_white_depth_frame:
                 camera_white_depth_optical_frame:
@@ -133,8 +143,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: -0.897243
-        Min Value: -1.02534
+        Max Value: 0.0615605
+        Min Value: -0.00612626
         Value: true
       Axis: X
       Channel Name: intensity
@@ -152,7 +162,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
-      Size (Pixels): 3
+      Size (Pixels): 1
       Size (m): 0.01
       Style: Points
       Topic: /output_white
@@ -183,7 +193,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 11.7342
+      Distance: 4.44129
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -195,10 +205,10 @@ Visualization Manager:
         Z: 0.789495
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.5148
+      Pitch: 0.0997991
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.20787
+      Yaw: 3.12651
     Saved: ~
 Window Geometry:
   Displays:
