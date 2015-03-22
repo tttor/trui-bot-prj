@@ -90,7 +90,7 @@ Visualization Manager:
         base_link:
           Value: true
         camera_black_link:
-          Value: true
+          Value: false
         camera_white_depth_frame:
           Value: false
         camera_white_depth_optical_frame:
@@ -127,14 +127,14 @@ Visualization Manager:
       Marker Topic: /visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: -0.165283
-        Min Value: -0.19072
+        Max Value: -0.897243
+        Min Value: -1.02534
         Value: true
       Axis: X
       Channel Name: intensity
@@ -183,22 +183,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.21541
+      Distance: 11.7342
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.314602
-        Y: 0.0334198
-        Z: -0.0337218
+        X: -0.48499
+        Y: -0.158099
+        Z: 0.789495
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.0998
+      Pitch: 0.5148
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.23416
+      Yaw: 6.20787
     Saved: ~
 Window Geometry:
   Displays:

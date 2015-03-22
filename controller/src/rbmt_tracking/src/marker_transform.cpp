@@ -13,6 +13,7 @@
 
 // ROS includes
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Twist.h>
 #include <visualization_msgs/Marker.h>
 #include "std_msgs/String.h"
 
@@ -24,9 +25,11 @@
 
 ros::Publisher transform_pub;
 ros::Publisher marker_pub;
+ros::Publisher move_pub;
 
 geometry_msgs::Point last, p;
 geometry_msgs::PoseStamped black_pose, white_pose, final_pose;
+geometry_msgs::Twist move;
 
 visualization_msgs::Marker marker, line, points;
 
@@ -72,7 +75,7 @@ marker_init() {
   line.color.a = 1.0;
 
 
-  marker.lifetime = ros::Duration();
+  marker.lifetime = ros::Duration(0.001);
 }
 
 void 
@@ -102,11 +105,24 @@ transformer_white (const geometry_msgs::PoseStamped& sPose)
   y_temp = y_temp + 0.3;
   z_temp = z_temp;
 
-
   white_pose.pose.position.x = x_temp;
   white_pose.pose.position.y = y_temp;
   white_pose.pose.position.z = z_temp;
 
+  transform_pub.publish(white_pose);
+  marker.pose = white_pose.pose;
+
+  p.x = white_pose.pose.position.x; // backward - forward
+  p.y = white_pose.pose.position.y; // right - left
+  p.z = white_pose.pose.position.z; // down - up
+
+  line.lifetime = ros::Duration(5);
+  points.lifetime = ros::Duration(5);
+
+  line.pose.orientation.w = 1.0;
+  points.pose.orientation.w = 1.0;
+  line.points.push_back(p);
+  points.points.push_back(p);
 }
 
 void 
@@ -141,6 +157,22 @@ transformer_black (const geometry_msgs::PoseStamped& sPose)
   black_pose.pose.position.y = y_temp;
   black_pose.pose.position.z = z_temp;
 
+  transform_pub.publish(black_pose);
+  marker.pose = black_pose.pose;
+
+  p.x = black_pose.pose.position.x; // backward - forward
+  p.y = black_pose.pose.position.y; // right - left
+  p.z = black_pose.pose.position.z; // down - up
+
+  line.lifetime = ros::Duration(5);
+  points.lifetime = ros::Duration(5);
+
+  line.pose.orientation.w = 1.0;
+  points.pose.orientation.w = 1.0;
+  line.points.push_back(p);
+  points.points.push_back(p);
+
+
 }
 
 int
@@ -160,8 +192,7 @@ main (int argc, char** argv)
   
   transform_pub = nh.advertise<geometry_msgs::PoseStamped>("transformed_pose", 1);
   marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 1);
-
-
+  move_pub = nh.advertise<geometry_msgs::Twist>("read_velocity", 1);
 
   while(nh.ok()) {
     if(p.x != last.x) {
@@ -171,30 +202,28 @@ main (int argc, char** argv)
         count = 0;
       }
       count++;
-      
-      final_pose.pose.position.x = (black_pose.pose.position.x + white_pose.pose.position.x) / 2;
-      final_pose.pose.position.y = (black_pose.pose.position.y + white_pose.pose.position.y) / 2;
-      final_pose.pose.position.z = (black_pose.pose.position.z + white_pose.pose.position.z) / 2;
-      transform_pub.publish(final_pose);
-      marker.pose = final_pose.pose;
-
-      p.x = final_pose.pose.position.x; // backward - forward
-      p.y = final_pose.pose.position.y; // right - left
-      p.z = final_pose.pose.position.z; // down - up
-
-      line.lifetime = ros::Duration(5);
-      points.lifetime = ros::Duration(5);
-
-      line.pose.orientation.w = 1.0;
-      points.pose.orientation.w = 1.0;
-      line.points.push_back(p);
-      points.points.push_back(p);
 
       marker_pub.publish(marker);
       // marker_pub.publish(line);
       // marker_pub.publish(points);
+
     }
     last = p;
+
+    if(marker.pose.position.x > 0.20 && marker.pose.position.y > 0.20) {
+      move.linear.x = 1;
+      move.linear.y = 1;
+    }
+    else if(marker.pose.position.x > 0.20) {
+      move.linear.x = 1;
+    }
+    else if(marker.pose.position.y > 0.20) {
+      move.linear.y = 1;
+    }
+    else {
+      move.linear.x = 0;
+      move.linear.y = 0; 
+    }
 
     // Spin
     ros::spinOnce();
