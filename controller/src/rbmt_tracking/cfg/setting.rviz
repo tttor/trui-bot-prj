@@ -8,9 +8,9 @@ Panels:
         - /Grid1
         - /Grid1/Offset1
         - /PointCloud21/Autocompute Value Bounds1
+        - /TF1
         - /TF1/Frames1
-        - /PointCloud22
-      Splitter Ratio: 0.5
+      Splitter Ratio: 0.790514
     Tree Height: 463
   - Class: rviz/Selection
     Name: Selection
@@ -122,18 +122,18 @@ Visualization Manager:
       Update Interval: 0
       Value: true
     - Class: rviz/Marker
-      Enabled: false
+      Enabled: true
       Marker Topic: /visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 2.993
-        Min Value: 0.588571
+        Max Value: -0.216576
+        Min Value: -0.223952
         Value: true
       Axis: X
       Channel Name: intensity
@@ -182,22 +182,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.11997
+      Distance: 5.07324
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 4.03993
-        Y: 0.993587
-        Z: -0.112305
+        X: -1.24206
+        Y: 0.642017
+        Z: -0.523834
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.239798
+      Pitch: 0.6498
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.36221
+      Yaw: 5.82231
     Saved: ~
 Window Geometry:
   Displays:

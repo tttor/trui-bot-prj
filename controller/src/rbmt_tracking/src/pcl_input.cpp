@@ -21,7 +21,8 @@
 
 ros::Publisher cloud_pub_black;
 ros::Publisher cloud_pub_white;
-ros::Publisher cock_pose_pub;
+ros::Publisher cock_pose_black_pub;
+ros::Publisher cock_pose_white_pub;
 
 void 
 cloud_cb_black (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
@@ -50,54 +51,54 @@ cloud_cb_black (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   pass.setInputCloud (temp_cloud);
   // left - right
   pass.setFilterFieldName ("x");
-  pass.setFilterLimits (-3, 3);
+  pass.setFilterLimits (-0.5, 0.5);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   pass.setInputCloud (cloud_segment);
   // up - down
   pass.setFilterFieldName ("y");
-  pass.setFilterLimits (-3, 3);
+  pass.setFilterLimits (-0.5, 0.5);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   pass.setInputCloud (cloud_segment);
   // backward - forward
   pass.setFilterFieldName ("z");
-  pass.setFilterLimits (-3, 3);
+  pass.setFilterLimits (-0.5, 0.5);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   // // Find centroid
-  // float sum_x = 0;
-  // float sum_y = 0;
-  // float sum_z = 0;
-  // if(cloud_segment->points.size() > 50) {
-	 //  for(size_t i = 0; i < cloud_segment->points.size(); ++i) {
-	 //  	sum_x += cloud_segment->points[i].x;
-	 //  	sum_y += cloud_segment->points[i].y;
-	 //  	sum_z += cloud_segment->points[i].z;
-	 //  }
+  float sum_x = 0;
+  float sum_y = 0;
+  float sum_z = 0;
+  if(cloud_segment->points.size() > 50) {
+	  for(size_t i = 0; i < cloud_segment->points.size(); ++i) {
+	  	sum_x += cloud_segment->points[i].x;
+	  	sum_y += cloud_segment->points[i].y;
+	  	sum_z += cloud_segment->points[i].z;
+	  }
 
-	 //  sum_x = sum_x / cloud_segment->points.size();
-	 //  sum_y = sum_y / cloud_segment->points.size();
-	 //  sum_z = sum_z / cloud_segment->points.size();
+	  sum_x = sum_x / cloud_segment->points.size();
+	  sum_y = sum_y / cloud_segment->points.size();
+	  sum_z = sum_z / cloud_segment->points.size();
 
-	 //  geometry_msgs::PoseStamped sPose;
-  //   sPose.header.stamp = ros::Time::now();
+	  geometry_msgs::PoseStamped sPose;
+    sPose.header.stamp = ros::Time::now();
     
-  //   sPose.pose.position.x = sum_z; // equals to z in pcl // backward - forward
-  //   sPose.pose.position.y = -(sum_x); // equals to -x in pcl // right - left
-  //   sPose.pose.position.z = -(sum_y); // equals to -y in pcl // down - up
+    sPose.pose.position.x = sum_z; // equals to z in pcl // backward - forward
+    sPose.pose.position.y = -(sum_x); // equals to -x in pcl // right - left
+    sPose.pose.position.z = -(sum_y); // equals to -y in pcl // down - up
 
-  //   sPose.pose.orientation.x = 0.0;
-  //   sPose.pose.orientation.y = 0.0;
-  //   sPose.pose.orientation.z = 0.0;
-  //   sPose.pose.orientation.w = 1.0;
+    sPose.pose.orientation.x = 0.0;
+    sPose.pose.orientation.y = 0.0;
+    sPose.pose.orientation.z = 0.0;
+    sPose.pose.orientation.w = 1.0;
 
-  //   cock_pose_pub.publish(sPose);
+    cock_pose_black_pub.publish(sPose);
 
-	// }
+	}
 
   // Convert to ROS data type
   sensor_msgs::PointCloud2 output;
@@ -135,54 +136,54 @@ cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   pass.setInputCloud (temp_cloud);
   // left - right
   pass.setFilterFieldName ("x");
-  pass.setFilterLimits (-3, 3);
+  pass.setFilterLimits (-0.3, 0.3);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   pass.setInputCloud (cloud_segment);
   // up - down
   pass.setFilterFieldName ("y");
-  pass.setFilterLimits (-3, 3);
+  pass.setFilterLimits (-0.3, 0.33);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   pass.setInputCloud (cloud_segment);
   // backward - forward
   pass.setFilterFieldName ("z");
-  pass.setFilterLimits (-3, 3);
+  pass.setFilterLimits (0.5, 1);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
   // // Find centroid
-  // float sum_x = 0;
-  // float sum_y = 0;
-  // float sum_z = 0;
-  // if(cloud_segment->points.size() > 50) {
-   //  for(size_t i = 0; i < cloud_segment->points.size(); ++i) {
-   //   sum_x += cloud_segment->points[i].x;
-   //   sum_y += cloud_segment->points[i].y;
-   //   sum_z += cloud_segment->points[i].z;
-   //  }
+  float sum_x = 0;
+  float sum_y = 0;
+  float sum_z = 0;
+  if(cloud_segment->points.size() > 50) {
+    for(size_t i = 0; i < cloud_segment->points.size(); ++i) {
+     sum_x += cloud_segment->points[i].x;
+     sum_y += cloud_segment->points[i].y;
+     sum_z += cloud_segment->points[i].z;
+    }
 
-   //  sum_x = sum_x / cloud_segment->points.size();
-   //  sum_y = sum_y / cloud_segment->points.size();
-   //  sum_z = sum_z / cloud_segment->points.size();
+    sum_x = sum_x / cloud_segment->points.size();
+    sum_y = sum_y / cloud_segment->points.size();
+    sum_z = sum_z / cloud_segment->points.size();
 
-   //  geometry_msgs::PoseStamped sPose;
-  //   sPose.header.stamp = ros::Time::now();
+    geometry_msgs::PoseStamped sPose;
+    sPose.header.stamp = ros::Time::now();
     
-  //   sPose.pose.position.x = sum_z; // equals to z in pcl // backward - forward
-  //   sPose.pose.position.y = -(sum_x); // equals to -x in pcl // right - left
-  //   sPose.pose.position.z = -(sum_y); // equals to -y in pcl // down - up
+    sPose.pose.position.x = sum_z; // equals to z in pcl // backward - forward
+    sPose.pose.position.y = -(sum_x); // equals to -x in pcl // right - left
+    sPose.pose.position.z = -(sum_y); // equals to -y in pcl // down - up
 
-  //   sPose.pose.orientation.x = 0.0;
-  //   sPose.pose.orientation.y = 0.0;
-  //   sPose.pose.orientation.z = 0.0;
-  //   sPose.pose.orientation.w = 1.0;
+    sPose.pose.orientation.x = 0.0;
+    sPose.pose.orientation.y = 0.0;
+    sPose.pose.orientation.z = 0.0;
+    sPose.pose.orientation.w = 1.0;
 
-  //   cock_pose_pub.publish(sPose);
+    cock_pose_white_pub.publish(sPose);
 
-  // }
+  }
 
   // Convert to ROS data type
   sensor_msgs::PointCloud2 output;
@@ -208,7 +209,8 @@ main (int argc, char** argv)
   // Create a ROS publisher for the output point cloud
   cloud_pub_black = nh.advertise<sensor_msgs::PointCloud2> ("output_black", 1);
   cloud_pub_white = nh.advertise<sensor_msgs::PointCloud2> ("output_white", 1);
-  cock_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("cock_pose", 1);
+  cock_pose_black_pub = nh.advertise<geometry_msgs::PoseStamped>("cock_pose_black", 1);
+  cock_pose_white_pub = nh.advertise<geometry_msgs::PoseStamped>("cock_pose_white", 1);
 
   // Spin
   ros::spin();
