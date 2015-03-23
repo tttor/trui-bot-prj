@@ -1,0 +1,57 @@
+/*
+ * rosserial Publisher Example
+ * Prints "hello world!"
+ */
+#include <arduino/Arduino.h>
+#include <ros_lib/ros.h>
+#include <ros_lib/geometry_msgs/Twist.h>
+
+ros::NodeHandle nh;
+
+geometry_msgs::Twist twist_msg;
+ros::Publisher chatter("arduino", &twist_msg);
+
+// char hello[20] = "Hello from arduino!";
+float twisty[6] = {1,2,3,4,5,6};
+void setup()
+{
+  nh.initNode();
+  nh.advertise(chatter);
+}
+
+void loop()
+{
+  twist_msg.linear.x = twisty[0];
+  twist_msg.linear.y = twisty[1];
+  twist_msg.linear.z = twisty[2];
+  twist_msg.angular.x = twisty[3];
+  twist_msg.angular.y = twisty[4];
+  twist_msg.angular.z = twisty[5];
+  chatter.publish( &twist_msg );
+  nh.spinOnce();
+  delay(100);
+}
+
+int main() {
+
+
+  init();
+
+  setup();
+  while (true) {
+    
+  /* 
+ * rosserial Subscriber Example
+ * Blinks an LED on callback
+ */
+
+
+loop();
+
+
+
+
+  
+  }
+  return 0;
+}

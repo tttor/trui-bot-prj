@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "ros/msg.h"
-#include "geometry_msgs/Vector3.h"
+#include <ros_lib/ros/msg.h>
+#include <ros_lib/geometry_msgs/Vector3.h>
 
 namespace geometry_msgs
 {

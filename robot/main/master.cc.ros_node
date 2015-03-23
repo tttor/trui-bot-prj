@@ -107,7 +107,7 @@ int main() {
   nh.advertise(chatter);
   nh.subscribe(sub);
 
-  // Serial.begin(115200);
+  Serial.begin(115200);
   Serial1.begin(9600);
   Serial2.begin(9600);    
   Serial3.begin(9600);
@@ -135,9 +135,9 @@ int main() {
     
 
 
-  twist_msg.linear.x = sendspeed1;
-  twist_msg.linear.y = sendspeed2;
-  twist_msg.linear.z = sendspeed3;
+  twist_msg.linear.x = speedX; //sendspeed1;
+  twist_msg.linear.y = speedY; //sendspeed2;
+  twist_msg.linear.z = speedW; //sendspeed3;
   chatter.publish( &twist_msg );
   
   uint8_t buffer1[7];
@@ -182,7 +182,7 @@ int main() {
     Serial3.write(buffer3, 7);
 
   nh.spinOnce();
-  delay(1);
+  // delay(100);
 
 
 
