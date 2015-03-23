@@ -1,8 +1,8 @@
-prefix=/home/lintang-sutawika/krai/trui-bot-prj/controller/install
+prefix=/home/deanzaka/Github/trui-bot-prj/controller/install
 
 Name: rbmt_tracking
 Description: Description of rbmt_tracking
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/lintang-sutawika/krai/trui-bot-prj/controller/install/lib 
+Libs: -L/home/deanzaka/Github/trui-bot-prj/controller/install/lib 
 Requires: 
