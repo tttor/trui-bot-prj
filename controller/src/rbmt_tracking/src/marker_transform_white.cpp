@@ -33,8 +33,12 @@ geometry_msgs::Twist move;
 
 visualization_msgs::Marker marker, line, points;
 
-void
-marker_init() {
+// void callback1(const ros::TimerEvent&)
+// {
+//   ROS_INFO("Callback 1 triggered");
+// }
+
+void marker_init() {
  // Set our initial shape type to be a cube
   uint32_t shape = visualization_msgs::Marker::CUBE;
 	uint32_t line_strip = visualization_msgs::Marker::LINE_STRIP;
@@ -78,8 +82,7 @@ marker_init() {
   marker.lifetime = ros::Duration(1);
 }
 
-void 
-transformer_white (const geometry_msgs::PoseStamped& sPose)
+void transformer_white (const geometry_msgs::PoseStamped& sPose)
 {
 
   float r, th;
@@ -87,23 +90,16 @@ transformer_white (const geometry_msgs::PoseStamped& sPose)
   float y_temp = sPose.pose.position.y;
   float z_temp = sPose.pose.position.z;
 
-  // angular transform on x - y plane
+  // angular transform on x - z plane
   r = sqrt((z_temp*z_temp) + (x_temp*x_temp));
   th = atan(z_temp/x_temp);
   th = th + (90*M_PI/180);
   x_temp = r * cos(th);
   z_temp = r * sin(th);
 
-  // angular transform on y - z plane
-  // r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
-  // th = atan(y_temp/x_temp); 
-  // th = th + (90*M_PI/180);
-  // x_temp = r * cos(th);
-  // y_temp = r * sin(th);
-
   x_temp = x_temp;
-  y_temp = y_temp - 0.3;
-  z_temp = z_temp;
+  y_temp = y_temp;
+  z_temp = z_temp+ 0.5;
 
   white_pose.pose.position.x = x_temp;
   white_pose.pose.position.y = y_temp;
@@ -125,58 +121,8 @@ transformer_white (const geometry_msgs::PoseStamped& sPose)
   points.points.push_back(p);
 }
 
-void 
-transformer_black (const geometry_msgs::PoseStamped& sPose)
-{
 
-  float r, th;
-  float x_temp = sPose.pose.position.x;
-  float y_temp = sPose.pose.position.y;
-  float z_temp = sPose.pose.position.z;
-
-  // angular transform on x - y plane
-  r = sqrt((z_temp*z_temp) + (x_temp*x_temp));
-  th = atan(z_temp/x_temp);
-  th = th + (90*M_PI/180);
-  x_temp = r * cos(th);
-  z_temp = r * sin(th);
-
-  // angular transform on y - z plane
-  // r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
-  // th = atan(y_temp/x_temp);  
-  // th = th - (90*M_PI/180);
-  // x_temp = r * cos(th);
-  // y_temp = r * sin(th);
-
-  x_temp = x_temp;
-  y_temp = y_temp + 0.3;
-  z_temp = z_temp;
-
-
-  black_pose.pose.position.x = x_temp;
-  black_pose.pose.position.y = y_temp;
-  black_pose.pose.position.z = z_temp;
-
-  transform_pub.publish(black_pose);
-  marker.pose = black_pose.pose;
-
-  p.x = black_pose.pose.position.x; // backward - forward
-  p.y = black_pose.pose.position.y; // right - left
-  p.z = black_pose.pose.position.z; // down - up
-
-  line.lifetime = ros::Duration(5);
-  points.lifetime = ros::Duration(5);
-
-  line.pose.orientation.w = 1.0;
-  points.pose.orientation.w = 1.0;
-  line.points.push_back(p);
-  points.points.push_back(p);
-
-
-}
-
-int
-main (int argc, char** argv)
+int main (int argc, char** argv)
 {
   // Initialize ROS
   ros::init (argc, argv, "marker_transform");
@@ -187,37 +133,40 @@ main (int argc, char** argv)
   int count = 0;
 
   // Create a ROS subscriber for raw cock pose
-  ros::Subscriber white_sub = nh.subscribe ("cock_pose_black", 1, transformer_white);
-  ros::Subscriber black_sub = nh.subscribe ("cock_pose_white", 1, transformer_black);
+  ros::Subscriber white_sub = nh.subscribe ("cock_pose_white", 1, transformer_white);
   
   transform_pub = nh.advertise<geometry_msgs::PoseStamped>("transformed_pose", 1);
   marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 1);
   move_pub = nh.advertise<geometry_msgs::Twist>("read_velocity", 1);
 
+  // ros::Timer timer1 = n.createTimer(ros::Duration(0.1), callback1);
+  // geometry_msgs::PoseStamped msg = ros::topic::waitForMessage<geometry_msgs::PoseStamped>(cock_pose_white, ros::Duration(2));
+    
+
   while(nh.ok()) {
     if(p.x != last.x) {
-      if(count > 50) {
-        line.points.clear();
-        points.points.clear();
-        count = 0;
-      }
-      count++;
+      // if(count > 50) {
+      //   line.points.clear();
+      //   points.points.clear();
+      //   count = 0;
+      // }
+      // count++;
 
       marker_pub.publish(marker);
-      marker_pub.publish(line);
-      marker_pub.publish(points);
+      //marker_pub.publish(line);
+      //marker_pub.publish(points);
 
-      if((marker.pose.position.x > 0.10 || marker.pose.position.x < -0.10) && (marker.pose.position.y > 0.10 || marker.pose.position.y < -0.10)) {
+      if((marker.pose.position.x > 0.05 || marker.pose.position.x < -0.05) && (marker.pose.position.y > 0.05 || marker.pose.position.y < -0.05)) {
         if(marker.pose.position.x > 0) move.linear.y = 1;
         else move.linear.y = -1;
         if(marker.pose.position.y > 0) move.linear.x = -1;
         else move.linear.x = 1;
       }
-      else if(marker.pose.position.x > 0.10 || marker.pose.position.x < -0.10) {
+      else if(marker.pose.position.x > 0.05 || marker.pose.position.x < -0.05) {
         if(marker.pose.position.x > 0) move.linear.y = 1;
         else move.linear.y = -1;
       }
-      else if(marker.pose.position.y > 0.10 || marker.pose.position.y < -0.10) {
+      else if(marker.pose.position.y > 0.05 || marker.pose.position.y < -0.05) {
         if(marker.pose.position.y > 0) move.linear.x = -1;
         else move.linear.x = 1;
       }
@@ -226,10 +175,15 @@ main (int argc, char** argv)
         move.linear.y = 0; 
       }
 
-      move_pub.publish(move);
-    }
-    last = p;
 
+
+      move_pub.publish(move);
+    }   
+    last = p;
+    // if (msg == NULL) {
+        // move.linear.x = 0;
+        // move.linear.y = 0;
+      // }
     
     // Spin
     ros::spinOnce();

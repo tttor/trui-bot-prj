@@ -133,7 +133,15 @@ int main() {
   speedW = 0;
   while (true){
     
-
+  // if(nh.connected()){
+    if(!nh.connected()){
+    //   while(true){
+        sendspeed1 = 0;
+        sendspeed2 = 0;
+        sendspeed3 = 0;
+    //   }
+    }
+  // } 
 
   twist_msg.linear.x = sendspeed1;
   twist_msg.linear.y = sendspeed2;

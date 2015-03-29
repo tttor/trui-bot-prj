@@ -13,20 +13,12 @@ int main(int argc, char** argv){
   int i = 0;
   ros::Rate rate(100.0);
   while (nh.ok()){
-    if(i < 360) {
-      i++;
-    }
-    else i = 1;
 
     transform.setOrigin( tf::Vector3(0.0, 0.0, 0.5) );
     transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "base_link"));
-
-    transform.setOrigin( tf::Vector3(0.0, -0.3, -0.5) );
-    transform.setRotation(tf::createQuaternionFromRPY(0,-(90*M_PI/180),0));
-    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "camera_black_link"));
-    
-    transform.setOrigin( tf::Vector3(0.0, 0.3, -0.5) );
+ 
+    transform.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
     transform.setRotation(tf::createQuaternionFromRPY(0,-(90*M_PI/180),0));
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "camera_white_link"));
     rate.sleep();

@@ -24,6 +24,16 @@ SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
 SLAVE_UPLOAD_BAUDRATE=57600 #: 57600 (for promini m328p), 115200 (for mega m2560, uno m328p)
 SLAVE_PORT=/dev/ttyUSB0
 
+CONTROL_MCU=-mmcu=atmega328p
+CONTROL_MCU_TAG=m328p
+CONTROL_UPLOAD_PROTOCOL=arduino #: arduino (for atmega328p), wiring (for atmega2560), avr109
+CONTROL_BOARD=arduino
+CONTROL_CPU_SPEED=-DF_CPU=16000000UL
+CONTROL_CFLAGS=$(CONTROL_MCU) $(CONTROL_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
+CONTROL_LIBNAME=lib$(CONTROL_BOARD)-control.a
+CONTROL_PORT= /dev/ttyUSB0
+CONTROL_UPLOAD_BAUDRATE=115200
+
 TARGET_INCDIR=./include
 TARGET_LIBDIR=./lib
 TARGET_BUILDDIR=./build
@@ -48,6 +58,10 @@ SLAVE_OBJ= ./main/slave.cc ./src/sensor/two_phase_incremental_encoder.cpp ./src/
 #./src/comm/arduino_mavlink_packet_handler.cpp
 SLAVE_LIBS= -L $(TARGET_LIBDIR) -larduino-slave -lm
 SLAVE_INCFLAGS= -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino 
+
+CONTROL_OBJ= ./main/control.cc ./src/ros_lib/time.cpp ./src/ros_lib/duration.cpp ./src/PS2X_lib/PS2X_lib.cpp
+CONTROL_LIBS= -L $(TARGET_LIBDIR) -larduino-control -lm
+CONTROL_INCFLAGS = -I $(TARGET_INCDIR) -I $(TARGET_INCDIR)/arduino
 
 default: master_main
 
@@ -83,6 +97,17 @@ slave_main:
 	$(CC) $(SLAVE_CFLAGS) $(SLAVE_INCFLAGS) $^ -o $(TARGET_BUILDDIR)/main.elf $(SLAVE_OBJ) $(SLAVE_LIBS)
 	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
 
+control_main:
+	mkdir -p $(TARGET_BUILDDIR)
+	mkdir -p $(TARGET_INCDIR)/PS2X_lib
+	mkdir -p $(TARGET_INCDIR)/ros_lib
+	cp ./src/PS2X_lib/*.h $(TARGET_INCDIR)/PS2X_lib
+	cp -rf ./src/ros_lib/* $(TARGET_INCDIR)/ros_lib 
+	rm -rf $(TARGET_INCDIR)/ros_lib/examples/ 
+	rm $(TARGET_INCDIR)/ros_lib/*.cpp
+	$(CC) $(CONTROL_CFLAGS) $(CONTROL_INCFLAGS) $^ -o $(TARGET_BUILDDIR)/main.elf $(CONTROL_OBJ) $(CONTROL_LIBS)
+	avr-objcopy -O ihex $(TARGET_BUILDDIR)/main.elf $(TARGET_BUILDDIR)/main.hex
+
 master_arduino: ARDUINO_CFLAGS=$(MASTER_MCU) $(MASTER_CPU_SPEED) -Os -w
 master_arduino: $(ARDUINO_OBJ) 
 	mkdir -p $(TARGET_BUILDDIR)
@@ -103,6 +128,16 @@ slave_arduino: $(ARDUINO_OBJ)
 	cp $(TARGET_BUILDDIR)/$(SLAVE_LIBNAME) $(TARGET_LIBDIR)
 	rm $(ARDUINO_SRC)*.o
 	
+control_arduino: ARDUINO_CFLAGS=$(CONTROL_MCU) $(CONTROL_CPU_SPEED) -Os -w
+control_arduino: $(ARDUINO_OBJ)
+	mkdir -p $(TARGET_BUILDDIR)
+	avr-ar rcs $(TARGET_BUILDDIR)/$(CONTROL_LIBNAME) $^
+	mkdir -p $(TARGET_INCDIR)/arduino
+	mkdir -p $(TARGET_LIBDIR)
+	cp $(ARDUINO_SRC)*.h $(TARGET_INCDIR)/arduino
+	cp $(TARGET_BUILDDIR)/$(CONTROL_LIBNAME) $(TARGET_LIBDIR)
+	rm $(ARDUINO_SRC)*.o
+	
 .PHONY: master_upload
 master_upload:
 	avrdude -V -F -D -p $(MASTER_MCU_TAG) -c $(MASTER_UPLOAD_PROTOCOL) -b $(MASTER_UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(MASTER_PORT)
@@ -110,6 +145,10 @@ master_upload:
 .PHONY: slave_upload
 slave_upload:
 	avrdude -V -F -D -p $(SLAVE_MCU_TAG) -c $(SLAVE_UPLOAD_PROTOCOL) -b $(SLAVE_UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(SLAVE_PORT)
+
+.PHONY: control_upload
+control_upload:
+	avrdude -V -F -D -p $(CONTROL_MCU_TAG) -c $(CONTROL_UPLOAD_PROTOCOL) -b $(CONTROL_UPLOAD_BAUDRATE) -Uflash:w:$(TARGET_BUILDDIR)/main.hex -P$(CONTROL_PORT)
 
 .PHONY: clean
 clean:

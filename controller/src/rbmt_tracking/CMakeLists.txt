@@ -112,22 +112,22 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(pcl_input src/pcl_input.cpp)
-add_executable(kinect_tf_broadcaster src/kinect_tf_broadcaster.cpp)
-add_executable(marker_transform src/marker_transform.cpp)
+add_executable(pcl_input_white src/pcl_input_white.cpp)
+add_executable(kinect_tf_white src/kinect_tf_white.cpp)
+add_executable(marker_transform_white src/marker_transform_white.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(rbmt_tracking_node rbmt_tracking_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(pcl_input
+target_link_libraries(pcl_input_white
   ${catkin_LIBRARIES}
 )
-target_link_libraries(kinect_tf_broadcaster
+target_link_libraries(kinect_tf_white
   ${catkin_LIBRARIES}
 )
-target_link_libraries(marker_transform
+target_link_libraries(marker_transform_white
   ${catkin_LIBRARIES}
 )
 
