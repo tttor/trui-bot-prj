@@ -107,6 +107,7 @@ void transformer_white (const geometry_msgs::PoseStamped& sPose)
 
   transform_pub.publish(white_pose);
   marker.pose = white_pose.pose;
+  marker.header.stamp = ros::Time::now();
 
   p.x = white_pose.pose.position.x; // backward - forward
   p.y = white_pose.pose.position.y; // right - left
@@ -121,6 +122,21 @@ void transformer_white (const geometry_msgs::PoseStamped& sPose)
   points.points.push_back(p);
 }
 
+
+bool is_valid(const visualization_msgs::Marker& marker) {
+  using namespace std;
+  ros::Time now = ros::Time::now();
+  ros::Time marker_time = marker.header.stamp;
+
+  double dt;
+  dt = now.toSec() - marker_time.toSec();
+  ROS_INFO_STREAM("dt= " << dt);
+  cout << "dt= " << dt << endl;
+
+  const double time_window = 0.1;
+  if (dt > time_window) return false;
+  else true;
+}
 
 int main (int argc, char** argv)
 {
@@ -137,25 +153,18 @@ int main (int argc, char** argv)
   
   transform_pub = nh.advertise<geometry_msgs::PoseStamped>("transformed_pose", 1);
   marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 1);
-  move_pub = nh.advertise<geometry_msgs::Twist>("read_velocity", 1);
+  move_pub = nh.advertise<geometry_msgs::Twist>("read_velocity", 1,false);
 
   // ros::Timer timer1 = n.createTimer(ros::Duration(0.1), callback1);
   // geometry_msgs::PoseStamped msg = ros::topic::waitForMessage<geometry_msgs::PoseStamped>(cock_pose_white, ros::Duration(2));
     
 
-  while(nh.ok()) {
-    if(p.x != last.x) {
-      // if(count > 50) {
-      //   line.points.clear();
-      //   points.points.clear();
-      //   count = 0;
-      // }
-      // count++;
+  while(nh.ok() and ros::ok()) {
+    marker_pub.publish(marker);
+    //marker_pub.publish(line);
+    //marker_pub.publish(points);
 
-      marker_pub.publish(marker);
-      //marker_pub.publish(line);
-      //marker_pub.publish(points);
-
+    if ( is_valid(marker) ) {
       if((marker.pose.position.x > 0.05 || marker.pose.position.x < -0.05) && (marker.pose.position.y > 0.05 || marker.pose.position.y < -0.05)) {
         if(marker.pose.position.x > 0) move.linear.y = 1;
         else move.linear.y = -1;
@@ -170,22 +179,14 @@ int main (int argc, char** argv)
         if(marker.pose.position.y > 0) move.linear.x = -1;
         else move.linear.x = 1;
       }
-      else {
-        move.linear.x = 0;
-        move.linear.y = 0; 
-      }
+    } 
+    else {
+      move.linear.x = 0;
+      move.linear.y = 0; 
+    }
 
-
-
-      move_pub.publish(move);
-    }   
-    last = p;
-    // if (msg == NULL) {
-        // move.linear.x = 0;
-        // move.linear.y = 0;
-      // }
-    
-    // Spin
+    move_pub.publish(move);
+    // ros::Duration(1.0).sleep();
     ros::spinOnce();
   }
 }
