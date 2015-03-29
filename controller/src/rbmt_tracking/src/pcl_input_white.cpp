@@ -22,6 +22,29 @@
 ros::Publisher cloud_pub_white;
 ros::Publisher cock_pose_white_pub;
 
+void csv_write(const geometry_msgs::PoseStamped& pose,
+               const std::string& filepath) {
+  using namespace std;
+  using namespace boost;
+
+  ofstream csv;
+  csv.open(filepath.c_str(),ios::app);
+  if ( csv.is_open() ) {
+    // sPose.header.stamp = ros::Time::now();
+    csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.z); csv << ",";
+    csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
+
+    // if (new_sample)
+      csv << "\n";
+  }
+  else {
+    assert(false && "csv.open(filepath.c_str()): FALSE");
+  }
+  
+  csv.close();
+}
 
 void 
 cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
@@ -97,6 +120,8 @@ cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
 
     cock_pose_white_pub.publish(sPose);
 
+    std::string csv_filepath = "/home/lintang-sutawika/krai/tor/data/input/test.csv";
+    csv_write(sPose,csv_filepath);
   }
 
   // Convert to ROS data type
