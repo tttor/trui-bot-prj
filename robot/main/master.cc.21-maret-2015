@@ -112,6 +112,7 @@ int main() {
     uint8_t buffer2[7];
     uint8_t buffer3[7];
 
+
     buffer1[0]= header;
     buffer1[6]= footer;
     buffer1[2]= controllerBuffer[2];
