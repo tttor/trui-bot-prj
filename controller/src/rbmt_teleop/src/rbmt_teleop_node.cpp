@@ -11,7 +11,7 @@ int main(int argc, char** argv){
   my_logger->setLevel(ros::console::g_level_lookup[ros::console::levels::Debug]);
 
   rbmt_teleop::TeleopTranslator teleop_trans(nh);
-  teleop_trans.run(ros::Rate(10));
+  teleop_trans.run(ros::Rate(100));
   
   return(0);
 }

@@ -90,10 +90,17 @@ void transformer_white (const geometry_msgs::PoseStamped& sPose)
   float y_temp = sPose.pose.position.y;
   float z_temp = sPose.pose.position.z;
 
+  // angular transform on x - y plane
+  r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
+  th = atan(y_temp/x_temp);
+  th = th + (180*M_PI/180);
+  x_temp = r * cos(th);
+  y_temp = r * sin(th);
+
   // angular transform on x - z plane
   r = sqrt((z_temp*z_temp) + (x_temp*x_temp));
   th = atan(z_temp/x_temp);
-  th = th + (90*M_PI/180);
+  th = th + (115*M_PI/180);
   x_temp = r * cos(th);
   z_temp = r * sin(th);
 
@@ -130,10 +137,10 @@ bool is_valid(const visualization_msgs::Marker& marker) {
 
   double dt;
   dt = now.toSec() - marker_time.toSec();
-  ROS_INFO_STREAM("dt= " << dt);
-  cout << "dt= " << dt << endl;
+  // ROS_INFO_STREAM("dt= " << dt);
+  // cout << "dt= " << dt << endl;
 
-  const double time_window = 0.1;
+  const double time_window = 0.5;
   if (dt > time_window) return false;
   else true;
 }
@@ -165,19 +172,20 @@ int main (int argc, char** argv)
     //marker_pub.publish(points);
 
     if ( is_valid(marker) ) {
+      ROS_INFO_STREAM("Pose x= " << marker.pose.position.x << ", Pose y = " << marker.pose.position.y);
       if((marker.pose.position.x > 0.05 || marker.pose.position.x < -0.05) && (marker.pose.position.y > 0.05 || marker.pose.position.y < -0.05)) {
-        if(marker.pose.position.x > 0) move.linear.y = 1;
-        else move.linear.y = -1;
-        if(marker.pose.position.y > 0) move.linear.x = -1;
-        else move.linear.x = 1;
+        if(marker.pose.position.x > 0) move.linear.x = 1;
+        else move.linear.x = -1;
+        if(marker.pose.position.y > 0) move.linear.y = -1;
+        else move.linear.y = 1;
       }
       else if(marker.pose.position.x > 0.05 || marker.pose.position.x < -0.05) {
-        if(marker.pose.position.x > 0) move.linear.y = 1;
-        else move.linear.y = -1;
+        if(marker.pose.position.x > 0) move.linear.x = 1;
+        else move.linear.x = -1;
       }
       else if(marker.pose.position.y > 0.05 || marker.pose.position.y < -0.05) {
-        if(marker.pose.position.y > 0) move.linear.x = -1;
-        else move.linear.x = 1;
+        if(marker.pose.position.y > 0) move.linear.y = -1;
+        else move.linear.y = 1;
       }
     } 
     else {
@@ -186,7 +194,7 @@ int main (int argc, char** argv)
     }
 
     move_pub.publish(move);
-    // ros::Duration(1.0).sleep();
+    ros::Duration(0.1).sleep();
     ros::spinOnce();
   }
 }

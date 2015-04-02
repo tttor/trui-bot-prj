@@ -53,6 +53,8 @@ speedX = rbmt_vel.linear.x;
 speedY = rbmt_vel.linear.y;
 speedW = rbmt_vel.angular.z;
 
+if(rbmt_vel.angular.x == 1) digitalWrite(hitPin,HIGH); else digitalWrite(hitPin,LOW);
+
 speedX = -trans_speedXFactor*speedX;
 speedY = trans_speedYFactor*speedY;
 
@@ -188,9 +190,9 @@ int main() {
     Serial1.write(buffer1, 7);
     Serial2.write(buffer2, 7);
     Serial3.write(buffer3, 7);
-
+    delay(1);
   nh.spinOnce();
-  delay(1);
+  
 
 
 
