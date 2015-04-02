@@ -12,8 +12,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include <tf/transform_datatypes.h>
-#include <std_msgs/Int16.h>
-#include <std_msgs/Int16MultiArray.h>
+
 
 
 namespace rbmt_teleop {
@@ -34,29 +33,8 @@ class TeleopTranslator {
   size_t n_axes_;
   size_t n_button_;
 
-  int axisX_;
-  int axisY_;
-  int buttonCross_;
-  int buttonSquare_;
-  int buttonTriangle_;
-  int buttonCircle_;
-  int buttonDown_;
-  int buttonLeft_;
-  int buttonUp_;
-  int buttonRight_;
-  int buttonR1_;
-  int buttonR2_;
-  int buttonR3_;
-  int buttonL1_;
-  int buttonL2_;
-  int buttonL3_;
-  int buttonStart_;
-  int buttonSelect_;
-
-  float speedX_;
-  float speedY_;
-  float speedW_;
-  // int buttons_;
+  std::vector<float> axes_;
+  std::vector<int32_t> buttons_;
 
   std::vector<float> axis_mins_;
   std::vector<float> axis_maxs_;
@@ -89,17 +67,17 @@ class TeleopTranslator {
  * buttons.at(9) left analog click
  * buttons.at(10) right analog click
  */
-  void joy_sub_cb(const std_msgs::Int16MultiArray::ConstPtr& msg);
+  void joy_sub_cb(const sensor_msgs::JoyConstPtr& msg);
 
-  // float axis_range(const size_t& ith);
+  float axis_range(const size_t& ith);
 
-  // float axis_range_ratio(const size_t& ith);
+  float axis_range_ratio(const size_t& ith);
 
-  // float vel_range(const std::string type);
+  float vel_range(const std::string type);
 
-  // float reverse(const float& val);
+  float reverse(const float& val);
 
-  // size_t send_goal(const move_base_msgs::MoveBaseGoal& goal, MoveBaseClient& ac);
+  size_t send_goal(const move_base_msgs::MoveBaseGoal& goal, MoveBaseClient& ac);
 };
 
 }// namespace rbmt_teleop

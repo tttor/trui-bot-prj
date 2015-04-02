@@ -36,7 +36,7 @@ byte vibrate = 0;
 void setup(){
  
   Serial.begin(57600);
-  
+  pinMode(13,OUTPUT);
   delay(300);  //added delay to give wireless ps2 module some time to startup, before configuring it
    
   //CHANGES for v1.6 HERE!!! **************PAY ATTENTION*************
@@ -183,7 +183,8 @@ void loop() {
       Serial.print(",");
       Serial.print(ps2x.Analog(PSS_RY), DEC); 
       Serial.print(",");
-      Serial.println(ps2x.Analog(PSS_RX), DEC); 
+      Serial.println(ps2x.Analog(PSS_RX), DEC);
+      digitalWrite(13,HIGH); 
     }     
   }
   delay(50);  
