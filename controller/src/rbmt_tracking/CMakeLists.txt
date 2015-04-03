@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   sensor_msgs
   std_msgs
+  cv_bridge
+  image_transport
 )
 
 ## Find opencv macros and libraries
@@ -115,6 +117,7 @@ include_directories(
 add_executable(pcl_input_white src/pcl_input_white.cpp)
 add_executable(kinect_tf_white src/kinect_tf_white.cpp)
 add_executable(marker_transform_white src/marker_transform_white.cpp)
+add_executable(end_pose src/end_pose.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -129,6 +132,10 @@ target_link_libraries(kinect_tf_white
 )
 target_link_libraries(marker_transform_white
   ${catkin_LIBRARIES}
+)
+target_link_libraries(end_pose
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 
