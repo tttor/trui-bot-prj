@@ -3,22 +3,20 @@
 namespace rbmt_tracking{
 
 Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
-  // cock_pose_pub_ = nh_.advertise<geometry_msgs::Pose>("cock_pose", 1);
   quad = cv::Mat::zeros(500, 500, CV_8UC3);
   fWidth = 500; //in pixels
   fLength = 500; //in pixels
   rWidth = 180; //in cm
   rLength = 180; //in cm
   dist = 58; //in cm
-  end_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("end_pose", 1);
+  end_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("cock_pose", 1);
   quad = cv::Mat::zeros(480, 720, CV_8UC3);
-  end_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("end_marker", 1);
+  end_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
 
 }
 Tracker::~Tracker() {
   
 }
-
 
 void Tracker::marker_init() {
  // Set our initial shape type to be a cube
@@ -170,7 +168,6 @@ void Tracker::run(ros::Rate loop_rate) {
     }
 //==================== object detection ===========================================================================//
 
-
 //========================== CREATE AND SHOW IMAGE ==================================================//
 
     //show the image
@@ -199,6 +196,11 @@ void Tracker::run(ros::Rate loop_rate) {
 
     ros::spinOnce();
     loop_rate.sleep();
+    if (waitKey(1) == 27) //wait for 'esc' key press for 1ms. If 'esc' key is pressed, break loop
+    {
+      cout << "esc key is pressed" << endl;
+      break;
+    }
   }
 } 
 
