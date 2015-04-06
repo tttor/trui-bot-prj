@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   sensor_msgs
   std_msgs
+  cv_bridge
+  image_transport
 )
 
 ## Find opencv macros and libraries
@@ -102,19 +104,26 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+	include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-# add_library(pcl_tracking
-#   src/${PROJECT_NAME}/pcl_tracking.cpp
-# )
+add_library(rbmt_tracking
+   src/tracker.cpp
+)
+
+target_link_libraries(rbmt_tracking
+  ${OpenCV_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
 
 ## Declare a cpp executable
 add_executable(pcl_input_white src/pcl_input_white.cpp)
 add_executable(kinect_tf_white src/kinect_tf_white.cpp)
 add_executable(marker_transform_white src/marker_transform_white.cpp)
+add_executable(tracking_node src/tracking_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -129,6 +138,11 @@ target_link_libraries(kinect_tf_white
 )
 target_link_libraries(marker_transform_white
   ${catkin_LIBRARIES}
+)
+target_link_libraries(tracking_node
+	rbmt_tracking
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 
