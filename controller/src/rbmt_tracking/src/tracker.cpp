@@ -4,13 +4,13 @@ namespace rbmt_tracking{
 
 Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
   quad = cv::Mat::zeros(500, 500, CV_8UC3);
-  fWidth = 500; //in pixels
-  fLength = 500; //in pixels
-  rWidth = 180; //in cm
+  fWidth = 480; //in pixels
+  fLength = 360; //in pixels
+  rWidth = 240; //in cm
   rLength = 180; //in cm
   dist = 58; //in cm
-  end_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("cock_pose", 1);
-  quad = cv::Mat::zeros(480, 720, CV_8UC3);
+  end_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("end_pose", 1);
+  quad = cv::Mat::zeros(360, 480, CV_8UC3);
   end_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
 
 }
@@ -53,13 +53,13 @@ void Tracker::run(ros::Rate loop_rate) {
 //============================== OBJECT CONTROL =====================================================//
   namedWindow("Object", CV_WINDOW_AUTOSIZE); //create a window called "Object"
 
-  int iLowH = 30;
-  int iHighH = 50;
+  int iLowH = 0;
+  int iHighH = 179;
 
-  int iLowS = 65;
-  int iHighS = 170;
+  int iLowS = 0;
+  int iHighS = 51;
 
-  int iLowV = 120;
+  int iLowV = 128;
   int iHighV = 255;
 
   //Create trackbars in "Object" window
@@ -73,15 +73,24 @@ void Tracker::run(ros::Rate loop_rate) {
   createTrackbar("HighV", "Object", &iHighV, 255);
 //============================== object control =====================================================//
 
-  tl.x = 154;
-  tl.y = 283;
-  tr.x = 504;
-  tr.y = 291;
-  bl.x = 22;
-  bl.y = 387;
-  br.x = 620;
-  br.y = 401;
+  // tl.x = 213;
+  // tl.y = 229;
+  // tr.x = 435;
+  // tr.y = 231;
+  // bl.x = 74;
+  // bl.y = 404;
+  // br.x = 546;
+  // br.y = 412;
   
+  tl.x = 74;
+  tl.y = 404;
+  tr.x = 213;
+  tr.y = 229;
+  bl.x = 546;
+  bl.y = 412;
+  br.x = 435;
+  br.y = 231;
+
   // get mass center
   center.x = (tl.x + tr.x + bl.x + br.x) / 4;
   center.y = (tl.y + tr.y + bl.y + br.y) / 4;
@@ -181,8 +190,8 @@ void Tracker::run(ros::Rate loop_rate) {
 
     marker.lifetime = ros::Duration();
     
-    sPose.pose.position.x = (double)posX * 0.005;
-    sPose.pose.position.y = (480 - (double)posY) * 0.005;
+    sPose.pose.position.x = ((double)posX * 0.005) + 0.180; // left to right
+    sPose.pose.position.y = ((360 - (double)posY) * 0.005) + 0.035; // backward to forward
     sPose.pose.position.z = 0.0;
 
     sPose.pose.orientation.x = 0.0;
