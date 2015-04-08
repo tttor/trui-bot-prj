@@ -1,0 +1,37 @@
+<launch>  
+  
+  <arg name="rviz_black" default="True" />
+  <arg name="rviz_white" default="False" />
+  <arg name="kinect_black" default="True"/>
+  <arg name="kinect_white" default="False"/>
+  <arg name="end_pose" default="True"/>
+  
+  <group if="$(arg kinect_white)">
+    <include file="$(find rbmt_tracking)/launch/freenect_white.launch"/>
+  	<node pkg="rbmt_tracking" name="pcl_input_white" type="pcl_input_white" output="screen"/>
+    <node pkg="rbmt_tracking" name="kinect_tf_white" type="kinect_tf_white" output="screen"/>
+    <node pkg="rbmt_tracking" name="marker_transform_white" type="marker_transform_white" output="screen"/>
+  </group>
+
+
+  <group if="$(arg kinect_black)">
+    <include file="$(find rbmt_tracking)/launch/freenect_black.launch"/>
+  	<node pkg="rbmt_tracking" name="pcl_input_black" type="pcl_input_black" output="screen"/>
+    <node pkg="rbmt_tracking" name="kinect_tf_black" type="kinect_tf_black" output="screen"/>
+    <node pkg="rbmt_tracking" name="marker_transform_black" type="marker_transform_black" output="screen"/>
+  </group>
+
+  <group if="$(arg end_pose)">
+    <node pkg="rbmt_tracking" name="tracking_node" type="tracking_node" output="screen"/>
+  </group>
+  
+  <group if="$(arg rviz_black)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rbmt_tracking)/cfg/setting_black.rviz" output="screen"/>
+  </group>
+
+  <group if="$(arg rviz_white)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rbmt_tracking)/cfg/setting_white.rviz" output="screen"/>
+  </group>
+
+
+</launch>
