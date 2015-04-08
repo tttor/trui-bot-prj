@@ -112,8 +112,8 @@ void transformer_black (const geometry_msgs::PoseStamped& sPose)
   p.y = black_pose.pose.position.y; // right - left
   p.z = black_pose.pose.position.z; // down - up
 
-  line.lifetime = ros::Duration(5);
-  points.lifetime = ros::Duration(5);
+  // line.lifetime = ros::Duration(5);
+  // points.lifetime = ros::Duration(5);
 
   line.pose.orientation.w = 1.0;
   points.pose.orientation.w = 1.0;
@@ -135,7 +135,7 @@ int main (int argc, char** argv)
   // Create a ROS subscriber for raw cock pose
   ros::Subscriber black_sub = nh.subscribe ("cock_pose_black", 1, transformer_black);
   
-  transform_pub = nh.advertise<geometry_msgs::PoseStamped>("transformed_pose", 1);
+  transform_pub = nh.advertise<geometry_msgs::PoseStamped>("transformed_pose_black", 1);
   marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 1);
   move_pub = nh.advertise<geometry_msgs::Twist>("read_velocity", 1);
 
@@ -153,8 +153,8 @@ int main (int argc, char** argv)
       // count++;
 
       marker_pub.publish(marker);
-      //marker_pub.publish(line);
-      //marker_pub.publish(points);
+      marker_pub.publish(line);
+      marker_pub.publish(points);
 
       if((marker.pose.position.x > 0.05 || marker.pose.position.x < -0.05) && (marker.pose.position.y > 0.05 || marker.pose.position.y < -0.05)) {
         if(marker.pose.position.x > 0) move.linear.y = 1;

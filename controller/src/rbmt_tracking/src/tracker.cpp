@@ -3,7 +3,6 @@
 namespace rbmt_tracking{
 
 Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
-  quad = cv::Mat::zeros(500, 500, CV_8UC3);
   fWidth = 480; //in pixels
   fLength = 360; //in pixels
   rWidth = 240; //in cm
@@ -22,7 +21,7 @@ void Tracker::marker_init() {
  // Set our initial shape type to be a cube
   uint32_t shape = visualization_msgs::Marker::CUBE;
 
-  marker.header.frame_id = "map";
+  marker.header.frame_id = "world";
   marker.header.stamp = ros::Time::now();
   marker.type = shape;
   marker.action = visualization_msgs::Marker::ADD;
@@ -189,9 +188,10 @@ void Tracker::run(ros::Rate loop_rate) {
     geometry_msgs::PoseStamped sPose;
 
     marker.lifetime = ros::Duration();
+    sPose.header.stamp = ros::Time::now();
     
-    sPose.pose.position.x = ((double)posX * 0.005) + 0.180; // left to right
-    sPose.pose.position.y = ((360 - (double)posY) * 0.005) + 0.035; // backward to forward
+    sPose.pose.position.y = ((double)posX * 0.005) - 0.60; // right to left
+    sPose.pose.position.x = ((double)posY * 0.005) + 0.35; // backward to forward 
     sPose.pose.position.z = 0.0;
 
     sPose.pose.orientation.x = 0.0;
