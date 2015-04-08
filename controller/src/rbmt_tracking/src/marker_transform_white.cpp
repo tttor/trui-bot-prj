@@ -90,19 +90,19 @@ void transformer_white (const geometry_msgs::PoseStamped& sPose)
   float y_temp = sPose.pose.position.y;
   float z_temp = sPose.pose.position.z;
 
+  // angular transform on x - z plane
+  r = sqrt((z_temp*z_temp) + (x_temp*x_temp));
+  th = atan(z_temp/x_temp);
+  th = th + (65*M_PI/180);
+  x_temp = r * cos(th);
+  z_temp = r * sin(th);
+
   // angular transform on x - y plane
   r = sqrt((y_temp*y_temp) + (x_temp*x_temp));
   th = atan(y_temp/x_temp);
   th = th + (180*M_PI/180);
   x_temp = r * cos(th);
   y_temp = r * sin(th);
-
-  // angular transform on x - z plane
-  r = sqrt((z_temp*z_temp) + (x_temp*x_temp));
-  th = atan(z_temp/x_temp);
-  th = th + (115*M_PI/180);
-  x_temp = r * cos(th);
-  z_temp = r * sin(th);
 
   x_temp = x_temp;
   y_temp = y_temp;
@@ -112,6 +112,7 @@ void transformer_white (const geometry_msgs::PoseStamped& sPose)
   white_pose.pose.position.y = y_temp;
   white_pose.pose.position.z = z_temp;
 
+  ROS_INFO_STREAM("Pose x= " << white_pose.pose.position.x << ", Pose y = " << white_pose.pose.position.y << ", Pose z = " << white_pose.pose.position.z);
   transform_pub.publish(white_pose);
   marker.pose = white_pose.pose;
   marker.header.stamp = ros::Time::now();
@@ -157,10 +158,10 @@ int main (int argc, char** argv)
 
   // Create a ROS subscriber for raw cock pose
   ros::Subscriber white_sub = nh.subscribe ("cock_pose_white", 1, transformer_white);
-  
+
   transform_pub = nh.advertise<geometry_msgs::PoseStamped>("transformed_pose", 1);
   marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 1);
-  move_pub = nh.advertise<geometry_msgs::Twist>("read_velocity", 1,false);
+  move_pub = nh.advertise<geometry_msgs::Twist>("kinect_velocity", 1,false);
 
   // ros::Timer timer1 = n.createTimer(ros::Duration(0.1), callback1);
   // geometry_msgs::PoseStamped msg = ros::topic::waitForMessage<geometry_msgs::PoseStamped>(cock_pose_white, ros::Duration(2));
@@ -172,7 +173,6 @@ int main (int argc, char** argv)
     //marker_pub.publish(points);
 
     if ( is_valid(marker) ) {
-      ROS_INFO_STREAM("Pose x= " << marker.pose.position.x << ", Pose y = " << marker.pose.position.y);
       if((marker.pose.position.x > 0.05 || marker.pose.position.x < -0.05) && (marker.pose.position.y > 0.05 || marker.pose.position.y < -0.05)) {
         if(marker.pose.position.x > 0) move.linear.x = 1;
         else move.linear.x = -1;

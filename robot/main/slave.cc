@@ -40,7 +40,7 @@ float u_k;
 byte buffer[7] = {0,0,0,0,0,0,0};
 
 //Array to place measured data
-byte dataFrom_Encoder[4] = {0xCE,0,0,0xEE};
+byte dataFrom_Encoder[3] = {0xCE,0,0};
 int tempRead_Encoder = 0;
 int arrayIndex = 0;
 bool feedbackRequest = 0;
@@ -136,17 +136,10 @@ int main() {
     speed = bufferSpeed;
     //Reset the encoder every time the setpoint is 0 RPM
     // if(speed == 0) {if(resetFlag == 0) {sc.reset(); resetFlag =1;}} else {resetFlag = 0;} //if speed is not 0, the resetFlag is set to 0 again
-    // dataFrom_Encoder[0] = 0xCE;
     // dataFrom_Encoder[1] = (tempRead_Encoder & 0x00FF);
     // dataFrom_Encoder[2] = ((tempRead_Encoder & 0xFF00)>>8);
-    // dataFrom_Encoder[3] = 0xEE;
-      // Serial.write(dataFrom_Encoder,4);
-    // Serial.write(0xCE);
-    // Serial.write((tempRead_Encoder & 0x00FF));
-    // Serial.write(((tempRead_Encoder & 0xFF00)>>8));
-    // Serial.write(0xEE);
-      // Serial.write(dataFrom_Encoder[1]);
-      Serial.write(tempRead_Encoder);
+    // Serial.write(dataFrom_Encoder,3);
+    Serial.write(tempRead_Encoder);
 
     
 

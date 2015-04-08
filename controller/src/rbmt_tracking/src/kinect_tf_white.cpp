@@ -19,7 +19,7 @@ int main(int argc, char** argv){
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "base_link"));
  
     transform.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-    transform.setRotation(tf::createQuaternionFromRPY((180*M_PI/180),-(111.5*M_PI/180),0));
+    transform.setRotation(tf::createQuaternionFromRPY(0,-(65*M_PI/180),(180*M_PI/180)));
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "camera_white_link"));
     rate.sleep();
 

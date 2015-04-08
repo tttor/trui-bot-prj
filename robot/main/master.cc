@@ -104,6 +104,10 @@ int main() {
   const uint8_t hit_flag = 0x0F;
   const uint8_t rise_flag =0xF0;
   
+  int fromSerial_1[2];
+  int fromSerial_2[2];
+  int fromSerial_3[2];
+
   init(); //Mandatory arduino setups, hardware registers etc
   nh.initNode();
   nh.advertise(chatter);
@@ -145,14 +149,33 @@ int main() {
     }
   // } 
 
-  twist_msg.linear.x = sendspeed1;
-  twist_msg.linear.y = sendspeed2;
-  twist_msg.linear.z = sendspeed3;
-  chatter.publish( &twist_msg );
-  
-  uint8_t buffer1[7];
-  uint8_t buffer2[7];
-  uint8_t buffer3[7];
+    if(Serial1.available()){//&& Serial1.read() == 0xCE){
+      fromSerial_1[0] = Serial1.read();
+      // fromSerial_1[1] = Serial1.read();
+      twist_msg.linear.x = (fromSerial_1[0]);// | (fromSerial_1[1]<<8));
+    }
+
+    if(Serial2.available()){// && Serial2.read() == 0xCE){
+      fromSerial_2[0] = Serial2.read();
+      // fromSerial_2[1] = Serial2.read();
+      twist_msg.linear.y = (fromSerial_2[0]);// | (fromSerial_2[1]<<8));
+    }
+
+    if(Serial3.available()){// && Serial3.read() == 0xCE){
+      fromSerial_3[0] = Serial3.read();
+      // fromSerial_3[1] = Serial3.read();
+      twist_msg.linear.z = (fromSerial_3[0]);// | (fromSerial_3[1]<<8));
+    }
+
+    twist_msg.angular.x = sendspeed1;
+    twist_msg.angular.y = sendspeed2;
+    twist_msg.angular.z = sendspeed3;
+
+    chatter.publish( &twist_msg );
+    
+    uint8_t buffer1[7];
+    uint8_t buffer2[7];
+    uint8_t buffer3[7];
 
 
     buffer1[0]= header;
