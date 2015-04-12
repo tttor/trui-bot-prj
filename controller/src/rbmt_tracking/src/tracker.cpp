@@ -16,29 +16,18 @@ Tracker::~Tracker() {
   
 }
 
-// void csv_write(const geometry_msgs::PoseStamped& pose,
-//                const std::string& filepath) {
-//   using namespace std;
-//   using namespace boost;
+void csv_init(const std::string& filepath) {
+  using namespace std;
+  using namespace boost;
 
-//   std::ofstream csv;
-//   csv.open(filepath.c_str(),ios::app);
-//   if ( csv.is_open() ) {
-//     // sPose.header.stamp = ros::Time::now();
-//     csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
-//     csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
-//     csv << lexical_cast<string>(pose.pose.position.z); csv << ",";
-//     csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
-
-//     // if (new_sample)
-//       csv << "\n";
-//   }
-//   else {
-//     assert(false && "csv.open(filepath.c_str()): FALSE");
-//   }
-  
-//   csv.close();
-// }
+  ofstream csv;
+  csv.open(filepath.c_str(),ios::app);
+  if ( csv.is_open() ) csv << "\n" << ","; 
+  else {
+    assert(false && "csv.open(filepath.c_str()): FALSE");
+  }
+  csv.close();
+}
 
 void Tracker::marker_init() {
  // Set our initial shape type to be a cube
@@ -94,15 +83,6 @@ void Tracker::run(ros::Rate loop_rate) {
   createTrackbar("LowV", "Object", &iLowV, 255);//Value (0 - 255)
   createTrackbar("HighV", "Object", &iHighV, 255);
 //============================== object control =====================================================//
-
-  // tl.x = 213;
-  // tl.y = 229;
-  // tr.x = 435;
-  // tr.y = 231;
-  // bl.x = 74;
-  // bl.y = 404;
-  // br.x = 546;
-  // br.y = 412;
   
   tl.x = 431;
   tl.y = 297;

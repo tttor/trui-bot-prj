@@ -3,6 +3,7 @@
 
 #include <geometry_msgs/PoseStamped.h>
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <visualization_msgs/Marker.h>
@@ -25,13 +26,10 @@ class Tracker {
 
   //! Dummy: publish hardcoded cock end position
   void run_dummy(ros::Rate rate);
-  
-  void CallBackFunc(int event, int x, int y, int flags, void* userdata);
 
   void marker_init();
 
-  void csv_write(const geometry_msgs::PoseStamped& pose,
-               const std::string& filepath);
+  void csv_init(const std::string& filepath);
  
  private:
   ros::Publisher end_pose_pub_;

@@ -37,6 +37,39 @@ visualization_msgs::Marker marker, line, points;
 // {
 //   ROS_INFO("Callback 1 triggered");
 // }
+void csv_init(const std::string& filepath) {
+  using namespace std;
+  using namespace boost;
+
+  ofstream csv;
+  csv.open(filepath.c_str(),ios::app);
+  if ( csv.is_open() ) csv << "\n" << ","; 
+  else {
+    assert(false && "csv.open(filepath.c_str()): FALSE");
+  }
+  csv.close();
+}
+
+void csv_write(const geometry_msgs::PoseStamped& pose,
+               const std::string& filepath) {
+  using namespace std;
+  using namespace boost;
+
+  ofstream csv;
+  csv.open(filepath.c_str(),ios::app);
+  if ( csv.is_open() ) {
+    // sPose.header.stamp = ros::Time::now();
+    csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.z); csv << ",";
+  }
+  else {
+    assert(false && "csv.open(filepath.c_str()): FALSE");
+  }
+  
+  csv.close();
+}
 
 void marker_init() {
  // Set our initial shape type to be a cube
@@ -109,6 +142,9 @@ void transformer_black (const geometry_msgs::PoseStamped& sPose)
   transform_pub.publish(black_pose);
   marker.pose = black_pose.pose;
 
+  std::string csv_filepath = "/home/deanzaka/temp/test.csv";
+  csv_write(black_pose,csv_filepath);
+
   p.x = black_pose.pose.position.x; // backward - forward
   p.y = black_pose.pose.position.y; // right - left
   p.z = black_pose.pose.position.z; // down - up
@@ -131,6 +167,9 @@ int main (int argc, char** argv)
 
   // Initialize marker
   marker_init();
+  std::string csv_filepath = "/home/deanzaka/temp/test.csv";
+  csv_init(csv_filepath);
+  
   int count = 0;
 
   // Create a ROS subscriber for raw cock pose
@@ -146,12 +185,6 @@ int main (int argc, char** argv)
 
   while(nh.ok()) {
     if(p.x != last.x) {
-      // if(count > 50) {
-      //   line.points.clear();
-      //   points.points.clear();
-      //   count = 0;
-      // }
-      // count++;
 
       marker_pub.publish(marker);
       marker_pub.publish(line);
