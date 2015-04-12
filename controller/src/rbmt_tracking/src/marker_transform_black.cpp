@@ -93,18 +93,19 @@ void transformer_black (const geometry_msgs::PoseStamped& sPose)
   // angular transform on x - z plane
   r = sqrt((z_temp*z_temp) + (x_temp*x_temp));
   th = atan(z_temp/x_temp);
-  th = th + (24*M_PI/180);
+  th = th + (22*M_PI/180);
   x_temp = r * cos(th);
   z_temp = r * sin(th);
 
   x_temp = x_temp;
   y_temp = y_temp;
-  z_temp = z_temp+ 0.5;
+  z_temp = z_temp+ 0.85;
 
   black_pose.pose.position.x = x_temp;
   black_pose.pose.position.y = y_temp;
   black_pose.pose.position.z = z_temp;
 
+  black_pose.header.stamp = ros::Time::now();
   transform_pub.publish(black_pose);
   marker.pose = black_pose.pose;
 

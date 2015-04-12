@@ -7,15 +7,38 @@ Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
   fLength = 360; //in pixels
   rWidth = 240; //in cm
   rLength = 180; //in cm
-  dist = 58; //in cm
   end_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("end_pose", 1);
-  quad = cv::Mat::zeros(360, 480, CV_8UC3);
+  quad = cv::Mat::zeros(fLength, fWidth, CV_8UC3);
   end_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
 
 }
 Tracker::~Tracker() {
   
 }
+
+// void csv_write(const geometry_msgs::PoseStamped& pose,
+//                const std::string& filepath) {
+//   using namespace std;
+//   using namespace boost;
+
+//   std::ofstream csv;
+//   csv.open(filepath.c_str(),ios::app);
+//   if ( csv.is_open() ) {
+//     // sPose.header.stamp = ros::Time::now();
+//     csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
+//     csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
+//     csv << lexical_cast<string>(pose.pose.position.z); csv << ",";
+//     csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
+
+//     // if (new_sample)
+//       csv << "\n";
+//   }
+//   else {
+//     assert(false && "csv.open(filepath.c_str()): FALSE");
+//   }
+  
+//   csv.close();
+// }
 
 void Tracker::marker_init() {
  // Set our initial shape type to be a cube
@@ -81,14 +104,14 @@ void Tracker::run(ros::Rate loop_rate) {
   // br.x = 546;
   // br.y = 412;
   
-  tl.x = 74;
-  tl.y = 404;
-  tr.x = 213;
-  tr.y = 229;
-  bl.x = 546;
-  bl.y = 412;
-  br.x = 435;
-  br.y = 231;
+  tl.x = 431;
+  tl.y = 297;
+  tr.x = 226;
+  tr.y = 476;
+  bl.x = 269;
+  bl.y = 249;
+  br.x = 49;
+  br.y = 355;
 
   // get mass center
   center.x = (tl.x + tr.x + bl.x + br.x) / 4;
@@ -190,8 +213,8 @@ void Tracker::run(ros::Rate loop_rate) {
     marker.lifetime = ros::Duration();
     sPose.header.stamp = ros::Time::now();
     
-    sPose.pose.position.y = ((double)posX * 0.005) - 0.60; // right to left
-    sPose.pose.position.x = ((double)posY * 0.005) + 0.35; // backward to forward 
+    sPose.pose.position.y = ((fWidth - (double)posX) * 0.005) - 1.2; // right to left
+    sPose.pose.position.x = ((fLength - (double)posY) * 0.005) + 0.35; // backward to forward 
     sPose.pose.position.z = 0.0;
 
     sPose.pose.orientation.x = 0.0;
@@ -199,9 +222,16 @@ void Tracker::run(ros::Rate loop_rate) {
     sPose.pose.orientation.z = 0.0;
     sPose.pose.orientation.w = 1.0;
 
-    end_pose_pub_.publish(sPose);
-    marker.pose = sPose.pose;
-    end_marker_pub_.publish(marker);
+    sPose.header.stamp = ros::Time::now();
+    if(sPose.pose.position.y < 1.2 && sPose.pose.position.y > -1.2 &&
+            sPose.pose.position.x > 0.35 && sPose.pose.position.x < 2.15) {
+        end_pose_pub_.publish(sPose);
+        marker.pose = sPose.pose;
+        end_marker_pub_.publish(marker);
+    }
+
+    // std::string csv_filepath = "/home/deanzaka/Github/trui-bot-prj/controller/src/rbmt_tracking/bagfiles/test2.csv";
+    // csv_write(sPose,csv_filepath);
 
     ros::spinOnce();
     loop_rate.sleep();

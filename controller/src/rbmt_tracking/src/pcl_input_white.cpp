@@ -87,7 +87,7 @@ cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   pass.setInputCloud (cloud_segment);
   // backward - forward
   pass.setFilterFieldName ("z");
-  pass.setFilterLimits (0.5, 3.6);
+  pass.setFilterLimits (0.5, 4);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
@@ -120,8 +120,8 @@ cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
 
     cock_pose_white_pub.publish(sPose);
 
-    std::string csv_filepath = "/home/lintang-sutawika/krai/tor/data/input/test.csv";
-    csv_write(sPose,csv_filepath);
+    // std::string csv_filepath = "/home/lintang-sutawika/krai/tor/data/input/test.csv";
+    // csv_write(sPose,csv_filepath);
   }
 
   // Convert to ROS data type

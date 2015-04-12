@@ -7,6 +7,11 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <visualization_msgs/Marker.h>
 
+#include "std_msgs/String.h"
+#include <sstream>
+#include <vector>
+#include <math.h>
+
 namespace rbmt_tracking {
 
 typedef void (*voidFuncPtr)(void);
@@ -24,6 +29,9 @@ class Tracker {
   void CallBackFunc(int event, int x, int y, int flags, void* userdata);
 
   void marker_init();
+
+  void csv_write(const geometry_msgs::PoseStamped& pose,
+               const std::string& filepath);
  
  private:
   ros::Publisher end_pose_pub_;
