@@ -16,16 +16,25 @@ Tracker::~Tracker() {
   
 }
 
-void csv_init(const std::string& filepath) {
+
+void Tracker::csv_write(const geometry_msgs::PoseStamped& pose,
+               const std::string& filepath) {
   using namespace std;
   using namespace boost;
 
   ofstream csv;
   csv.open(filepath.c_str(),ios::app);
-  if ( csv.is_open() ) csv << "\n" << ","; 
+  if ( csv.is_open() ) {
+    // sPose.header.stamp = ros::Time::now();
+    csv << ","; csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.z); csv << ","; csv << "\n";
+  }
   else {
     assert(false && "csv.open(filepath.c_str()): FALSE");
   }
+  
   csv.close();
 }
 
@@ -210,8 +219,8 @@ void Tracker::run(ros::Rate loop_rate) {
         end_marker_pub_.publish(marker);
     }
 
-    // std::string csv_filepath = "/home/deanzaka/Github/trui-bot-prj/controller/src/rbmt_tracking/bagfiles/test2.csv";
-    // csv_write(sPose,csv_filepath);
+    std::string csv_filepath = "/home/deanzaka/temp/test2.csv";
+    csv_write(sPose,csv_filepath);
 
     ros::spinOnce();
     loop_rate.sleep();

@@ -9,6 +9,7 @@
 #include <visualization_msgs/Marker.h>
 
 #include "std_msgs/String.h"
+#include <fstream>
 #include <sstream>
 #include <vector>
 #include <math.h>
@@ -24,12 +25,10 @@ class Tracker {
 
   void run(ros::Rate loop_rate);
 
-  //! Dummy: publish hardcoded cock end position
-  void run_dummy(ros::Rate rate);
-
   void marker_init();
 
-  void csv_init(const std::string& filepath);
+  void csv_write(const geometry_msgs::PoseStamped& pose,
+               const std::string& filepath);
  
  private:
   ros::Publisher end_pose_pub_;
