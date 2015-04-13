@@ -9,6 +9,11 @@ namespace trui {
 
   // Motor::Motor (size_t pwm_pin_, size_t dir_pin1_, size_t dir_pin2_,/* size_t en_1_pin, size_t en_2_pin, size_t xy_pin,*/ size_t oe_pin, size_t sel_1_pin, size_t sel_2_pin, size_t reset_x_pin,/* size_t reset_y_pin,*/ size_t bit0, size_t bit1,size_t bit2, size_t bit3, size_t bit4, size_t bit5, size_t bit6, size_t bit7, float outmax_, float outmin_) : pwm_pin_(pwm_pin_), dir_pin1_(dir_pin1_), dir_pin2_(dir_pin2_), /*en_1_pin(en_1_pin), en_2_pin(en_2_pin), xy_pin(xy_pin),*/ oe_pin(oe_pin), sel_1_pin(sel_1_pin), sel_2_pin(sel_2_pin), reset_x_pin(reset_x_pin), /*reset_y_pin(reset_y_pin),*/ bit0(bit0) , bit1(bit1) , bit2(bit2) , bit3(bit3), bit4(bit4) , bit5(bit5) , bit6(bit6) , bit7(bit7), outmax_(outmax_), outmin_(outmin_){
     omega_=0,omega_read_=0, omega_input_=0, last_omega_=0;
+    omega_read_k_1_=0;
+    omega_read_k_2_ =0;
+    omega_read_k_3_ =0;
+    omega_read_k_4_ =0;
+    omega_read_refined = 0;
     tick_= 0;
     tick_enc_= 0;
     last_tick_enc_= 0;
@@ -43,7 +48,7 @@ namespace trui {
 
   int64_t Sc::read_encoder(){
     tick_enc_ = encoder_->pos();
-    omega_ = (float)(tick_enc_ - last_tick_enc_)*1500/57;// Tetha = ((tickEnc - last_tickEnc)/57) * 2 * PI rad
+    omega_ = (float)(tick_enc_ - last_tick_enc_)*3000/449;//1500/57;// Tetha = ((tickEnc - last_tickEnc)/57) * 2 * PI rad
                                              // omega = Tetha / Delta_Time -- Delta_Time = 50ms
                                              // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/57) * 2 * PI * 1000/50 rad/s
                                              // omega = (tickEnc - last_tickEnc) * 40/57 * PI rad/s
@@ -53,6 +58,9 @@ namespace trui {
                                              // omega = (tickEnc - last_tickEnc) * 20/57 * 60 rotation/minute
                                              // omega = (tickEnc - last_tickEnc) * 1200/57 RPM
                                              // Quadrature -> 300/57 RPM
+                                             // for 13ppr -> 600/449
+    //bla/998 * 2 * pi * 100
+    //3000/449
     last_tick_enc_ = tick_enc_;  
     return omega_;//encoder_->pos();
   }
@@ -71,7 +79,7 @@ namespace trui {
   void Sc::PIDvelocity_algorithm(float speed,float Kp,float Ki,float Kd,float delta_T){
       omega_input_ = speed; //setpoint
       tick_enc_ = encoder_->pos();
-      omega_ = (float)(tick_enc_ - last_tick_enc_)*300/57;// Tetha = ((tickEnc - last_tickEnc)/228) * 2 * PI rad
+      omega_ = (float)(tick_enc_ - last_tick_enc_)*600/449;//300/57;// Tetha = ((tickEnc - last_tickEnc)/228) * 2 * PI rad
                                              // omega = Tetha / Delta_Time -- Delta_Time = 50ms
                                              // omega = Tetha / 50ms = ((tickEnc - last_tickEnc)/228) * 2 * PI * 1000/50 rad/s
                                              // omega = (tickEnc - last_tickEnc) * 40/228 * PI rad/s
@@ -81,6 +89,7 @@ namespace trui {
                                              // omega = (tickEnc - last_tickEnc) * 5/57 * 60 rotation/minute
                                              // omega = (tickEnc - last_tickEnc) * 300/57 RPM
                                              // Quadrature -> 300/57 RPM
+                                             // for 13ppr -> 600/449
       e_k_ = omega_input_ - omega_;
       U_t_ = U_t_1_ + (Kp+Ki*delta_T+Kd/delta_T)*e_k_-(Kp+2*Kd/delta_T)*e_k_1_+(Kd/delta_T)*e_k_2_;
       e_k_2_ = e_k_1_;
@@ -118,7 +127,7 @@ namespace trui {
       omega_read_k_3_ = omega_read_k_2_;
       omega_read_k_2_ = omega_read_k_;
       last_error_ = error_;
-      return omega_read_refined;
+      return error_;//omega_read_refined;
       // last2_tick_enc_ = last_tick_enc_; 
       // last_tick_enc_ = tick_enc_;    
   }

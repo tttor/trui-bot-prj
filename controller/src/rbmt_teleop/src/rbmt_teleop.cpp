@@ -3,57 +3,9 @@
 namespace rbmt_teleop {
 
 TeleopTranslator::TeleopTranslator(ros::NodeHandle nh): nh_(nh) {
-  //
-  // n_axes_ = 8;
 
-  // axes_.resize(n_axes_);
-  // axis_mins_.resize(n_axes_);
-  // axis_maxs_.resize(n_axes_);
-  // axis_normals_.resize(n_axes_);
-
-  // axis_mins_.at(0) = -1.0;
-  // axis_maxs_.at(0) =  1.0;
-  // axis_normals_.at(0) = 0.0;
-
-  // axis_mins_.at(1) = -1.0;
-  // axis_maxs_.at(1) =  1.0;
-  // axis_normals_.at(1) = 0.0;
-
-  // axis_mins_.at(2) = -1.0;
-  // axis_maxs_.at(2) =  1.0;
-  // axis_normals_.at(2) = 1.0;
-
-  // axis_mins_.at(5) = -1.0;
-  // axis_maxs_.at(5) =  1.0;
-  // axis_normals_.at(5) = 1.0;
-
-  //
-  // n_button_ = 11;
-  // buttons_.resize(n_button_);
-
-  //
-  // num_["button_A"] = 0;
-  // num_["button_B"] = 1;
-  // num_["button_X"] = 2;
-  // num_["button_Y"] = 3;
-  // num_["button_LB"] = 4;
-  // num_["button_RB"] = 5;
-  // num_["button_BACK"] = 6;
-  // num_["button_START"] = 7;
-  // num_["button_UNKNOWN"] = 8;
-  // num_["button_LEFT_ANALOG"] = 9;
-  // num_["button_RIGHT_ANALOG"] = 10;
-
-  // //
-  // vel_param_["x_vel_max"] =  1.0;
-  // vel_param_["x_vel_min"] = -1.0 * vel_param_["x_vel_max"];
-  // vel_param_["y_vel_max"] =  vel_param_["x_vel_max"];
-  // vel_param_["y_vel_min"] = -1.0 * vel_param_["y_vel_max"];
-  // vel_param_["theta_vel_min"] = 0.0;
-  // vel_param_["theta_vel_max"] = 0.25 * M_PI;
-
-  //
-  joy_sub_ = nh_.subscribe<std_msgs::Int16MultiArray>("bt/read_joy",1, &TeleopTranslator::joy_sub_cb, this);//get controller command from /read_joy topic
+  joy_sub_ = nh_.subscribe<std_msgs::Int16MultiArray>("read_joy",1, &TeleopTranslator::joy_sub_cb, this);//get controller command from /read_joy topic
+  kinect_sub_ = nh_.subscribe<geometry_msgs::Twist>("kinect_velocity",1, &TeleopTranslator::kinect_sub_cb, this);//get controller command from /read_joy topic
   cmd_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("read_velocity", 100);
   // cmd_service_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("cmd_service", 100);
 }
@@ -62,13 +14,34 @@ TeleopTranslator::~TeleopTranslator() {
 
 }
 
+void TeleopTranslator::kinect_sub_cb(const geometry_msgs::Twist::ConstPtr& vel_msg) {
+  vel_kinect_x_ = vel_msg->linear.x;
+  vel_kinect_y_ = vel_msg->linear.y;
+  vel_kinect_z_ = vel_msg->angular.z;
+}
+
 void TeleopTranslator::joy_sub_cb(const std_msgs::Int16MultiArray::ConstPtr& msg) {
-  axisX_ = msg->data[0];
-  axisY_ = msg->data[1];
-  buttonR1_ = msg->data[14];
-  buttonR2_ = msg->data[15];
-  buttonL2_ = msg->data[13];
-  buttonL1_ = msg->data[12];
+  axisX_          = msg->data[0];
+  axisY_          = msg->data[1];
+  //= msg->data[2];
+  //= msg->data[3];
+  buttonTriangle_ = msg->data[4];
+  buttonCross_    = msg->data[5];
+  buttonSquare_   = msg->data[6];
+  buttonCircle_   = msg->data[7];
+  buttonDown_     = msg->data[8];
+  buttonLeft_     = msg->data[9];
+  buttonUp_       = msg->data[10];
+  buttonRight_    = msg->data[11];
+  buttonL1_       = msg->data[12];
+  buttonL2_       = msg->data[13];
+  buttonR1_       = msg->data[14];
+  buttonR2_       = msg->data[15];
+  buttonStart_    = msg->data[16];
+  buttonSelect_   = msg->data[17];
+  buttonL3_       = msg->data[18];
+  buttonR3_       = msg->data[19];
+  
   // buttonsR1_
     // joy.data[0]  = ps2x.Analog(PSS_LX);
     // joy.data[1]  = ps2x.Analog(PSS_LY);
@@ -112,6 +85,7 @@ void TeleopTranslator::run(ros::Rate rate) {
         
     // Publish
     geometry_msgs::Twist cmd_vel;
+
     if(axisX_ <= 148 and axisX_ >= 108) axisX_ = 128;
     if(axisY_ <= 148 and axisY_ >= 108) axisY_ = 128;
     speedX_ = float(axisX_-128)/128 * 1.5;///128 * 1.5);//4.5;//map(presentPosition_VX, -128, 127, -4.5, 4.5);
@@ -123,13 +97,27 @@ void TeleopTranslator::run(ros::Rate rate) {
       speedY_ = 0.5*speedY_;
     }
 
-    cmd_vel.linear.x = speedX_; //x_vel;
-    cmd_vel.linear.y = speedY_;
-    cmd_vel.linear.z = 0;
-    cmd_vel.angular.x = buttonR1_;
-    cmd_vel.angular.y = 0;
-    cmd_vel.angular.z = speedW_;//theta_vel;
+    if(buttonCross_ == 1){
 
+      cmd_vel.linear.x = vel_kinect_x_; //x_vel;
+      cmd_vel.linear.y = vel_kinect_y_;
+      cmd_vel.linear.z = 0;
+      cmd_vel.angular.x = 0;
+      cmd_vel.angular.y = 0;
+      cmd_vel.angular.z = vel_kinect_z_;//theta_vel;
+    
+    }
+
+    else{
+    
+      cmd_vel.linear.x = speedX_; //x_vel;
+      cmd_vel.linear.y = speedY_;
+      cmd_vel.linear.z = 0;
+      cmd_vel.angular.x = buttonR1_;
+      cmd_vel.angular.y = 0;
+      cmd_vel.angular.z = speedW_;//theta_vel;
+    
+    }
     //ROS_DEBUG_STREAM_COND(debug, "cmd_vel.linear.x= "<< cmd_vel.linear.x);
     //ROS_DEBUG_STREAM_COND(debug, "cmd_vel.linear.y= "<< cmd_vel.linear.y);
     //ROS_DEBUG_STREAM_COND(debug, "cmd_vel.angular.z= "<< cmd_vel.angular.z);

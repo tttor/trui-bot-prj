@@ -123,6 +123,11 @@ target_link_libraries(rbmt_tracking
 add_executable(pcl_input_white src/pcl_input_white.cpp)
 add_executable(kinect_tf_white src/kinect_tf_white.cpp)
 add_executable(marker_transform_white src/marker_transform_white.cpp)
+
+add_executable(pcl_input_black src/pcl_input_black.cpp)
+add_executable(kinect_tf_black src/kinect_tf_black.cpp)
+add_executable(marker_transform_black src/marker_transform_black.cpp)
+
 add_executable(tracking_node src/tracking_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
@@ -137,6 +142,15 @@ target_link_libraries(kinect_tf_white
   ${catkin_LIBRARIES}
 )
 target_link_libraries(marker_transform_white
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(pcl_input_black
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(kinect_tf_black
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(marker_transform_black
   ${catkin_LIBRARIES}
 )
 target_link_libraries(tracking_node
