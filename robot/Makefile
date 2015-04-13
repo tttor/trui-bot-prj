@@ -21,7 +21,7 @@ SLAVE_BOARD=arduino
 SLAVE_CPU_SPEED=-DF_CPU=16000000UL
 SLAVE_CFLAGS=$(SLAVE_MCU) $(SLAVE_CPU_SPEED) -Os -w -Wl,--gc-sections -ffunction-sections -fdata-sections
 SLAVE_LIBNAME=lib$(SLAVE_BOARD)-slave.a
-SLAVE_UPLOAD_BAUDRATE=57600 #: 57600 (for promini m328p), 115200 (for mega m2560, uno m328p)
+SLAVE_UPLOAD_BAUDRATE=115200 #: 57600 (for promini m328p), 115200 (for mega m2560, uno m328p)
 SLAVE_PORT=/dev/ttyUSB0
 
 CONTROL_MCU=-mmcu=atmega328p
