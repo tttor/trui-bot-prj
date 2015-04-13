@@ -118,9 +118,9 @@ int main() {
 
   init(); //Mandatory arduino setups, hardware registers etc
   Wire.begin(); //Start wire Comm
-  // nh.initNode(); //Init board as a ROS Node
-  // nh.advertise(chatter);
-  // nh.subscribe(sub);
+  nh.initNode(); //Init board as a ROS Node
+  nh.advertise(chatter);
+  nh.subscribe(sub);
 
   // Serial.begin(115200);
   Serial1.begin(9600);
