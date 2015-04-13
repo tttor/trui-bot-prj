@@ -19,35 +19,12 @@
 #include <sstream>
 #include <vector>
 
-ros::Publisher cloud_pub_white;
-ros::Publisher cock_pose_white_pub;
+ros::Publisher cloud_pub_black;
+ros::Publisher cock_pose_black_pub;
 
-void csv_write(const geometry_msgs::PoseStamped& pose,
-               const std::string& filepath) {
-  using namespace std;
-  using namespace boost;
-
-  ofstream csv;
-  csv.open(filepath.c_str(),ios::app);
-  if ( csv.is_open() ) {
-    // sPose.header.stamp = ros::Time::now();
-    csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
-    csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
-    csv << lexical_cast<string>(pose.pose.position.z); csv << ",";
-    csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
-
-    // if (new_sample)
-      csv << "\n";
-  }
-  else {
-    assert(false && "csv.open(filepath.c_str()): FALSE");
-  }
-  
-  csv.close();
-}
 
 void 
-cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
+cloud_cb_black (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
 {
   // Container for original & filtered data
   pcl::PCLPointCloud2* cloud = new pcl::PCLPointCloud2; 
@@ -87,7 +64,7 @@ cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   pass.setInputCloud (cloud_segment);
   // backward - forward
   pass.setFilterFieldName ("z");
-  pass.setFilterLimits (0.5, 3.6);
+  pass.setFilterLimits (0.5, 4);
   //pass.setFilterLimitsNegative (true);
   pass.filter (*cloud_segment);
 
@@ -118,10 +95,8 @@ cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
     sPose.pose.orientation.z = 0.0;
     sPose.pose.orientation.w = 1.0;
 
-    cock_pose_white_pub.publish(sPose);
+    cock_pose_black_pub.publish(sPose);
 
-    std::string csv_filepath = "/home/lintang-sutawika/krai/tor/data/input/test.csv";
-    csv_write(sPose,csv_filepath);
   }
 
   // Convert to ROS data type
@@ -130,7 +105,7 @@ cloud_cb_white (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   pcl::toROSMsg(*cloud_segment, output);
 
   // Publish the data
-  cloud_pub_white.publish (output);
+  cloud_pub_black.publish (output);
 }
 
 int
@@ -141,12 +116,12 @@ main (int argc, char** argv)
   ros::NodeHandle nh;
 
   // Create a ROS subscriber for the input point cloud
-  ros::Subscriber sub_white = nh.subscribe ("/camera_white/depth/points", 1, cloud_cb_white);
+  ros::Subscriber sub_black = nh.subscribe ("/camera_black/depth/points", 1, cloud_cb_black);
 
 
   // Create a ROS publisher for the output point cloud
-  cloud_pub_white = nh.advertise<sensor_msgs::PointCloud2> ("output_white", 1);
-  cock_pose_white_pub = nh.advertise<geometry_msgs::PoseStamped>("cock_pose_white", 1);
+  cloud_pub_black = nh.advertise<sensor_msgs::PointCloud2> ("output_black", 1);
+  cock_pose_black_pub = nh.advertise<geometry_msgs::PoseStamped>("cock_pose_black", 1);
 
   // Spin
   ros::spin();

@@ -41,10 +41,10 @@ void TwoPhaseIncrementalEncoder::reset_Enc() {
 }
 
 void TwoPhaseIncrementalEncoder::ext_int0_handler() {
-//   if (phase_b_state_) 
-//     phase_a_counter_--;
-//   else
-//     phase_a_counter_++;
+  // if (phase_b_state_) 
+  //   phase_a_state_--;//counter_--;
+  // else
+  //   phase_a_state_++;//counter_++;
   phase_a_state_ = !phase_a_state_;
   if(phase_a_state_ == 1){
     if(phase_b_state_ == 0) counter_++;
@@ -54,7 +54,6 @@ void TwoPhaseIncrementalEncoder::ext_int0_handler() {
     if(phase_b_state_ == 1) counter_++;
     else counter_--;
   }
-
 }
   
 void TwoPhaseIncrementalEncoder::ext_int1_handler() {
