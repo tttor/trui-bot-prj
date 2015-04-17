@@ -28,8 +28,7 @@ void Tracker::csv_write(const geometry_msgs::PoseStamped& pose,
     // sPose.header.stamp = ros::Time::now();
     csv << ","; csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
     csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
-    csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
-    csv << lexical_cast<string>(pose.pose.position.z); csv << ","; csv << "\n";
+    csv << lexical_cast<string>(pose.pose.position.y); csv << ","; csv << "\n";
   }
   else {
     assert(false && "csv.open(filepath.c_str()): FALSE");
@@ -93,14 +92,14 @@ void Tracker::run(ros::Rate loop_rate) {
   createTrackbar("HighV", "Object", &iHighV, 255);
 //============================== object control =====================================================//
   
-  tl.x = 431;
-  tl.y = 297;
-  tr.x = 226;
-  tr.y = 476;
-  bl.x = 269;
-  bl.y = 249;
-  br.x = 49;
-  br.y = 355;
+  tl.x = 426;
+  tl.y = 308;
+  tr.x = 231;
+  tr.y = 449;
+  bl.x = 280;
+  bl.y = 262;
+  br.x = 75;
+  br.y = 345;
 
   // get mass center
   center.x = (tl.x + tr.x + bl.x + br.x) / 4;
@@ -113,7 +112,7 @@ void Tracker::run(ros::Rate loop_rate) {
   corners.push_back(br);
   corners.push_back(bl);
 
-  waitKey();
+  // waitKey();
   while (ros::ok()) {
     
     cap.read(imgOriginal);
@@ -219,14 +218,13 @@ void Tracker::run(ros::Rate loop_rate) {
         end_marker_pub_.publish(marker);
     }
 
-    std::string csv_filepath = "/home/deanzaka/temp/test2.csv";
-    csv_write(sPose,csv_filepath);
-
     ros::spinOnce();
     loop_rate.sleep();
     if (waitKey(1) == 27) //wait for 'esc' key press for 1ms. If 'esc' key is pressed, break loop
     {
-      cout << "esc key is pressed" << endl;
+      std::string csv_filepath = "/home/deanzaka/temp/end_pose.csv";
+      csv_write(sPose,csv_filepath);
+      ROS_INFO_STREAM("ESC: Saving end pose to csv");
       break;
     }
   }

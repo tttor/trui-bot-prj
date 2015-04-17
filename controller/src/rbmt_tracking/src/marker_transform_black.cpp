@@ -43,7 +43,7 @@ void csv_init(const std::string& filepath) {
 
   ofstream csv;
   csv.open(filepath.c_str(),ios::app);
-  if ( csv.is_open() ) csv << "\n" << ","; 
+  if ( csv.is_open() ) csv << ","; 
   else {
     assert(false && "csv.open(filepath.c_str()): FALSE");
   }
