@@ -37,6 +37,39 @@ visualization_msgs::Marker marker, line, points;
 // {
 //   ROS_INFO("Callback 1 triggered");
 // }
+void csv_init(const std::string& filepath) {
+  using namespace std;
+  using namespace boost;
+
+  ofstream csv;
+  csv.open(filepath.c_str(),ios::app);
+  if ( csv.is_open() ) csv << ","; 
+  else {
+    assert(false && "csv.open(filepath.c_str()): FALSE");
+  }
+  csv.close();
+}
+
+void csv_write(const geometry_msgs::PoseStamped& pose,
+               const std::string& filepath) {
+  using namespace std;
+  using namespace boost;
+
+  ofstream csv;
+  csv.open(filepath.c_str(),ios::app);
+  if ( csv.is_open() ) {
+    // sPose.header.stamp = ros::Time::now();
+    csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.y); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.z); csv << ",";
+  }
+  else {
+    assert(false && "csv.open(filepath.c_str()): FALSE");
+  }
+  
+  csv.close();
+}
 
 void marker_init() {
  // Set our initial shape type to be a cube
@@ -93,20 +126,24 @@ void transformer_black (const geometry_msgs::PoseStamped& sPose)
   // angular transform on x - z plane
   r = sqrt((z_temp*z_temp) + (x_temp*x_temp));
   th = atan(z_temp/x_temp);
-  th = th + (24*M_PI/180);
+  th = th + (22*M_PI/180);
   x_temp = r * cos(th);
   z_temp = r * sin(th);
 
   x_temp = x_temp;
   y_temp = y_temp;
-  z_temp = z_temp+ 0.5;
+  z_temp = z_temp+ 0.85;
 
   black_pose.pose.position.x = x_temp;
   black_pose.pose.position.y = y_temp;
   black_pose.pose.position.z = z_temp;
 
+  black_pose.header.stamp = ros::Time::now();
   transform_pub.publish(black_pose);
   marker.pose = black_pose.pose;
+
+  std::string csv_filepath = "/home/deanzaka/temp/test.csv";
+  csv_write(black_pose,csv_filepath);
 
   p.x = black_pose.pose.position.x; // backward - forward
   p.y = black_pose.pose.position.y; // right - left
@@ -130,6 +167,9 @@ int main (int argc, char** argv)
 
   // Initialize marker
   marker_init();
+  std::string csv_filepath = "/home/deanzaka/temp/test.csv";
+  csv_init(csv_filepath);
+  
   int count = 0;
 
   // Create a ROS subscriber for raw cock pose
@@ -145,12 +185,6 @@ int main (int argc, char** argv)
 
   while(nh.ok()) {
     if(p.x != last.x) {
-      // if(count > 50) {
-      //   line.points.clear();
-      //   points.points.clear();
-      //   count = 0;
-      // }
-      // count++;
 
       marker_pub.publish(marker);
       marker_pub.publish(line);

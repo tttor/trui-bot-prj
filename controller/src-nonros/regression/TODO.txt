@@ -1,0 +1,9 @@
+1. Collect more training data
+2. Derive other fea, ex: accel, delta time, orientation
+3. Preprocess data: scalling, normalization (see http://scikit-learn.org/stable/modules/preprocessing.html)
+4. Interpolate missing waypoints, interpret 'NaN', rearange waypoints: missing values aren't always at the end
+5. Try another machine learning algorithm ( GradientBoostingRegressor, secondary: GP (GaussianProcess), Lasso, DecisionTreeRegressionwithAdaBoost,)
+6. Make a rosnode as a predictor given a trained regressor
+	regressor = load_trained_regressor(filepath)
+	X = extract_fea()
+	y = regressor.predict (X)

@@ -4,7 +4,7 @@
   <arg name="rviz_white" default="False" />
   <arg name="kinect_black" default="True"/>
   <arg name="kinect_white" default="False"/>
-  <arg name="end_pose" default="True"/>
+  <arg name="end_pose" default="False"/>
   
   <group if="$(arg kinect_white)">
     <include file="$(find rbmt_tracking)/launch/freenect_white.launch"/>

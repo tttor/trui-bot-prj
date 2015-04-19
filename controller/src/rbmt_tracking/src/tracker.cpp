@@ -7,14 +7,34 @@ Tracker::Tracker(ros::NodeHandle nh): nh_(nh) {
   fLength = 360; //in pixels
   rWidth = 240; //in cm
   rLength = 180; //in cm
-  dist = 58; //in cm
   end_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("end_pose", 1);
-  quad = cv::Mat::zeros(360, 480, CV_8UC3);
+  quad = cv::Mat::zeros(fLength, fWidth, CV_8UC3);
   end_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 1);
 
 }
 Tracker::~Tracker() {
   
+}
+
+
+void Tracker::csv_write(const geometry_msgs::PoseStamped& pose,
+               const std::string& filepath) {
+  using namespace std;
+  using namespace boost;
+
+  ofstream csv;
+  csv.open(filepath.c_str(),ios::app);
+  if ( csv.is_open() ) {
+    // sPose.header.stamp = ros::Time::now();
+    csv << ","; csv << lexical_cast<string>(pose.header.stamp.toSec()); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.x); csv << ",";
+    csv << lexical_cast<string>(pose.pose.position.y); csv << ","; csv << "\n";
+  }
+  else {
+    assert(false && "csv.open(filepath.c_str()): FALSE");
+  }
+  
+  csv.close();
 }
 
 void Tracker::marker_init() {
@@ -71,24 +91,15 @@ void Tracker::run(ros::Rate loop_rate) {
   createTrackbar("LowV", "Object", &iLowV, 255);//Value (0 - 255)
   createTrackbar("HighV", "Object", &iHighV, 255);
 //============================== object control =====================================================//
-
-  // tl.x = 213;
-  // tl.y = 229;
-  // tr.x = 435;
-  // tr.y = 231;
-  // bl.x = 74;
-  // bl.y = 404;
-  // br.x = 546;
-  // br.y = 412;
   
-  tl.x = 74;
-  tl.y = 404;
-  tr.x = 213;
-  tr.y = 229;
-  bl.x = 546;
-  bl.y = 412;
-  br.x = 435;
-  br.y = 231;
+  tl.x = 426;
+  tl.y = 308;
+  tr.x = 231;
+  tr.y = 449;
+  bl.x = 280;
+  bl.y = 262;
+  br.x = 75;
+  br.y = 345;
 
   // get mass center
   center.x = (tl.x + tr.x + bl.x + br.x) / 4;
@@ -101,7 +112,7 @@ void Tracker::run(ros::Rate loop_rate) {
   corners.push_back(br);
   corners.push_back(bl);
 
-  waitKey();
+  // waitKey();
   while (ros::ok()) {
     
     cap.read(imgOriginal);
@@ -190,8 +201,8 @@ void Tracker::run(ros::Rate loop_rate) {
     marker.lifetime = ros::Duration();
     sPose.header.stamp = ros::Time::now();
     
-    sPose.pose.position.y = ((double)posX * 0.005) - 0.60; // right to left
-    sPose.pose.position.x = ((double)posY * 0.005) + 0.35; // backward to forward 
+    sPose.pose.position.y = ((fWidth - (double)posX) * 0.005) - 1.2; // right to left
+    sPose.pose.position.x = ((fLength - (double)posY) * 0.005) + 0.35; // backward to forward 
     sPose.pose.position.z = 0.0;
 
     sPose.pose.orientation.x = 0.0;
@@ -199,15 +210,21 @@ void Tracker::run(ros::Rate loop_rate) {
     sPose.pose.orientation.z = 0.0;
     sPose.pose.orientation.w = 1.0;
 
-    end_pose_pub_.publish(sPose);
-    marker.pose = sPose.pose;
-    end_marker_pub_.publish(marker);
+    sPose.header.stamp = ros::Time::now();
+    if(sPose.pose.position.y < 1.2 && sPose.pose.position.y > -1.2 &&
+            sPose.pose.position.x > 0.35 && sPose.pose.position.x < 2.15) {
+        end_pose_pub_.publish(sPose);
+        marker.pose = sPose.pose;
+        end_marker_pub_.publish(marker);
+    }
 
     ros::spinOnce();
     loop_rate.sleep();
     if (waitKey(1) == 27) //wait for 'esc' key press for 1ms. If 'esc' key is pressed, break loop
     {
-      cout << "esc key is pressed" << endl;
+      std::string csv_filepath = "/home/deanzaka/temp/end_pose.csv";
+      csv_write(sPose,csv_filepath);
+      ROS_INFO_STREAM("ESC: Saving end pose to csv");
       break;
     }
   }
