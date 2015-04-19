@@ -13,7 +13,6 @@
     <node pkg="rbmt_tracking" name="marker_transform_white" type="marker_transform_white" output="screen"/>
   </group>
 
-
   <group if="$(arg kinect_black)">
     <include file="$(find rbmt_tracking)/launch/freenect_black.launch"/>
   	<node pkg="rbmt_tracking" name="pcl_input_black" type="pcl_input_black" output="screen"/>
